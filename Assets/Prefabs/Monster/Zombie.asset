@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6330e6d5235e3ee4f97758b91f4d4f2f, type: 3}
+  m_Name: Zombie
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterName: 
+  icon: {fileID: 0}
+  maxHP: 0
+  attack: 0
+  defense: 0
+  speed: 0
+  skills: []
+  animations:
+    idle: {fileID: 0}
+    move: {fileID: 0}
+    attack: {fileID: 0}
+    hit: {fileID: 0}
+    death: {fileID: 0}
+  aiBehavior: {fileID: 0}
+  prefab: {fileID: 0}
