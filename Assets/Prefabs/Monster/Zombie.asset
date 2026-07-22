@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6330e6d5235e3ee4f97758b91f4d4f2f, type: 3}
   m_Name: Zombie
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
-  monsterName: 
+  monsterName: Zombie
   icon: {fileID: 0}
-  maxHP: 0
-  attack: 0
-  defense: 0
-  speed: 0
+  maxHP: 300
+  attack: 30
+  defense: 15
+  speed: 2
   skills: []
   animations:
-    idle: {fileID: 0}
-    move: {fileID: 0}
+    idle: {fileID: 7400000, guid: 360e238471603d74aa71158adad47645, type: 2}
+    move: {fileID: 7400000, guid: 42112c9b566a10e47bd597cb881083f1, type: 2}
     attack: {fileID: 0}
-    hit: {fileID: 0}
-    death: {fileID: 0}
-  aiBehavior: {fileID: 0}
+    hit: {fileID: 7400000, guid: 2513a73672cb1d94186886cb2b47ac07, type: 2}
+    death: {fileID: 7400000, guid: 0fc37ccbcbc0a6346b80f3dd4996ff7f, type: 2}
+  aiBehavior: {fileID: 11400000, guid: 9ac5270ed2192cb42880f3c2101f46cf, type: 2}
   prefab: {fileID: 0}
