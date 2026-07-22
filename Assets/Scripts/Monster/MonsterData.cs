@@ -4,9 +4,9 @@ using UnityEngine;
 public class MonsterAnimationSet
 {
     public AnimationClip idle;
-    public AnimationClip move;
-    public AnimationClip attack;
-    public AnimationClip hit;
+    public Motion move;
+    public Motion attack;
+    public Motion hit;
     public AnimationClip death;
 }
 
