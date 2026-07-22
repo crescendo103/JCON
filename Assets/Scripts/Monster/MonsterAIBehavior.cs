@@ -13,19 +13,66 @@ public abstract class MonsterAIBehavior : ScriptableObject
 [CreateAssetMenu(menuName = "Monster/AI/Aggressive", fileName = "AI_Aggressive")]
 public class AggressiveAI : MonsterAIBehavior
 {
+    public float attackRange = 1.2f;
+
     public override void Execute(MonsterController monster)
     {
-        // 플레이어에게 돌진하는 로직
-        // 예: monster.transform.position = Vector3.MoveTowards(...)
+        if (monster.target == null) return;
+
+        float speed = monster.data != null ? monster.data.speed : 3f;
+        float dist = Vector3.Distance(monster.transform.position, monster.target.position);
+
+        if (dist > attackRange)
+        {
+            // 플레이어에게 돌진
+            monster.transform.position = Vector3.MoveTowards(
+                monster.transform.position,
+                monster.target.position,
+                speed * Time.deltaTime
+            );
+        }
+        else
+        {
+            // 공격 사거리 안 → 공격 (실제 데미지 처리는 필요시 추가)
+            Debug.Log($"{monster.data?.monsterName}이 공격!");
+        }
     }
 }
 
 [CreateAssetMenu(menuName = "Monster/AI/Ranged Kiter", fileName = "AI_RangedKiter")]
 public class RangedKiterAI : MonsterAIBehavior
 {
+    public float preferredDistance = 6f;
+    public float tolerance = 1f;
+
     public override void Execute(MonsterController monster)
     {
-        // 거리를 유지하며 원거리 공격하는 로직
+        if (monster.target == null) return;
+
+        float speed = monster.data != null ? monster.data.speed : 3f;
+        float dist = Vector3.Distance(monster.transform.position, monster.target.position);
+
+        if (dist < preferredDistance - tolerance)
+        {
+            // 너무 가까움 → 뒤로 물러남
+            Vector3 away = monster.transform.position - monster.target.position;
+            Vector3 retreatPos = monster.transform.position + away.normalized;
+            monster.transform.position = Vector3.MoveTowards(
+                monster.transform.position, retreatPos, speed * Time.deltaTime
+            );
+        }
+        else if (dist > preferredDistance + tolerance)
+        {
+            // 너무 멀음 → 다가감
+            monster.transform.position = Vector3.MoveTowards(
+                monster.transform.position, monster.target.position, speed * Time.deltaTime
+            );
+        }
+        else
+        {
+            // 적정 거리 → 원거리 공격
+            Debug.Log($"{monster.data?.monsterName}이 원거리 공격!");
+        }
     }
 }
 
@@ -34,15 +81,58 @@ public class PassiveAI : MonsterAIBehavior
 {
     public override void Execute(MonsterController monster)
     {
-        // 공격받기 전까지 가만히 있는 로직
+        // 아무 행동도 하지 않음 (공격받기 전까지 가만히)
+        // 공격받았을 때 반응시키려면 MonsterController.TakeDamage() 쪽에서
+        // aiBehavior를 다른 AI로 교체하는 방식을 추천
     }
 }
 
 [CreateAssetMenu(menuName = "Monster/AI/Guardian", fileName = "AI_Guardian")]
 public class GuardianAI : MonsterAIBehavior
 {
+    public Vector3 homePosition;   // 지킬 위치 (처음 실행 시 자동 설정)
+    public float guardRadius = 5f;
+    public float attackRange = 1.2f;
+    private bool initialized = false;
+
     public override void Execute(MonsterController monster)
     {
-        // 특정 지역을 벗어나지 않고 지키는 로직
+        // 최초 1회, 스폰된 위치를 지킬 지점으로 저장
+        if (!initialized)
+        {
+            homePosition = monster.transform.position;
+            initialized = true;
+        }
+
+        float speed = monster.data != null ? monster.data.speed : 3f;
+
+        bool targetInZone = monster.target != null &&
+            Vector3.Distance(homePosition, monster.target.position) <= guardRadius;
+
+        if (targetInZone)
+        {
+            float dist = Vector3.Distance(monster.transform.position, monster.target.position);
+            if (dist > attackRange)
+            {
+                monster.transform.position = Vector3.MoveTowards(
+                    monster.transform.position, monster.target.position, speed * Time.deltaTime
+                );
+            }
+            else
+            {
+                Debug.Log($"{monster.data?.monsterName}이 구역을 지키며 공격!");
+            }
+        }
+        else
+        {
+            // 대상이 없거나 구역 밖 → 제자리로 복귀
+            float distFromHome = Vector3.Distance(monster.transform.position, homePosition);
+            if (distFromHome > 0.1f)
+            {
+                monster.transform.position = Vector3.MoveTowards(
+                    monster.transform.position, homePosition, speed * Time.deltaTime
+                );
+            }
+        }
     }
 }
