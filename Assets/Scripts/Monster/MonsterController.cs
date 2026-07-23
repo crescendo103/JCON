@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+// 피격 시 넉백 세기/무적시간을 다르게 적용하기 위한 데미지 종류.
+public enum DamageType { Light, Normal, Heavy }
+
 public class MonsterController : MonoBehaviour
 {
     // Monster Maker가 생성하는 AnimatorController와 이름을 맞춘 파라미터 상수.
@@ -22,6 +25,11 @@ public class MonsterController : MonoBehaviour
 
     // 마지막으로 이동했던 방향(정지 상태에서도 유지) → 공격 Blend Tree(FaceX/FaceY)가 재사용
     private Vector2 lastFacingDir = Vector2.down;
+
+    // 넉백이 진행 중이면 MoveTowards가 위치를 덮어쓰지 않도록 막는다.
+    private bool isKnockedBack;
+    // 무적 시간 동안은 TakeDamage를 무시한다.
+    private bool isInvincible;
 
     // 현재 쿨타임이 진행 중인 스킬들. 코루틴이 채우고/비운다. (몬스터 인스턴스별 상태)
     private readonly HashSet<SkillData> skillsOnCooldown = new HashSet<SkillData>();
@@ -96,6 +104,8 @@ public class MonsterController : MonoBehaviour
     // 사거리 안에 못 들어가는(=계속 이동만 하고 공격 전환이 안 되는) 문제가 생긴다.
     public void MoveTowards(Vector3 destination)
     {
+        if (isKnockedBack) return; // 넉백 코루틴이 위치를 담당하는 동안은 AI 이동을 막는다.
+
         float speed = data != null ? data.speed : 1f;
         Vector3 currentPos = transform.position;
         Vector2 dir = ((Vector2)destination - (Vector2)currentPos).normalized;
@@ -220,6 +230,82 @@ public class MonsterController : MonoBehaviour
     public void TriggerDeath()
     {
         if (animator != null) animator.SetTrigger(ParamDeath);
+    }
+
+    // ── 피격/넉백/무적시간 ──────────────────────────
+    // 외부(플레이어 공격, 스킬 이펙트 등)에서 몬스터에게 데미지를 줄 때 호출한다.
+    // sourcePosition은 공격이 날아온 위치로, 넉백 방향(공격 반대쪽)을 계산하는 데 쓰인다.
+    // 무적 시간 중에는 완전히 무시한다(HP 변화, 넉백, Hit 트리거 모두 없음).
+    public void TakeDamage(int amount, DamageType damageType, Vector2 sourcePosition)
+    {
+        if (isInvincible) return;
+
+        currentHP -= amount;
+        TriggerHit();
+
+        Vector2 knockDir = (Vector2)transform.position - sourcePosition;
+        if (knockDir.sqrMagnitude < 0.0001f) knockDir = -lastFacingDir;
+        knockDir.Normalize();
+
+        KnockbackSetting setting = GetKnockbackSetting(damageType);
+        StartCoroutine(KnockbackRoutine(knockDir, setting));
+        StartCoroutine(InvincibilityRoutine(setting.invincibilityDuration));
+
+        if (currentHP <= 0)
+        {
+            TriggerDeath();
+        }
+    }
+
+    // data(MonsterData)에 등록된 넉백 설정에서 damageType에 맞는 항목을 찾고, 없으면 기본값을 반환한다.
+    private KnockbackSetting GetKnockbackSetting(DamageType damageType)
+    {
+        if (data != null && data.knockbackSettings != null)
+        {
+            foreach (var setting in data.knockbackSettings)
+            {
+                if (setting.type == damageType) return setting;
+            }
+        }
+
+        switch (damageType)
+        {
+            case DamageType.Light:
+                return new KnockbackSetting { type = damageType, force = 1.5f, duration = 0.1f, invincibilityDuration = 0.3f };
+            case DamageType.Heavy:
+                return new KnockbackSetting { type = damageType, force = 6f, duration = 0.25f, invincibilityDuration = 1f };
+            default:
+                return new KnockbackSetting { type = damageType, force = 3f, duration = 0.15f, invincibilityDuration = 0.5f };
+        }
+    }
+
+    // dir 방향으로 setting.force 만큼 setting.duration에 걸쳐 밀려난다. Rigidbody2D가 Kinematic이므로
+    // 물리 힘(AddForce) 대신 MoveTowards와 동일하게 transform을 직접 보간해서 옮긴다.
+    private IEnumerator KnockbackRoutine(Vector2 dir, KnockbackSetting setting)
+    {
+        isKnockedBack = true;
+
+        Vector3 start = transform.position;
+        Vector3 end = start + (Vector3)(dir * setting.force);
+        float elapsed = 0f;
+
+        while (elapsed < setting.duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = setting.duration > 0f ? Mathf.Clamp01(elapsed / setting.duration) : 1f;
+            transform.position = Vector3.Lerp(start, end, t);
+            yield return null;
+        }
+
+        transform.position = end;
+        isKnockedBack = false;
+    }
+
+    private IEnumerator InvincibilityRoutine(float duration)
+    {
+        isInvincible = true;
+        yield return new WaitForSeconds(duration);
+        isInvincible = false;
     }
 
     public float DistanceToTarget()
