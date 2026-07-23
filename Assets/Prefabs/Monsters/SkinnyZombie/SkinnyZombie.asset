@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6330e6d5235e3ee4f97758b91f4d4f2f, type: 3}
+  m_Name: SkinnyZombie
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterName: SkinnyZombie
+  icon: {fileID: 3402349797525597647, guid: 1d9081e8003c5084fb1a6da71798b103, type: 3}
+  maxHP: 150
+  attack: 25
+  defense: 10
+  speed: 4
+  skills: []
+  animations:
+    idle: {fileID: 7400000, guid: 7670d2d554438c94a9452e48e2420969, type: 2}
+    move: {fileID: 5798471493399629213, guid: 21ad90fb7d09f2b40a04fa9958b24d19, type: 2}
+    attack: {fileID: 7400000, guid: 7dfd9ff8412fc354ab14e2fd3c581443, type: 2}
+    hit: {fileID: -3530237509726539390, guid: 21ad90fb7d09f2b40a04fa9958b24d19, type: 2}
+    death: {fileID: 7400000, guid: 8f8b7ea6ac6d4a946902217a8a6ecf0b, type: 2}
+  aiBehavior: {fileID: 11400000, guid: aa2e6b54461ef4048bb9cb993d8422bc, type: 2}
+  prefab: {fileID: 8881614192246752600, guid: 436401524ba39b243a7fb3cccbaa1e93, type: 3}

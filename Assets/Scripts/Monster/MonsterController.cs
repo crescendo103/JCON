@@ -186,8 +186,8 @@ public class MonsterController : MonoBehaviour
         return transform.position + (Vector3)lastFacingDir;
     }
 
-    // skill.effectPrefab을 스폰한다. 연출(애니메이션 등)은 프리팹 자체가 스스로 처리하므로 여기서는
-    // 건드리지 않고, Player 태그를 감지해 데미지를 전달하는 SkillEffectDamage만 동적으로 붙여준다.
+    // skill.effectPrefab을 스폰한다. 연출(애니메이션, 콜라이더 등)은 Effect Prefab Maker로 만든
+    // 프리팹 자체가 이미 갖추고 있으므로, 여기서는 SkillData의 값(피해량/방향)만 그 위에 덮어써 준다.
     // effectDuration이 지나면 파괴하고, sfx는 effectPrefab 유무와 무관하게 스폰 위치에서 재생한다.
     private void SpawnSkillEffect(SkillData skill)
     {
@@ -196,7 +196,12 @@ public class MonsterController : MonoBehaviour
         if (skill.effectPrefab != null)
         {
             GameObject effect = Instantiate(skill.effectPrefab, spawnPos, Quaternion.identity);
-            effect.AddComponent<SkillEffectDamage>().damage = skill.damage;
+
+            var dmg = effect.GetComponent<SkillEffectDamage>();
+            if (dmg == null) dmg = effect.AddComponent<SkillEffectDamage>();
+            dmg.damage = skill.damage;
+
+            effect.GetComponent<SkillEffectFacing>()?.SetFacing(lastFacingDir);
 
             Destroy(effect, skill.effectDuration);
         }

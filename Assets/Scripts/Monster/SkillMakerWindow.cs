@@ -41,6 +41,10 @@ public class SkillMakerWindow : EditorWindow
         cooldown = EditorGUILayout.FloatField("쿨다운(초)", cooldown);
         type = (SkillType)EditorGUILayout.EnumPopup("타입", type);
         effectPrefab = (GameObject)EditorGUILayout.ObjectField("이펙트 프리팹", effectPrefab, typeof(GameObject), false);
+        if (GUILayout.Button("Effect Prefab Maker 열기 (새 이펙트 만들기)"))
+        {
+            EffectMakerWindow.ShowWindow();
+        }
         sfx = (AudioClip)EditorGUILayout.ObjectField("사운드", sfx, typeof(AudioClip), false);
         effectDuration = EditorGUILayout.FloatField("이펙트 유지 시간(초)", effectDuration);
 
