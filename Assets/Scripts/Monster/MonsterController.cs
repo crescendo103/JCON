@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class MonsterController : MonoBehaviour
 {
@@ -19,6 +20,13 @@ public class MonsterController : MonoBehaviour
 
     // 마지막으로 이동했던 방향(정지 상태에서도 유지) → 공격 Blend Tree(FaceX/FaceY)가 재사용
     private Vector2 lastFacingDir = Vector2.down;
+
+    // 임시 테스트용: 숫자 키(1~9)를 눌러 data.skills에 등록된 스킬을 순서대로 사용해본다.
+    private static readonly Key[] SkillTestKeys =
+    {
+        Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5,
+        Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9
+    };
 
     void Awake()
     {
@@ -41,6 +49,8 @@ public class MonsterController : MonoBehaviour
             FindPlayer();
         }
 
+        HandleSkillTestInput();
+
         if (data != null && data.aiBehavior != null)
         {
             data.aiBehavior.Execute(this);
@@ -49,6 +59,19 @@ public class MonsterController : MonoBehaviour
         {
             // AI가 없을 때 테스트용: 그냥 플레이어를 향해 이동
             MoveTowards(target.position);
+        }
+    }
+
+    private void HandleSkillTestInput()
+    {
+        if (Keyboard.current == null || data == null || data.skills == null) return;
+
+        for (int i = 0; i < data.skills.Length && i < SkillTestKeys.Length; i++)
+        {
+            if (Keyboard.current[SkillTestKeys[i]].wasPressedThisFrame)
+            {
+                TriggerSkill(data.skills[i]);
+            }
         }
     }
 
@@ -105,6 +128,50 @@ public class MonsterController : MonoBehaviour
     public void TriggerAttack()
     {
         if (animator != null) animator.SetTrigger(ParamAttack);
+    }
+
+    // SkillData 기반 공격. 몬스터 본체는 기존과 동일하게 공용 Attack 포즈만 재생하고,
+    // 스킬의 effectPrefab을 타겟 위치에 스폰해 그 오브젝트에서 attackAnimation/파티클/사운드를 함께 실행한다.
+    public void TriggerSkill(SkillData skill)
+    {
+        TriggerAttack();
+
+        if (skill == null) return;
+
+        SpawnSkillEffect(skill);
+    }
+
+    // 스킬 이펙트 스폰 위치: 타겟(공격 대상)이 있으면 그 위치, 없으면 몬스터 정면(마지막 이동 방향).
+    private Vector3 GetSkillSpawnPosition()
+    {
+        if (target != null) return target.position;
+        return transform.position + (Vector3)lastFacingDir;
+    }
+
+    // skill.effectPrefab을 스폰하고, attackAnimation이 있으면 그 위에서 재생한 뒤 재생 시간에 맞춰 파괴한다.
+    // sfx는 effectPrefab 유무와 무관하게 스폰 위치에서 재생한다.
+    private void SpawnSkillEffect(SkillData skill)
+    {
+        Vector3 spawnPos = GetSkillSpawnPosition();
+
+        if (skill.effectPrefab != null)
+        {
+            GameObject effect = Instantiate(skill.effectPrefab, spawnPos, Quaternion.identity);
+
+            float duration = 1f;
+            if (skill.attackAnimation != null)
+            {
+                effect.AddComponent<SkillEffectAnimationRunner>().Play(skill.attackAnimation);
+                duration = skill.attackAnimation.length;
+            }
+
+            Destroy(effect, duration);
+        }
+
+        if (skill.sfx != null)
+        {
+            AudioSource.PlayClipAtPoint(skill.sfx, spawnPos);
+        }
     }
 
     public void TriggerHit()

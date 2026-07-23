@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Animations;
+using ReorderableList = UnityEditorInternal.ReorderableList;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -55,6 +56,30 @@ public class MonsterMakerWindow : EditorWindow
 
     private AnimationClip deathClip;
     private string saveFolder = "Assets/Monsters";
+
+    // 애니메이션마다 기존 클립을 연결해서 쓸지, 메이커 안에서 스프라이트로 직접 만들지 각각 선택.
+    private enum AnimSourceMode { ExistingClips, GenerateFromSprites }
+    private AnimSourceMode idleSourceMode = AnimSourceMode.ExistingClips;
+    private AnimSourceMode moveSourceMode = AnimSourceMode.ExistingClips;
+    private AnimSourceMode attackSourceMode = AnimSourceMode.ExistingClips;
+    private AnimSourceMode hitSourceMode = AnimSourceMode.ExistingClips;
+    private AnimSourceMode deathSourceMode = AnimSourceMode.ExistingClips;
+
+    private SpriteClipSource idleSource = new SpriteClipSource();
+    private SpriteClipSource moveSource = new SpriteClipSource();
+    private SpriteClipSource[] moveDirSources = NewSourceArray();
+    private SpriteClipSource attackSource = new SpriteClipSource();
+    private SpriteClipSource[] attackDirSources = NewSourceArray();
+    private SpriteClipSource hitSource = new SpriteClipSource();
+    private SpriteClipSource[] hitDirSources = NewSourceArray();
+    private SpriteClipSource deathSource = new SpriteClipSource();
+
+    private static SpriteClipSource[] NewSourceArray()
+    {
+        var arr = new SpriteClipSource[8];
+        for (int i = 0; i < arr.Length; i++) arr[i] = new SpriteClipSource();
+        return arr;
+    }
 
     private Vector2 scrollPos;
 
@@ -138,6 +163,7 @@ public class MonsterMakerWindow : EditorWindow
             if (GUILayout.Button("x", GUILayout.Width(24)))
             {
                 selectedSkills.RemoveAt(i);
+                EditorGUILayout.EndHorizontal();
                 break;
             }
             EditorGUILayout.EndHorizontal();
@@ -157,22 +183,34 @@ public class MonsterMakerWindow : EditorWindow
         }
         else
         {
-            EditorGUILayout.HelpBox("프로젝트에 SkillData 애셋이 없습니다. 먼저 만들어주세요.", MessageType.Info);
+            EditorGUILayout.HelpBox("프로젝트에 SkillData 애셋이 없습니다. Skill Maker로 먼저 만들어주세요.", MessageType.Info);
         }
         EditorGUILayout.EndHorizontal();
+
+        if (GUILayout.Button("Skill Maker 열기 (새 스킬 만들기)"))
+        {
+            SkillMakerWindow.ShowWindow();
+        }
+        if (GUILayout.Button("스킬 목록 새로고침"))
+        {
+            RefreshSkillList();
+        }
 
         // ── 애니메이션 ──────────────────────────
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("애니메이션", EditorStyles.boldLabel);
-
-        idleClip = (AnimationClip)EditorGUILayout.ObjectField("Idle", idleClip, typeof(AnimationClip), false);
+        EditorGUILayout.HelpBox(
+            "애니메이션마다 기존 클립을 연결할지, 스프라이트로 새로 만들지 각각 선택할 수 있습니다.",
+            MessageType.None);
         EditorGUILayout.Space(4);
 
+        DrawAnimClipSlot("Idle", ref idleSourceMode, ref idleClip, idleSource);
+
         // Move: 단일 클립 또는 8방향 Blend Tree(이동 방향 블렌드) 중 선택
-        DrawMotionField("Move", ref moveMode, ref moveClip, moveDirClips);
+        DrawMotionSlot("Move", ref moveSourceMode, ref moveMode, ref moveClip, moveDirClips, moveSource, moveDirSources);
 
         // Attack: 단일 클립 또는 8방향 Blend Tree(이동 방향을 재사용하는 공격 방향 블렌드) 중 선택
-        DrawMotionField("Attack", ref attackMode, ref attackClip, attackDirClips);
+        DrawMotionSlot("Attack", ref attackSourceMode, ref attackMode, ref attackClip, attackDirClips, attackSource, attackDirSources);
         if (attackMode == MotionMode.BlendTree8Way)
         {
             EditorGUILayout.HelpBox(
@@ -182,7 +220,7 @@ public class MonsterMakerWindow : EditorWindow
         }
 
         // Hit: 단일 클립 또는 8방향 Blend Tree(이동 방향을 재사용하는 피격 방향 블렌드) 중 선택
-        DrawMotionField("Hit", ref hitMode, ref hitClip, hitDirClips);
+        DrawMotionSlot("Hit", ref hitSourceMode, ref hitMode, ref hitClip, hitDirClips, hitSource, hitDirSources);
         if (hitMode == MotionMode.BlendTree8Way)
         {
             EditorGUILayout.HelpBox(
@@ -191,10 +229,10 @@ public class MonsterMakerWindow : EditorWindow
                 MessageType.Info);
         }
 
-        deathClip = (AnimationClip)EditorGUILayout.ObjectField("Death", deathClip, typeof(AnimationClip), false);
+        DrawAnimClipSlot("Death", ref deathSourceMode, ref deathClip, deathSource);
 
         EditorGUILayout.Space(4);
-        if (GUILayout.Button("Assets/Animations/[몬스터이름] 폴더에서 자동으로 채우기 (단일 클립만)"))
+        if (GUILayout.Button("Assets/Animations/[몬스터이름] 폴더에서 자동으로 채우기 (기존 클립 연결 모드 + 단일 클립만)"))
         {
             if (string.IsNullOrEmpty(monsterName))
             {
@@ -206,8 +244,8 @@ public class MonsterMakerWindow : EditorWindow
             }
         }
         EditorGUILayout.HelpBox(
-            "자동 채우기는 AnimationClip만 찾습니다. Move/Attack이 8방향 Blend Tree 모드라면 " +
-            "각 방향 클립을 직접 드래그하여 연결해주세요.",
+            "자동 채우기는 '기존 클립 연결' 모드로 설정된 항목의 AnimationClip만 찾습니다. " +
+            "Move/Attack이 8방향 Blend Tree 모드라면 각 방향 클립을 직접 드래그하여 연결해주세요.",
             MessageType.None);
 
         // ── 저장 경로 ──────────────────────────
@@ -232,31 +270,152 @@ public class MonsterMakerWindow : EditorWindow
         EditorGUILayout.EndScrollView();
     }
 
-    // Move/Attack 공용 UI: 단일 클립 ObjectField 하나 또는 8방향 ObjectField 8개를 그린다.
-    private void DrawMotionField(string title, ref MotionMode mode, ref AnimationClip singleClip, AnimationClip[] dirClips)
+    // Idle/Death 공용 UI: 이 슬롯만의 소스 모드(기존 클립 연결 / 스프라이트로 생성) 토글 + 그에 맞는 필드.
+    private void DrawAnimClipSlot(string title, ref AnimSourceMode sourceMode, ref AnimationClip clip, SpriteClipSource source)
     {
         EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
-        mode = (MotionMode)EditorGUILayout.EnumPopup("모션 타입", mode);
+        sourceMode = (AnimSourceMode)GUILayout.Toolbar((int)sourceMode, new[] { "기존 클립 연결", "스프라이트로 생성" });
 
-        if (mode == MotionMode.SingleClip)
+        if (sourceMode == AnimSourceMode.ExistingClips)
         {
-            singleClip = (AnimationClip)EditorGUILayout.ObjectField("클립", singleClip, typeof(AnimationClip), false);
+            clip = (AnimationClip)EditorGUILayout.ObjectField("클립", clip, typeof(AnimationClip), false);
         }
         else
         {
-            EditorGUILayout.HelpBox(
-                "최대 8방향까지 클립을 등록할 수 있습니다. 비워둔 방향은 Blend Tree에서 제외됩니다.",
-                MessageType.Info);
+            source.DrawGUI(title);
+        }
 
-            EditorGUI.indentLevel++;
-            for (int i = 0; i < dirClips.Length; i++)
+        EditorGUILayout.Space(4);
+    }
+
+    // Move/Attack/Hit 공용 UI: 모션 타입(단일 클립/8방향)과 소스 모드(기존 클립/스프라이트)를 각각 선택.
+    // 단일 클립이면 필드/스프라이트 목록 하나, 8방향이면 방향별 필드(또는 방향별 폴드아웃 스프라이트 목록).
+    private void DrawMotionSlot(string title, ref AnimSourceMode sourceMode, ref MotionMode motionMode,
+        ref AnimationClip singleClip, AnimationClip[] dirClips, SpriteClipSource singleSource, SpriteClipSource[] dirSources)
+    {
+        EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+        motionMode = (MotionMode)EditorGUILayout.EnumPopup("모션 타입", motionMode);
+        sourceMode = (AnimSourceMode)GUILayout.Toolbar((int)sourceMode, new[] { "기존 클립 연결", "스프라이트로 생성" });
+
+        if (motionMode == MotionMode.SingleClip)
+        {
+            if (sourceMode == AnimSourceMode.ExistingClips)
             {
-                dirClips[i] = (AnimationClip)EditorGUILayout.ObjectField(DirLabels[i], dirClips[i], typeof(AnimationClip), false);
+                singleClip = (AnimationClip)EditorGUILayout.ObjectField("클립", singleClip, typeof(AnimationClip), false);
             }
+            else
+            {
+                singleSource.DrawGUI(title);
+            }
+        }
+        else
+        {
+            EditorGUI.indentLevel++;
+
+            if (sourceMode == AnimSourceMode.ExistingClips)
+            {
+                EditorGUILayout.HelpBox(
+                    "최대 8방향까지 클립을 등록할 수 있습니다. 비워둔 방향은 Blend Tree에서 제외됩니다.",
+                    MessageType.Info);
+
+                for (int i = 0; i < dirClips.Length; i++)
+                {
+                    dirClips[i] = (AnimationClip)EditorGUILayout.ObjectField(DirLabels[i], dirClips[i], typeof(AnimationClip), false);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < dirSources.Length; i++)
+                {
+                    dirSources[i].foldout = EditorGUILayout.Foldout(dirSources[i].foldout, DirLabels[i], true);
+                    if (dirSources[i].foldout)
+                    {
+                        dirSources[i].DrawGUI(DirLabels[i]);
+                    }
+                }
+            }
+
             EditorGUI.indentLevel--;
         }
 
         EditorGUILayout.Space(4);
+    }
+
+    // 방향별 폴더 접미사 (DirLabels/DirVectors와 같은 순서: N, NE, E, SE, S, SW, W, NW)
+    private static readonly string[] DirFileSuffixes =
+    {
+        "up", "up_right", "right", "down_right", "down", "down_left", "left", "up_left"
+    };
+
+    // 스프라이트로 생성 모드로 설정된 슬롯만 실제 .anim 클립을 만들어 idleClip/moveClip 등 기존
+    // 필드에 채워 넣는다. 기존 클립 연결 모드인 슬롯은 손대지 않는다(이미 필드에 든 값을 그대로 사용).
+    // 이렇게 해두면 이후 BuildAnimatorController 등 기존 파이프라인은 손댈 필요가 없다.
+    private void GenerateClipsFromSprites()
+    {
+        bool anySpriteSlot =
+            idleSourceMode == AnimSourceMode.GenerateFromSprites ||
+            deathSourceMode == AnimSourceMode.GenerateFromSprites ||
+            moveSourceMode == AnimSourceMode.GenerateFromSprites ||
+            attackSourceMode == AnimSourceMode.GenerateFromSprites ||
+            hitSourceMode == AnimSourceMode.GenerateFromSprites;
+        if (!anySpriteSlot) return;
+
+        string animFolder = $"Assets/Animations/{monsterName}";
+        if (!AssetDatabase.IsValidFolder(animFolder))
+        {
+            Directory.CreateDirectory(animFolder);
+            AssetDatabase.Refresh();
+        }
+
+        if (idleSourceMode == AnimSourceMode.GenerateFromSprites)
+            idleClip = BuildClipOrKeep(idleSource, $"{animFolder}/idle.anim", idleClip);
+
+        if (deathSourceMode == AnimSourceMode.GenerateFromSprites)
+            deathClip = BuildClipOrKeep(deathSource, $"{animFolder}/death.anim", deathClip);
+
+        if (moveSourceMode == AnimSourceMode.GenerateFromSprites)
+        {
+            if (moveMode == MotionMode.SingleClip)
+                moveClip = BuildClipOrKeep(moveSource, $"{animFolder}/move.anim", moveClip);
+            else
+                BuildDirClips(moveDirSources, moveDirClips, animFolder, "move");
+        }
+
+        if (attackSourceMode == AnimSourceMode.GenerateFromSprites)
+        {
+            if (attackMode == MotionMode.SingleClip)
+                attackClip = BuildClipOrKeep(attackSource, $"{animFolder}/attack.anim", attackClip);
+            else
+                BuildDirClips(attackDirSources, attackDirClips, animFolder, "attack");
+        }
+
+        if (hitSourceMode == AnimSourceMode.GenerateFromSprites)
+        {
+            if (hitMode == MotionMode.SingleClip)
+                hitClip = BuildClipOrKeep(hitSource, $"{animFolder}/hit.anim", hitClip);
+            else
+                BuildDirClips(hitDirSources, hitDirClips, animFolder, "hit");
+        }
+
+        AssetDatabase.SaveAssets();
+    }
+
+    // source에 스프라이트가 하나도 없으면 기존 값(fallback)을 그대로 둔다.
+    private AnimationClip BuildClipOrKeep(SpriteClipSource source, string path, AnimationClip fallback)
+    {
+        if (!source.HasAnySprite()) return fallback;
+        var clip = SpriteClipBuilder.BuildClip(source.sprites, source.fps, source.loop, path);
+        return clip != null ? clip : fallback;
+    }
+
+    private void BuildDirClips(SpriteClipSource[] sources, AnimationClip[] targetClips, string animFolder, string prefix)
+    {
+        for (int i = 0; i < sources.Length; i++)
+        {
+            if (!sources[i].HasAnySprite()) continue;
+            string path = $"{animFolder}/{prefix}_{DirFileSuffixes[i]}.anim";
+            targetClips[i] = SpriteClipBuilder.BuildClip(sources[i].sprites, sources[i].fps, sources[i].loop, path);
+        }
     }
 
     private void CreateMonster()
@@ -282,6 +441,10 @@ public class MonsterMakerWindow : EditorWindow
             var chosenType = aiTypes[selectedAIIndex];
             data.aiBehavior = GetOrCreateAIAsset(chosenType);
         }
+
+        // 스프라이트로 생성 모드로 설정된 애니메이션 슬롯이 있으면, 아래 BuildAnimatorController가
+        // 쓰는 idleClip/moveClip 등 기존 필드를 여기서 실제 생성한 클립으로 채워 넣는다.
+        GenerateClipsFromSprites();
 
         // AnimatorController(+ 필요 시 8방향 Blend Tree)를 먼저 생성하고,
         // 실제 각 상태에 쓰인 Motion(단일 클립 또는 만들어진 BlendTree)을 그대로 데이터에 기록한다.
@@ -386,16 +549,19 @@ public class MonsterMakerWindow : EditorWindow
             deathState.motion = deathClip;
         }
 
-        // Idle <-> Move : 이동 속도 기준
+        // Idle <-> Move : 이동 속도 기준. hasExitTime을 켜서 재생 중인 애니메이션이
+        // 끝나기 전(90% 지점 전)에는 다른 상태로 끊기지 않도록 한다.
         if (idleState != null && moveState != null)
         {
             var toMove = idleState.AddTransition(moveState);
-            toMove.hasExitTime = false;
+            toMove.hasExitTime = true;
+            toMove.exitTime = 0.9f;
             toMove.duration = 0.1f;
             toMove.AddCondition(AnimatorConditionMode.Greater, 0.1f, MonsterController.ParamSpeed);
 
             var toIdle = moveState.AddTransition(idleState);
-            toIdle.hasExitTime = false;
+            toIdle.hasExitTime = true;
+            toIdle.exitTime = 0.9f;
             toIdle.duration = 0.1f;
             toIdle.AddCondition(AnimatorConditionMode.Less, 0.1f, MonsterController.ParamSpeed);
         }
@@ -446,12 +612,15 @@ public class MonsterMakerWindow : EditorWindow
         return rootSM.states.FirstOrDefault(s => s.state.name == stateName).state;
     }
 
+    // hasExitTime을 켜서, 현재 재생 중인 상태(Attack/Hit 등)가 끝나기 전(90% 지점 전)에는
+    // 다른 트리거가 와도 끊고 끼어들지 못하게 한다 (예: Attack 재생 중 Hit이 들어와도 대기).
     private void AddAnyStateTransition(AnimatorStateMachine sm, AnimatorState target, string triggerParam)
     {
         if (target == null) return;
 
         var t = sm.AddAnyStateTransition(target);
-        t.hasExitTime = false;
+        t.hasExitTime = true;
+        t.exitTime = 0.9f;
         t.duration = 0.05f;
         t.AddCondition(AnimatorConditionMode.If, 0f, triggerParam);
     }
@@ -509,16 +678,19 @@ public class MonsterMakerWindow : EditorWindow
             return;
         }
 
-        idleClip = FindClipInFolder(folder, "idle");
-        deathClip = FindClipInFolder(folder, "death");
+        if (idleSourceMode == AnimSourceMode.ExistingClips)
+            idleClip = FindClipInFolder(folder, "idle");
 
-        if (moveMode == MotionMode.SingleClip)
+        if (deathSourceMode == AnimSourceMode.ExistingClips)
+            deathClip = FindClipInFolder(folder, "death");
+
+        if (moveSourceMode == AnimSourceMode.ExistingClips && moveMode == MotionMode.SingleClip)
             moveClip = FindClipInFolder(folder, "move");
 
-        if (attackMode == MotionMode.SingleClip)
+        if (attackSourceMode == AnimSourceMode.ExistingClips && attackMode == MotionMode.SingleClip)
             attackClip = FindClipInFolder(folder, "attack");
 
-        if (hitMode == MotionMode.SingleClip)
+        if (hitSourceMode == AnimSourceMode.ExistingClips && hitMode == MotionMode.SingleClip)
             hitClip = FindClipInFolder(folder, "hit");
     }
 
@@ -534,5 +706,88 @@ public class MonsterMakerWindow : EditorWindow
             }
         }
         return null;
+    }
+}
+
+// 애니메이션 슬롯 하나(Idle/Move/Attack/Hit/Death 또는 스킬)에 대한 스프라이트 목록 + fps + loop 편집 UI.
+// 씬에 임시 오브젝트를 만들고 Animation 창에서 프레임을 찍는 대신, 여기서 스프라이트를 직접 넣고
+// 순서를 드래그로 바꾸거나 fps/반복 여부를 조정한 뒤 SpriteClipBuilder로 .anim을 생성한다.
+[System.Serializable]
+public class SpriteClipSource
+{
+    public List<Sprite> sprites = new List<Sprite>();
+    public float fps = 10f;
+    public bool loop = true;
+    public bool foldout; // 8방향 모드에서 방향별 목록을 접었다 펼 때 사용
+
+    [System.NonSerialized] private ReorderableList list;
+
+    public bool HasAnySprite() => sprites != null && sprites.Any(s => s != null);
+
+    public void DrawGUI(string title)
+    {
+        DrawDropArea();
+
+        if (list == null)
+        {
+            list = new ReorderableList(sprites, typeof(Sprite), true, false, true, true);
+            list.drawElementCallback = (rect, index, isActive, isFocused) =>
+            {
+                rect.y += 1;
+                rect.height = EditorGUIUtility.singleLineHeight;
+                sprites[index] = (Sprite)EditorGUI.ObjectField(rect, sprites[index], typeof(Sprite), false);
+            };
+            list.onAddCallback = l => l.list.Add(null);
+        }
+
+        list.DoLayoutList();
+
+        EditorGUILayout.BeginHorizontal();
+
+        // 라벨("fps")이 기본 labelWidth(보통 150px 안팎)를 그대로 먹어버리면
+        // GUILayout.Width로 준 전체 폭 안에서 정작 숫자 입력칸이 남지 않아 거의 안 보이게 눌린다.
+        // 이 필드에서만 라벨 폭을 좁게 고정해서 입력칸 공간을 확보한다.
+        float prevLabelWidth = EditorGUIUtility.labelWidth;
+        EditorGUIUtility.labelWidth = 28f;
+        fps = Mathf.Max(0.1f, EditorGUILayout.FloatField("fps", fps, GUILayout.Width(90)));
+        EditorGUIUtility.labelWidth = prevLabelWidth;
+
+        loop = EditorGUILayout.ToggleLeft("반복 재생(loop)", loop, GUILayout.Width(120));
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space(4);
+    }
+
+    // 스프라이트(여러 개 동시 선택)나 멀티 스프라이트 텍스처를 한 번에 드래그&드롭해 목록에 추가.
+    private void DrawDropArea()
+    {
+        Rect dropRect = GUILayoutUtility.GetRect(0, 28, GUILayout.ExpandWidth(true));
+        GUI.Box(dropRect, "스프라이트를 여기로 드래그하면 추가됩니다 (여러 개 동시 가능)", EditorStyles.helpBox);
+
+        Event evt = Event.current;
+        if (!dropRect.Contains(evt.mousePosition)) return;
+        if (evt.type != EventType.DragUpdated && evt.type != EventType.DragPerform) return;
+
+        DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+
+        if (evt.type == EventType.DragPerform)
+        {
+            DragAndDrop.AcceptDrag();
+            foreach (var obj in DragAndDrop.objectReferences)
+            {
+                if (obj is Sprite sprite)
+                {
+                    sprites.Add(sprite);
+                }
+                else if (obj is Texture2D texture)
+                {
+                    // 스프라이트시트(멀티 스프라이트)를 드래그하면 안의 모든 서브 스프라이트를 추가.
+                    string path = AssetDatabase.GetAssetPath(texture);
+                    var subSprites = AssetDatabase.LoadAllAssetRepresentationsAtPath(path).OfType<Sprite>();
+                    sprites.AddRange(subSprites);
+                }
+            }
+        }
+
+        evt.Use();
     }
 }
