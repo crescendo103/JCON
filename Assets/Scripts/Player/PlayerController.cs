@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// 테스트용 플레이어. WASD 이동 + 마우스 좌클릭 방향으로 히트스캔 사격해 몬스터에게 데미지를 준다.
+// 테스트용 플레이어. WASD 이동 + 마우스 좌클릭 방향으로 총알(bulletPrefab)을 발사해 몬스터에게 데미지를 준다.
 // 실제 게임용 플레이어 시스템이 아니라 MonsterController.TakeDamage 연동을 확인하기 위한 임시 스크립트.
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(CircleCollider2D))]
@@ -10,8 +10,10 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 5f;
 
     [Header("사격")]
+    public GameObject bulletPrefab;
     public int shootDamage = 10;
     public DamageType shootDamageType = DamageType.Normal;
+    public float bulletSpeed = 15f;
     public float shootRange = 20f;
 
     private Camera cam;
@@ -50,29 +52,35 @@ public class PlayerController : MonoBehaviour
     {
         if (Mouse.current == null || !Mouse.current.leftButton.wasPressedThisFrame) return;
         if (cam == null) cam = Camera.main;
-        if (cam == null) return;
+        if (cam == null || bulletPrefab == null) return;
 
         Vector2 origin = transform.position;
-        Vector2 mouseWorld = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        Vector2 dir = (mouseWorld - origin).normalized;
+        Vector2 dir = GetAimDirection(origin);
 
-        Debug.DrawLine(origin, origin + dir * shootRange, Color.red, 0.3f);
+        GameObject bulletObj = Instantiate(bulletPrefab, origin, Quaternion.identity);
+        Projectile bullet = bulletObj.GetComponent<Projectile>();
+        if (bullet == null) bullet = bulletObj.AddComponent<Projectile>();
 
-        // Raycast는 자기 자신의 콜라이더 안에서 시작하므로 자기 자신을 맞고 끝나버린다.
-        // RaycastAll로 받아서 자기 자신을 건너뛰고 가장 가까운 대상을 찾는다.
-        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, dir, shootRange);
-        RaycastHit2D? closest = null;
-        foreach (var h in hits)
+        bullet.speed = bulletSpeed;
+        bullet.maxDistance = shootRange;
+        bullet.Launch(dir, shootDamage, shootDamageType);
+    }
+
+    // 마우스 스크린 좌표를 게임 오브젝트와 같은 Z 평면(z = origin.z) 위의 월드 좌표로 변환한다.
+    // 카메라가 Orthographic이 아니라 Perspective인 경우 ScreenToWorldPoint(screenPos)에 z값을 주지 않으면
+    // (기본값 0) 결과가 항상 카메라 위치 근처로 계산되어 마우스 위치와 무관한 방향이 나온다.
+    // 이를 피하기 위해 카메라 종류와 무관하게 동작하는 평면 레이캐스트 방식을 사용한다.
+    private Vector2 GetAimDirection(Vector2 origin)
+    {
+        Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
+        Plane plane = new Plane(Vector3.forward, new Vector3(0f, 0f, transform.position.z));
+
+        if (plane.Raycast(ray, out float enter))
         {
-            if (h.collider.gameObject == gameObject) continue;
-            if (closest == null || h.distance < closest.Value.distance) closest = h;
+            Vector3 mouseWorld = ray.GetPoint(enter);
+            return ((Vector2)mouseWorld - origin).normalized;
         }
-        if (closest == null) return;
 
-        var monster = closest.Value.collider.GetComponent<MonsterController>();
-        if (monster != null)
-        {
-            monster.TakeDamage(shootDamage, shootDamageType, origin);
-        }
+        return Vector2.right;
     }
 }

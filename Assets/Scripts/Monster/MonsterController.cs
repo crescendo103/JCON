@@ -30,6 +30,8 @@ public class MonsterController : MonoBehaviour
     private bool isKnockedBack;
     // 무적 시간 동안은 TakeDamage를 무시한다.
     private bool isInvincible;
+    // 사망 처리가 시작되면 AI/피격을 더 이상 진행하지 않는다.
+    private bool isDead;
 
     // 현재 쿨타임이 진행 중인 스킬들. 코루틴이 채우고/비운다. (몬스터 인스턴스별 상태)
     private readonly HashSet<SkillData> skillsOnCooldown = new HashSet<SkillData>();
@@ -56,6 +58,8 @@ public class MonsterController : MonoBehaviour
 
     void Update()
     {
+        if (isDead) return; // 사망 후에는 AI/이동/입력 처리를 모두 멈춘다.
+
         // 타겟이 없으면 다시 찾아보기 (씬 시작 순서 문제로 못 찾았을 경우 대비)
         if (target == null)
         {
@@ -233,9 +237,16 @@ public class MonsterController : MonoBehaviour
     // 무적 시간 중에는 완전히 무시한다(HP 변화, 넉백, Hit 트리거 모두 없음).
     public void TakeDamage(int amount, DamageType damageType, Vector2 sourcePosition)
     {
-        if (isInvincible) return;
+        if (isInvincible || isDead) return;
 
         currentHP -= amount;
+
+        if (currentHP <= 0)
+        {
+            Die();
+            return; // 넉백 없이 제자리에서 사망 처리
+        }
+
         TriggerHit();
 
         Vector2 knockDir = (Vector2)transform.position - sourcePosition;
@@ -245,11 +256,24 @@ public class MonsterController : MonoBehaviour
         KnockbackSetting setting = GetKnockbackSetting(damageType);
         StartCoroutine(KnockbackRoutine(knockDir, setting));
         StartCoroutine(InvincibilityRoutine(setting.invincibilityDuration));
+    }
 
-        if (currentHP <= 0)
-        {
-            TriggerDeath();
-        }
+    // 사망 처리: 진행 중이던 넉백/무적 코루틴을 멈춰 제자리에 고정한 뒤 Death 애니메이션을 재생하고,
+    // 그 클립 길이만큼 기다렸다가 오브젝트를 파괴한다.
+    private void Die()
+    {
+        isDead = true;
+
+        StopAllCoroutines();
+        isKnockedBack = false;
+        Stop();
+        TriggerDeath();
+
+        float deathDuration = (data != null && data.animations != null && data.animations.death != null)
+            ? data.animations.death.length
+            : 1f;
+
+        Destroy(gameObject, deathDuration);
     }
 
     // data(MonsterData)에 등록된 넉백 설정에서 damageType에 맞는 항목을 찾고, 없으면 기본값을 반환한다.
