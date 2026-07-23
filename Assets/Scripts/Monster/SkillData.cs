@@ -9,11 +9,10 @@ public class SkillData : ScriptableObject
     [TextArea] public string description;
     public int damage;
     public float cooldown;
-    public GameObject effectPrefab;   // 파티클 이펙트 연결
+    public GameObject effectPrefab;   // 파티클 이펙트 연결. 연출(애니메이션 등)은 이 프리팹 안에서 스스로 처리한다.
     public AudioClip sfx;
     public SkillType type;
 
-    // 스킬 사용 시 effectPrefab을 스폰하고 그 오브젝트에서 재생할 애니메이션.
-    // (몬스터 본체 애니메이션이 아니라, 맵에 생성되는 스킬 이펙트 오브젝트에서 재생된다)
-    public AnimationClip attackAnimation;
+    // effectPrefab을 스폰한 뒤 이 시간(초)이 지나면 파괴한다.
+    public float effectDuration = 1f;
 }

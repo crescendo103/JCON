@@ -13,17 +13,9 @@ public class MonsterMakerWindow : EditorWindow
     // Move/Attack 모션을 단일 클립으로 만들지, 8방향 Blend Tree로 만들지 선택
     private enum MotionMode { SingleClip, BlendTree8Way }
 
-    // 8방향 순서 및 2D Freeform Directional 좌표 (N, NE, E, SE, S, SW, W, NW)
-    private static readonly string[] DirLabels =
-    {
-        "N (위)", "NE (오른쪽 위)", "E (오른쪽)", "SE (오른쪽 아래)",
-        "S (아래)", "SW (왼쪽 아래)", "W (왼쪽)", "NW (왼쪽 위)"
-    };
-    private static readonly Vector2[] DirVectors =
-    {
-        new Vector2(0f, 1f), new Vector2(0.7071f, 0.7071f), new Vector2(1f, 0f), new Vector2(0.7071f, -0.7071f),
-        new Vector2(0f, -1f), new Vector2(-0.7071f, -0.7071f), new Vector2(-1f, 0f), new Vector2(-0.7071f, 0.7071f)
-    };
+    // 8방향 라벨/좌표/파일 접미사는 MonsterDirections(공통 상수)를 사용한다.
+    private static readonly string[] DirLabels = MonsterDirections.Labels;
+    private static readonly Vector2[] DirVectors = MonsterDirections.Vectors;
 
     private string monsterName = "";
     private int maxHP = 150;
@@ -342,10 +334,7 @@ public class MonsterMakerWindow : EditorWindow
     }
 
     // 방향별 폴더 접미사 (DirLabels/DirVectors와 같은 순서: N, NE, E, SE, S, SW, W, NW)
-    private static readonly string[] DirFileSuffixes =
-    {
-        "up", "up_right", "right", "down_right", "down", "down_left", "left", "up_left"
-    };
+    private static readonly string[] DirFileSuffixes = MonsterDirections.FileSuffixes;
 
     // 스프라이트로 생성 모드로 설정된 슬롯만 실제 .anim 클립을 만들어 idleClip/moveClip 등 기존
     // 필드에 채워 넣는다. 기존 클립 연결 모드인 슬롯은 손대지 않는다(이미 필드에 든 값을 그대로 사용).

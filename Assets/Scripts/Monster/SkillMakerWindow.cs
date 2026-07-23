@@ -3,11 +3,10 @@ using UnityEditor;
 using System.IO;
 
 // Monster Maker와 별개로 SkillData 애셋만 독립적으로 만드는 창.
-// 공격 애니메이션도 기존 클립을 연결하거나, 스프라이트를 직접 넣어 바로 만들 수 있다.
+// 연출(애니메이션 등)은 effectPrefab 안에서 스스로 처리하므로, 여기서는 effectPrefab을 유지할
+// 시간(effectDuration)만 지정한다.
 public class SkillMakerWindow : EditorWindow
 {
-    private enum AnimSourceMode { ExistingClip, GenerateFromSprites }
-
     private string skillName = "";
     private string description = "";
     private int damage = 10;
@@ -15,10 +14,7 @@ public class SkillMakerWindow : EditorWindow
     private SkillType type = SkillType.Melee;
     private GameObject effectPrefab;
     private AudioClip sfx;
-
-    private AnimSourceMode animSourceMode = AnimSourceMode.ExistingClip;
-    private AnimationClip attackAnimationClip;
-    private SpriteClipSource attackAnimSource = new SpriteClipSource();
+    private float effectDuration = 1f;
 
     private string saveFolder = "Assets/Monsters/Skills";
     private Vector2 scrollPos;
@@ -46,21 +42,7 @@ public class SkillMakerWindow : EditorWindow
         type = (SkillType)EditorGUILayout.EnumPopup("타입", type);
         effectPrefab = (GameObject)EditorGUILayout.ObjectField("이펙트 프리팹", effectPrefab, typeof(GameObject), false);
         sfx = (AudioClip)EditorGUILayout.ObjectField("사운드", sfx, typeof(AudioClip), false);
-
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("공격 애니메이션", EditorStyles.boldLabel);
-        animSourceMode = (AnimSourceMode)GUILayout.Toolbar((int)animSourceMode,
-            new[] { "기존 클립 연결", "스프라이트로 생성" });
-
-        if (animSourceMode == AnimSourceMode.ExistingClip)
-        {
-            attackAnimationClip = (AnimationClip)EditorGUILayout.ObjectField(
-                "클립", attackAnimationClip, typeof(AnimationClip), false);
-        }
-        else
-        {
-            attackAnimSource.DrawGUI("공격 애니메이션");
-        }
+        effectDuration = EditorGUILayout.FloatField("이펙트 유지 시간(초)", effectDuration);
 
         EditorGUILayout.Space();
         saveFolder = EditorGUILayout.TextField("저장 경로", saveFolder);
@@ -99,24 +81,7 @@ public class SkillMakerWindow : EditorWindow
         skill.type = type;
         skill.effectPrefab = effectPrefab;
         skill.sfx = sfx;
-
-        if (animSourceMode == AnimSourceMode.ExistingClip)
-        {
-            skill.attackAnimation = attackAnimationClip;
-        }
-        else if (attackAnimSource.HasAnySprite())
-        {
-            string animFolder = "Assets/Animations/Skills";
-            if (!AssetDatabase.IsValidFolder(animFolder))
-            {
-                Directory.CreateDirectory(animFolder);
-                AssetDatabase.Refresh();
-            }
-
-            string clipPath = $"{animFolder}/{skillName}.anim";
-            skill.attackAnimation = SpriteClipBuilder.BuildClip(
-                attackAnimSource.sprites, attackAnimSource.fps, attackAnimSource.loop, clipPath);
-        }
+        skill.effectDuration = effectDuration;
 
         string path = AssetDatabase.GenerateUniqueAssetPath($"{saveFolder}/{skillName}.asset");
         AssetDatabase.CreateAsset(skill, path);
@@ -136,7 +101,6 @@ public class SkillMakerWindow : EditorWindow
         type = SkillType.Melee;
         effectPrefab = null;
         sfx = null;
-        attackAnimationClip = null;
-        attackAnimSource = new SpriteClipSource();
+        effectDuration = 1f;
     }
 }
