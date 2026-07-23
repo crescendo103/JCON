@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,6 +22,9 @@ public class MonsterController : MonoBehaviour
 
     // 마지막으로 이동했던 방향(정지 상태에서도 유지) → 공격 Blend Tree(FaceX/FaceY)가 재사용
     private Vector2 lastFacingDir = Vector2.down;
+
+    // 현재 쿨타임이 진행 중인 스킬들. 코루틴이 채우고/비운다. (몬스터 인스턴스별 상태)
+    private readonly HashSet<SkillData> skillsOnCooldown = new HashSet<SkillData>();
 
     // 임시 테스트용: 숫자 키(1~9)를 눌러 data.skills에 등록된 스킬을 순서대로 사용해본다.
     private static readonly Key[] SkillTestKeys =
@@ -132,13 +137,46 @@ public class MonsterController : MonoBehaviour
 
     // SkillData 기반 공격. 몬스터 본체는 기존과 동일하게 공용 Attack 포즈만 재생하고,
     // 스킬의 effectPrefab을 타겟 위치에 스폰해 그 오브젝트에서 attackAnimation/파티클/사운드를 함께 실행한다.
+    // 쿨타임(skill.cooldown) 동안은 재사용할 수 없다.
     public void TriggerSkill(SkillData skill)
     {
-        TriggerAttack();
-
         if (skill == null) return;
 
-        SpawnSkillEffect(skill);
+        // 쿨타임 진행 중이면 스킬을 내보내지 않는다.
+        if (skillsOnCooldown.Contains(skill)) return;
+
+        TriggerAttack();          // 본체 Attack 포즈
+        SpawnSkillEffect(skill);  // 스킬 프리팹 + 애니메이션 + sfx
+
+        if (skill.cooldown > 0f)
+            StartCoroutine(SkillCooldownRoutine(skill));
+    }
+
+    // skill.cooldown 초 동안 해당 스킬을 사용 불가 상태로 둔다.
+    private IEnumerator SkillCooldownRoutine(SkillData skill)
+    {
+        skillsOnCooldown.Add(skill);
+        yield return new WaitForSeconds(skill.cooldown);
+        skillsOnCooldown.Remove(skill);
+    }
+
+    public bool IsSkillReady(SkillData skill)
+    {
+        return skill != null && !skillsOnCooldown.Contains(skill);
+    }
+
+    // 사거리 안일 때 AI가 호출. 주 스킬(skills[0])이 준비됐으면 스킬을,
+    // 쿨타임 중/스킬 없음이면 일반 공격을 낸다.
+    public void AttackTarget()
+    {
+        SkillData skill = (data != null && data.skills != null && data.skills.Length > 0)
+            ? data.skills[0]
+            : null;
+
+        if (IsSkillReady(skill))
+            TriggerSkill(skill);   // Attack + 스킬 애니메이션 동시, 쿨타임 시작
+        else
+            TriggerAttack();       // 쿨타임 중 → 일반 공격만
     }
 
     // 스킬 이펙트 스폰 위치: 타겟(공격 대상)이 있으면 그 위치, 없으면 몬스터 정면(마지막 이동 방향).

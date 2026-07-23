@@ -16,7 +16,7 @@ MonoBehaviour:
   description: "\uD1A0\uB97C \uD558\uC5EC \uACF5\uACA9\uD569\uB2C8\uB2E4.\n"
   damage: 10
   cooldown: 1
-  effectPrefab: {fileID: 0}
+  effectPrefab: {fileID: 8086613463537987909, guid: 0f2ee0a21d1b680449accbbdcc12f55a, type: 3}
   sfx: {fileID: 0}
-  type: 1
+  type: 0
   attackAnimation: {fileID: 7400000, guid: 979e93e636db8f64793ef2b064b8974e, type: 2}

@@ -28,9 +28,9 @@ public class AggressiveAI : MonsterAIBehavior
         }
         else
         {
-            // 공격 사거리 안 → 공격 (실제 데미지 처리는 필요시 추가)
+            // 공격 사거리 안 → 공격 (쿨타임이 지났으면 스킬, 아니면 일반 공격)
             monster.Stop();
-            monster.TriggerAttack();
+            monster.AttackTarget();
             Debug.Log($"{monster.data?.monsterName}이 공격!");
         }
     }
@@ -62,9 +62,9 @@ public class RangedKiterAI : MonsterAIBehavior
         }
         else
         {
-            // 적정 거리 → 원거리 공격
+            // 적정 거리 → 원거리 공격 (쿨타임이 지났으면 스킬, 아니면 일반 공격)
             monster.Stop();
-            monster.TriggerAttack();
+            monster.AttackTarget();
             Debug.Log($"{monster.data?.monsterName}이 원거리 공격!");
         }
     }
@@ -111,7 +111,7 @@ public class GuardianAI : MonsterAIBehavior
             else
             {
                 monster.Stop();
-                monster.TriggerAttack();
+                monster.AttackTarget();
                 Debug.Log($"{monster.data?.monsterName}이 구역을 지키며 공격!");
             }
         }
