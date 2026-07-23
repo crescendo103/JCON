@@ -192,5 +192,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc5622b65e343f04ea475228d6a0d2ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterController
-  data: {fileID: 0}
+  data: {fileID: 11400000, guid: 470ad091187991b40bd46eac7bab06f1, type: 2}
   target: {fileID: 0}

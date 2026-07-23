@@ -25,5 +25,18 @@ MonoBehaviour:
     attack: {fileID: 7400000, guid: 7dfd9ff8412fc354ab14e2fd3c581443, type: 2}
     hit: {fileID: -3530237509726539390, guid: 21ad90fb7d09f2b40a04fa9958b24d19, type: 2}
     death: {fileID: 7400000, guid: 8f8b7ea6ac6d4a946902217a8a6ecf0b, type: 2}
-  aiBehavior: {fileID: 11400000, guid: aa2e6b54461ef4048bb9cb993d8422bc, type: 2}
+  aiBehavior: {fileID: 11400000, guid: c6f8b3eedd2bece498ba3688badc7be8, type: 2}
+  knockbackSettings:
+  - type: 0
+    force: 1.5
+    duration: 0.1
+    invincibilityDuration: 0.3
+  - type: 1
+    force: 3
+    duration: 0.15
+    invincibilityDuration: 0.5
+  - type: 2
+    force: 6
+    duration: 0.25
+    invincibilityDuration: 1
   prefab: {fileID: 8881614192246752600, guid: 436401524ba39b243a7fb3cccbaa1e93, type: 3}

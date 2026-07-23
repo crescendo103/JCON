@@ -68,11 +68,6 @@ public class MonsterController : MonoBehaviour
         {
             data.aiBehavior.Execute(this);
         }
-        else if (target != null)
-        {
-            // AI가 없을 때 테스트용: 그냥 플레이어를 향해 이동
-            MoveTowards(target.position);
-        }
     }
 
     private void HandleSkillTestInput()
