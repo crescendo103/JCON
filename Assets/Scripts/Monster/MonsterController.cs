@@ -19,8 +19,8 @@ public class MonsterController : MonoBehaviour
     public const string ParamDeath = "Death";
 
     public MonsterData data;
-    private int currentHP;
     private Animator animator;
+    private MonsterHealth health;
     public Transform target;
 
     // 마지막으로 이동했던 방향(정지 상태에서도 유지) → 공격 Blend Tree(FaceX/FaceY)가 재사용
@@ -50,8 +50,12 @@ public class MonsterController : MonoBehaviour
 
     void Start()
     {
+        // 기존 프리팹을 수정하지 않아도 자동으로 체력 관리 컴포넌트가 붙도록 없으면 추가한다.
+        health = GetComponent<MonsterHealth>();
+        if (health == null) health = gameObject.AddComponent<MonsterHealth>();
+
         if (data != null)
-            currentHP = data.maxHP;
+            health.Initialize(data.maxHP);
 
         FindPlayer();
     }
@@ -239,9 +243,9 @@ public class MonsterController : MonoBehaviour
     {
         if (isInvincible || isDead) return;
 
-        currentHP -= amount;
+        bool died = health.ApplyDamage(amount);
 
-        if (currentHP <= 0)
+        if (died)
         {
             Die();
             return; // 넉백 없이 제자리에서 사망 처리

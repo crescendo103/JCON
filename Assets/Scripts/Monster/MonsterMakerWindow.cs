@@ -646,6 +646,11 @@ public class MonsterMakerWindow : EditorWindow
         var monsterController = go.AddComponent<MonsterController>();
         monsterController.data = data;
 
+        // 체력 관리(MonsterHealth)와 체력바(MonsterHealthBar)도 MonsterController와 마찬가지로
+        // 생성 시점에 미리 연결해, 디자이너가 프리팹에서 바로 체력바 스프라이트 등을 커스터마이징할 수 있게 한다.
+        go.AddComponent<MonsterHealth>();
+        go.AddComponent<MonsterHealthBar>();
+
         string prefabPath = AssetDatabase.GenerateUniqueAssetPath($"{folder}/{monsterName}.prefab");
         var prefab = PrefabUtility.SaveAsPrefabAsset(go, prefabPath);
         Object.DestroyImmediate(go);

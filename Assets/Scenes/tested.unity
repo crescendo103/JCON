@@ -439,6 +439,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: BigZombie
       objectReference: {fileID: 0}
+    - target: {fileID: 8066124298697632048, guid: 22106f0e2c0bc304d90a33c2a8b8f776, type: 3}
+      propertyPath: fillSprite
+      value: 
+      objectReference: {fileID: -1594743092220051378, guid: ab7ab1e53eb47db4abc2966c4c89f5ef, type: 3}
+    - target: {fileID: 8066124298697632048, guid: 22106f0e2c0bc304d90a33c2a8b8f776, type: 3}
+      propertyPath: backgroundSprite
+      value: 
+      objectReference: {fileID: -8722288136447555485, guid: 9b06c71fef307fb4cb821017748d2823, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1036,6 +1044,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8065024195167561837, guid: 07c51fe7b5fbe3f4eaddfbfaf1a204ba, type: 3}
+      propertyPath: fillSprite
+      value: 
+      objectReference: {fileID: -1594743092220051378, guid: ab7ab1e53eb47db4abc2966c4c89f5ef, type: 3}
+    - target: {fileID: 8065024195167561837, guid: 07c51fe7b5fbe3f4eaddfbfaf1a204ba, type: 3}
+      propertyPath: backgroundSprite
+      value: 
+      objectReference: {fileID: -8722288136447555485, guid: 9b06c71fef307fb4cb821017748d2823, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1359,6 +1375,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6782591074041668026, guid: 286c6e48738d33b41931f096155544b7, type: 3}
+      propertyPath: fillSprite
+      value: 
+      objectReference: {fileID: -1594743092220051378, guid: ab7ab1e53eb47db4abc2966c4c89f5ef, type: 3}
+    - target: {fileID: 6782591074041668026, guid: 286c6e48738d33b41931f096155544b7, type: 3}
+      propertyPath: visibleDuration
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6782591074041668026, guid: 286c6e48738d33b41931f096155544b7, type: 3}
+      propertyPath: backgroundSprite
+      value: 
+      objectReference: {fileID: -8722288136447555485, guid: 9b06c71fef307fb4cb821017748d2823, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1551,6 +1579,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8843961701174896183, guid: 436401524ba39b243a7fb3cccbaa1e93, type: 3}
+      propertyPath: fillSprite
+      value: 
+      objectReference: {fileID: -1594743092220051378, guid: ab7ab1e53eb47db4abc2966c4c89f5ef, type: 3}
+    - target: {fileID: 8843961701174896183, guid: 436401524ba39b243a7fb3cccbaa1e93, type: 3}
+      propertyPath: backgroundSprite
+      value: 
+      objectReference: {fileID: -8722288136447555485, guid: 9b06c71fef307fb4cb821017748d2823, type: 3}
     - target: {fileID: 8881614192246752600, guid: 436401524ba39b243a7fb3cccbaa1e93, type: 3}
       propertyPath: m_Name
       value: SkinnyZombie

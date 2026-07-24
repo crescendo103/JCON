@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 205382103481710326}
   - component: {fileID: 6732900836301530710}
   - component: {fileID: 1222633416061187635}
+  - component: {fileID: 6445797435414026422}
+  - component: {fileID: 8066124298697632048}
   m_Layer: 0
   m_Name: BigZombie
   m_TagString: Untagged
@@ -194,3 +196,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterController
   data: {fileID: 11400000, guid: c9c6b0ad913d90f448c0cae201193b5e, type: 2}
   target: {fileID: 0}
+--- !u!114 &6445797435414026422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6308393458126479155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dd276c9355c6e442b6be1022c9b068d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterHealth
+--- !u!114 &8066124298697632048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6308393458126479155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38ccb0b266d089d459881ade30174cab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterHealthBar
+  fillSprite: {fileID: 0}
+  backgroundSprite: {fileID: 0}
+  offsetY: 0.16
+  width: 0.3
+  height: 0.05
+  backgroundColor: {r: 0.15, g: 0.15, b: 0.15, a: 0.85}
+  fillColor: {r: 0.2, g: 0.85, b: 0.2, a: 1}
+  lowHealthColor: {r: 0.9, g: 0.15, b: 0.15, a: 1}
+  lowHealthThreshold: 0.3
+  visibleDuration: 1.5
+  sortingOrderOffset: 10
