@@ -18,14 +18,15 @@ MonoBehaviour:
   attack: 25
   defense: 10
   speed: 4
-  skills: []
+  skills:
+  - {fileID: 11400000, guid: d005a2d6048ade042899f174d7cf0b6d, type: 2}
   animations:
     idle: {fileID: 7400000, guid: e5215b5923986d747bfc00fe467804aa, type: 2}
     move: {fileID: 2447054174949893744, guid: 876d7250bc819f94aa2c89b2a4634f01, type: 2}
     attack: {fileID: 7400000, guid: e45a6e980212de74d92a572b06168edd, type: 2}
     hit: {fileID: -3212384380715118865, guid: 876d7250bc819f94aa2c89b2a4634f01, type: 2}
     death: {fileID: 7400000, guid: 33e2aca392c56bb44ba93e49f3879a2c, type: 2}
-  aiBehavior: {fileID: 11400000, guid: c6f8b3eedd2bece498ba3688badc7be8, type: 2}
+  aiBehavior: {fileID: 11400000, guid: fecdc8f9b51d48844bf3b216a94a99d5, type: 2}
   knockbackSettings:
   - type: 0
     force: 1.5

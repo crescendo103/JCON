@@ -13,6 +13,11 @@ public class SkillData : ScriptableObject
     public AudioClip sfx;
     public SkillType type;
 
-    // effectPrefab을 스폰한 뒤 이 시간(초)이 지나면 파괴한다.
+    // effectPrefab 스폰 시 곱해줄 크기 배율(1 = 원본 크기).
+    public float effectScale = 1f;
+
+    // effectPrefab 스폰 후 파괴까지의 시간(초). effectPrefab에 Animator가 있으면 그 클립 길이(한 사이클)로
+    // 런타임에 자동 대체되므로(MonsterController.SpawnSkillEffect 참고), 이 값은 애니메이션이 없는
+    // 이펙트(예: 사운드/파티클만 있는 경우)에 쓰이는 폴백 값이다.
     public float effectDuration = 1f;
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,8 +19,11 @@ public class MonsterController : MonoBehaviour
     public const string ParamHit = "Hit";
     public const string ParamDeath = "Death";
 
+    // Animator의 Attack 상태 이름(전 몬스터 컨트롤러가 공통으로 이렇게 만듦). 공격 중 이동을 막는 데 쓴다.
+    private const string AttackStateName = "Attack";
+
     public MonsterData data;
-    private Animator animator;
+    protected Animator animator;
     private MonsterHealth health;
     public Transform target;
 
@@ -28,8 +32,9 @@ public class MonsterController : MonoBehaviour
 
     // 넉백이 진행 중이면 MoveTowards가 위치를 덮어쓰지 않도록 막는다.
     private bool isKnockedBack;
-    // 무적 시간 동안은 TakeDamage를 무시한다.
-    private bool isInvincible;
+    // 무적 시간 동안은 TakeDamage를 무시한다. BossController가 Hit 애니메이션 종료 시점을
+    // 여기 맞추기 위해 오버라이드하므로 protected.
+    protected bool isInvincible;
     // 사망 처리가 시작되면 AI/피격을 더 이상 진행하지 않는다.
     private bool isDead;
 
@@ -108,6 +113,8 @@ public class MonsterController : MonoBehaviour
     public void MoveTowards(Vector3 destination)
     {
         if (isKnockedBack) return; // 넉백 코루틴이 위치를 담당하는 동안은 AI 이동을 막는다.
+        if (isInvincible) return; // 피격 후 무적 시간 동안은(넉백이 끝난 뒤에도) 제자리에 멈춰 있는다.
+        if (IsPlayingState(AttackStateName)) return; // 공격 애니메이션 재생 중에는 제자리에서 공격만 한다.
 
         float speed = data != null ? data.speed : 1f;
         Vector3 currentPos = transform.position;
@@ -131,6 +138,12 @@ public class MonsterController : MonoBehaviour
         }
     }
 
+    // animator가 현재 stateName 상태를 재생 중인지 확인한다(레이어 0 기준).
+    private bool IsPlayingState(string stateName)
+    {
+        return animator != null && animator.GetCurrentAnimatorStateInfo(0).IsName(stateName);
+    }
+
     public void Stop()
     {
         if (animator != null)
@@ -151,15 +164,17 @@ public class MonsterController : MonoBehaviour
     // SkillData 기반 공격. 몬스터 본체는 기존과 동일하게 공용 Attack 포즈만 재생하고,
     // 스킬의 effectPrefab을 타겟 위치에 스폰해 그 오브젝트에서 attackAnimation/파티클/사운드를 함께 실행한다.
     // 쿨타임(skill.cooldown) 동안은 재사용할 수 없다.
-    public void TriggerSkill(SkillData skill)
+    // aimOverride를 넘기면 GetSkillTravelTarget() 대신 그 지점을 향해 이펙트가 날아간다
+    // (예: RangedKiterAI가 계산한 예측 조준 지점).
+    public void TriggerSkill(SkillData skill, Vector3? aimOverride = null)
     {
         if (skill == null) return;
 
         // 쿨타임 진행 중이면 스킬을 내보내지 않는다.
         if (skillsOnCooldown.Contains(skill)) return;
 
-        TriggerAttack();          // 본체 Attack 포즈
-        SpawnSkillEffect(skill);  // 스킬 프리팹 + 애니메이션 + sfx
+        TriggerAttack();                      // 본체 Attack 포즈
+        SpawnSkillEffect(skill, aimOverride);  // 스킬 프리팹 + 애니메이션 + sfx
 
         if (skill.cooldown > 0f)
             StartCoroutine(SkillCooldownRoutine(skill));
@@ -180,43 +195,68 @@ public class MonsterController : MonoBehaviour
 
     // 사거리 안일 때 AI가 호출. 주 스킬(skills[0])이 준비됐으면 스킬을,
     // 쿨타임 중/스킬 없음이면 일반 공격을 낸다.
-    public void AttackTarget()
+    // aimOverride를 넘기면 스킬 이펙트가 타겟의 현재 위치 대신 그 지점을 향해 날아간다.
+    public void AttackTarget(Vector3? aimOverride = null)
     {
         SkillData skill = (data != null && data.skills != null && data.skills.Length > 0)
             ? data.skills[0]
             : null;
 
         if (IsSkillReady(skill))
-            TriggerSkill(skill);   // Attack + 스킬 애니메이션 동시, 쿨타임 시작
+            TriggerSkill(skill, aimOverride);   // Attack + 스킬 애니메이션 동시, 쿨타임 시작
         else
-            TriggerAttack();       // 쿨타임 중 → 일반 공격만
+            TriggerAttack();                     // 쿨타임 중 → 일반 공격만
     }
 
-    // 스킬 이펙트 스폰 위치: 타겟(공격 대상)이 있으면 그 위치, 없으면 몬스터 정면(마지막 이동 방향).
+    // 몬스터 정면(마지막 이동/공격 방향)으로 스킬 이펙트를 띄우는 거리.
+    private const float SkillSpawnDistance = 1f;
+
+    // 타겟이 없을 때 이펙트가 날아갈 거리(총알처럼 정면으로 날아감).
+    private const float SkillNoTargetTravelDistance = 4f;
+
+    // 스킬 이펙트 스폰 위치: 항상 몬스터 정면(마지막 이동 방향) 기준으로 스폰한다.
+    // 여기서 타겟 쪽으로(총알처럼) 날아가는 건 SpawnSkillEffect의 이동 코루틴이 처리한다.
     private Vector3 GetSkillSpawnPosition()
     {
+        return transform.position + (Vector3)lastFacingDir * SkillSpawnDistance;
+    }
+
+    // 이펙트가 날아가서 도착할 지점: 타겟이 있으면 타겟 위치, 없으면 스폰 위치에서 정면으로 더 나아간 지점.
+    private Vector3 GetSkillTravelTarget(Vector3 spawnPos)
+    {
         if (target != null) return target.position;
-        return transform.position + (Vector3)lastFacingDir;
+        return spawnPos + (Vector3)lastFacingDir * SkillNoTargetTravelDistance;
     }
 
     // skill.effectPrefab을 스폰한다. 연출(애니메이션, 콜라이더 등)은 Effect Prefab Maker로 만든
-    // 프리팹 자체가 이미 갖추고 있으므로, 여기서는 SkillData의 값(피해량/방향)만 그 위에 덮어써 준다.
-    // effectDuration이 지나면 파괴하고, sfx는 effectPrefab 유무와 무관하게 스폰 위치에서 재생한다.
-    private void SpawnSkillEffect(SkillData skill)
+    // 프리팹 자체가 이미 갖추고 있으므로, 여기서는 SkillData의 값(피해량/방향/크기)만 그 위에 덮어써 준다.
+    // 몬스터 정면에서 스폰해 타겟 방향(또는 aimOverride 지점)으로 총알처럼 날아가며, 애니메이션 클립
+    // 길이(한 사이클) 동안 이동을 마치고 파괴된다. 애니메이션이 없으면 skill.effectDuration을 폴백
+    // 이동 시간으로 사용한다. sfx는 effectPrefab 유무와 무관하게 스폰 위치에서 재생한다.
+    // 이동/파괴는 SkillEffectMover(이펙트 자신)에게 맡긴다 — 여기(몬스터)의 코루틴으로 두면 몬스터가
+    // 도중에 죽어 Die()의 StopAllCoroutines()에 걸릴 때 이펙트가 고아로 남기 때문.
+    private void SpawnSkillEffect(SkillData skill, Vector3? aimOverride = null)
     {
         Vector3 spawnPos = GetSkillSpawnPosition();
+        Vector3 travelTarget = aimOverride ?? GetSkillTravelTarget(spawnPos);
 
         if (skill.effectPrefab != null)
         {
             GameObject effect = Instantiate(skill.effectPrefab, spawnPos, Quaternion.identity);
+            effect.transform.localScale *= skill.effectScale;
 
             var dmg = effect.GetComponent<SkillEffectDamage>();
             if (dmg == null) dmg = effect.AddComponent<SkillEffectDamage>();
             dmg.damage = skill.damage;
 
-            effect.GetComponent<SkillEffectFacing>()?.SetFacing(lastFacingDir);
+            Vector2 travelDir = ((Vector2)travelTarget - (Vector2)spawnPos).sqrMagnitude > 0.0001f
+                ? ((Vector2)travelTarget - (Vector2)spawnPos).normalized
+                : lastFacingDir;
+            effect.GetComponent<SkillEffectFacing>()?.SetFacing(travelDir);
 
-            Destroy(effect, skill.effectDuration);
+            float duration = GetEffectCycleDuration(effect, skill.effectDuration);
+            var mover = effect.AddComponent<SkillEffectMover>();
+            mover.Launch(spawnPos, travelTarget, duration);
         }
 
         if (skill.sfx != null)
@@ -225,9 +265,24 @@ public class MonsterController : MonoBehaviour
         }
     }
 
-    public void TriggerHit()
+    // effect의 Animator에 연결된 클립들 중 가장 긴 길이(한 사이클)를 이펙트 유지 시간으로 사용한다.
+    // Animator나 클립이 없는 이펙트(사운드/파티클만 있는 경우 등)는 fallbackDuration을 그대로 쓴다.
+    private float GetEffectCycleDuration(GameObject effect, float fallbackDuration)
     {
-        if (animator != null) animator.SetTrigger(ParamHit);
+        var animator = effect.GetComponent<Animator>();
+        var clips = animator != null ? animator.runtimeAnimatorController?.animationClips : null;
+
+        if (clips == null || clips.Length == 0) return fallbackDuration;
+
+        return clips.Max(clip => clip.length);
+    }
+
+    // Hit는 Trigger가 아니라 Bool로 다룬다 — 무적 시간이 끝나는 순간(InvincibilityRoutine)까지
+    // Hit 애니메이션을 붙잡아 두었다가 그때 바로 다음 상태로 넘어가게 해서, 클립 자체 길이와
+    // 무관하게 Hit 재생 시간이 항상 무적 시간과 정확히 일치하게 한다.
+    public virtual void TriggerHit()
+    {
+        if (animator != null) animator.SetBool(ParamHit, true);
     }
 
     public void TriggerDeath()
@@ -324,11 +379,12 @@ public class MonsterController : MonoBehaviour
         isKnockedBack = false;
     }
 
-    private IEnumerator InvincibilityRoutine(float duration)
+    protected virtual IEnumerator InvincibilityRoutine(float duration)
     {
         isInvincible = true;
         yield return new WaitForSeconds(duration);
         isInvincible = false;
+        if (animator != null) animator.SetBool(ParamHit, false);
     }
 
     public float DistanceToTarget()

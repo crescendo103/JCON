@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a41db023903e15e449475ed4838f5de4, type: 3}
-  m_Name: SkillBigZombie
+  m_Name: vomit
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
-  skillName: Vomit
-  description: "\uC804\uBC29\uC5D0 \uD1A0\uB97C\uD55C\uB2E4"
+  skillName: vomit
+  description: "\uD1A0\uB97C \uD558\uC5EC \uACF5\uACA9"
   damage: 10
   cooldown: 1
-  effectPrefab: {fileID: 8086613463537987909, guid: 0f2ee0a21d1b680449accbbdcc12f55a, type: 3}
-  sfx: {fileID: 0}
+  effectPrefab: {fileID: 2970186286906633597, guid: 259af3b489baaac478fe9e9181430835, type: 3}
+  sfx: {fileID: 8300000, guid: 214f8384e84b131478adf2891317d997, type: 3}
   type: 0
-  attackAnimation: {fileID: 7400000, guid: fb02ee69d91f9af4b9d06db94b1cf846, type: 2}
+  effectScale: 8
+  effectDuration: 1

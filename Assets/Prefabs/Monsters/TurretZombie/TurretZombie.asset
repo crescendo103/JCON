@@ -18,7 +18,8 @@ MonoBehaviour:
   attack: 25
   defense: 10
   speed: 4
-  skills: []
+  skills:
+  - {fileID: 11400000, guid: d005a2d6048ade042899f174d7cf0b6d, type: 2}
   animations:
     idle: {fileID: 7400000, guid: dfc6dff15fa1c034cb7b87eb1d01c3ac, type: 2}
     move: {fileID: 8982445863552508376, guid: f6589849d29e3d04bba2b268cbc9f359, type: 2}

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6330e6d5235e3ee4f97758b91f4d4f2f, type: 3}
+  m_Name: KigZombie
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterName: KigZombie
+  icon: {fileID: -4209461767521648114, guid: f2c85adf3ff7bb54cbda45c4861c582c, type: 3}
+  maxHP: 500
+  attack: 30
+  defense: 10
+  speed: 4
+  skills: []
+  animations:
+    idle: {fileID: 7400000, guid: 184fb86ff99dee54e9a1e8b55262b7f9, type: 2}
+    move: {fileID: -6021949191349028844, guid: 059c390a614120043996bf7d4406a1c9, type: 2}
+    attack: {fileID: 636607719390614105, guid: 059c390a614120043996bf7d4406a1c9, type: 2}
+    hit: {fileID: 7400000, guid: ff43a8be0ee2cad448359a42bed6a4d2, type: 2}
+    death: {fileID: 7400000, guid: c8c3ee1a7e913ad418ef93143e595a14, type: 2}
+  aiBehavior: {fileID: 11400000, guid: fecdc8f9b51d48844bf3b216a94a99d5, type: 2}
+  knockbackSettings:
+  - type: 0
+    force: 0
+    duration: 0.1
+    invincibilityDuration: 0.3
+  - type: 1
+    force: 0
+    duration: 0.15
+    invincibilityDuration: 0.5
+  - type: 2
+    force: 0
+    duration: 0.25
+    invincibilityDuration: 1
+  prefab: {fileID: 6593791537682058226, guid: c51fb909fd4061d43b5f511841804d98, type: 3}

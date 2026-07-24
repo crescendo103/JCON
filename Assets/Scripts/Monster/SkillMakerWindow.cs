@@ -3,8 +3,9 @@ using UnityEditor;
 using System.IO;
 
 // Monster Maker와 별개로 SkillData 애셋만 독립적으로 만드는 창.
-// 연출(애니메이션 등)은 effectPrefab 안에서 스스로 처리하므로, 여기서는 effectPrefab을 유지할
-// 시간(effectDuration)만 지정한다.
+// 연출(애니메이션 등)은 effectPrefab 안에서 스스로 처리하며, 유지 시간도 effectPrefab의 애니메이션
+// 클립 길이(한 사이클)로 런타임에 자동 결정되므로(MonsterController.SpawnSkillEffect 참고) 여기서는
+// 별도로 지속시간을 입력받지 않는다.
 public class SkillMakerWindow : EditorWindow
 {
     private string skillName = "";
@@ -14,7 +15,7 @@ public class SkillMakerWindow : EditorWindow
     private SkillType type = SkillType.Melee;
     private GameObject effectPrefab;
     private AudioClip sfx;
-    private float effectDuration = 1f;
+    private float effectScale = 1f;
 
     private string saveFolder = "Assets/Monsters/Skills";
     private Vector2 scrollPos;
@@ -46,7 +47,7 @@ public class SkillMakerWindow : EditorWindow
             EffectMakerWindow.ShowWindow();
         }
         sfx = (AudioClip)EditorGUILayout.ObjectField("사운드", sfx, typeof(AudioClip), false);
-        effectDuration = EditorGUILayout.FloatField("이펙트 유지 시간(초)", effectDuration);
+        effectScale = EditorGUILayout.FloatField("이펙트 크기 배율", effectScale);
 
         EditorGUILayout.Space();
         saveFolder = EditorGUILayout.TextField("저장 경로", saveFolder);
@@ -85,7 +86,7 @@ public class SkillMakerWindow : EditorWindow
         skill.type = type;
         skill.effectPrefab = effectPrefab;
         skill.sfx = sfx;
-        skill.effectDuration = effectDuration;
+        skill.effectScale = effectScale;
 
         string path = AssetDatabase.GenerateUniqueAssetPath($"{saveFolder}/{skillName}.asset");
         AssetDatabase.CreateAsset(skill, path);
@@ -105,6 +106,6 @@ public class SkillMakerWindow : EditorWindow
         type = SkillType.Melee;
         effectPrefab = null;
         sfx = null;
-        effectDuration = 1f;
+        effectScale = 1f;
     }
 }

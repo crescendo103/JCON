@@ -16,6 +16,9 @@ public class PlayerController : MonoBehaviour
     public float bulletSpeed = 15f;
     public float shootRange = 20f;
 
+    // 원거리 몬스터 AI(RangedKiterAI)가 조준을 예측(리드샷)할 때 참고하는 현재 이동 속도.
+    public Vector2 CurrentVelocity { get; private set; }
+
     private Camera cam;
 
     void Awake()
@@ -37,15 +40,18 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMove()
     {
-        if (Keyboard.current == null) return;
-
         Vector2 input = Vector2.zero;
-        if (Keyboard.current[Key.W].isPressed) input.y += 1f;
-        if (Keyboard.current[Key.S].isPressed) input.y -= 1f;
-        if (Keyboard.current[Key.A].isPressed) input.x -= 1f;
-        if (Keyboard.current[Key.D].isPressed) input.x += 1f;
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current[Key.W].isPressed) input.y += 1f;
+            if (Keyboard.current[Key.S].isPressed) input.y -= 1f;
+            if (Keyboard.current[Key.A].isPressed) input.x -= 1f;
+            if (Keyboard.current[Key.D].isPressed) input.x += 1f;
+        }
 
-        transform.position += (Vector3)(input.normalized * moveSpeed * Time.deltaTime);
+        Vector2 velocity = input.normalized * moveSpeed;
+        transform.position += (Vector3)(velocity * Time.deltaTime);
+        CurrentVelocity = velocity;
     }
 
     private void HandleShoot()
