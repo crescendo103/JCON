@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -220,14 +220,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38ccb0b266d089d459881ade30174cab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterHealthBar
-  fillSprite: {fileID: 0}
-  backgroundSprite: {fileID: 0}
+  fillSprite: {fileID: -1594743092220051378, guid: ab7ab1e53eb47db4abc2966c4c89f5ef, type: 3}
+  backgroundSprite: {fileID: -8722288136447555485, guid: 9b06c71fef307fb4cb821017748d2823, type: 3}
   offsetY: 0.16
-  width: 0.3
-  height: 0.05
-  backgroundColor: {r: 0.15, g: 0.15, b: 0.15, a: 0.85}
-  fillColor: {r: 0.2, g: 0.85, b: 0.2, a: 1}
-  lowHealthColor: {r: 0.9, g: 0.15, b: 0.15, a: 1}
-  lowHealthThreshold: 0.3
+  width: 2
+  height: 0.5
   visibleDuration: 1.5
   sortingOrderOffset: 10

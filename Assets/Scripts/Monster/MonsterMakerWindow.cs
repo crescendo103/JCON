@@ -10,7 +10,7 @@ using System.IO;
 
 public class MonsterMakerWindow : EditorWindow
 {
-    // Move/Attack 모션을 단일 클립으로 만들지, 8방향 Blend Tree로 만들지 선택
+    // Idle/Move/Attack/Hit/Death 모션을 단일 클립으로 만들지, 8방향 Blend Tree로 만들지 선택
     private enum MotionMode { SingleClip, BlendTree8Way }
 
     // 8방향 라벨/좌표/파일 접미사는 MonsterDirections(공통 상수)를 사용한다.
@@ -32,7 +32,10 @@ public class MonsterMakerWindow : EditorWindow
     private int skillPickerIndex = 0;
 
     private Sprite icon;
+
+    private MotionMode idleMode = MotionMode.SingleClip;
     private AnimationClip idleClip;
+    private AnimationClip[] idleDirClips = new AnimationClip[8];
 
     private MotionMode moveMode = MotionMode.SingleClip;
     private AnimationClip moveClip;
@@ -46,7 +49,10 @@ public class MonsterMakerWindow : EditorWindow
     private AnimationClip hitClip;
     private AnimationClip[] hitDirClips = new AnimationClip[8];
 
+    private MotionMode deathMode = MotionMode.SingleClip;
     private AnimationClip deathClip;
+    private AnimationClip[] deathDirClips = new AnimationClip[8];
+
     private string saveFolder = "Assets/Monsters";
 
     // 애니메이션마다 기존 클립을 연결해서 쓸지, 메이커 안에서 스프라이트로 직접 만들지 각각 선택.
@@ -58,6 +64,7 @@ public class MonsterMakerWindow : EditorWindow
     private AnimSourceMode deathSourceMode = AnimSourceMode.ExistingClips;
 
     private SpriteClipSource idleSource = new SpriteClipSource();
+    private SpriteClipSource[] idleDirSources = NewSourceArray();
     private SpriteClipSource moveSource = new SpriteClipSource();
     private SpriteClipSource[] moveDirSources = NewSourceArray();
     private SpriteClipSource attackSource = new SpriteClipSource();
@@ -65,6 +72,7 @@ public class MonsterMakerWindow : EditorWindow
     private SpriteClipSource hitSource = new SpriteClipSource();
     private SpriteClipSource[] hitDirSources = NewSourceArray();
     private SpriteClipSource deathSource = new SpriteClipSource();
+    private SpriteClipSource[] deathDirSources = NewSourceArray();
 
     private static SpriteClipSource[] NewSourceArray()
     {
@@ -196,7 +204,15 @@ public class MonsterMakerWindow : EditorWindow
             MessageType.None);
         EditorGUILayout.Space(4);
 
-        DrawAnimClipSlot("Idle", ref idleSourceMode, ref idleClip, idleSource);
+        // Idle: 단일 클립 또는 8방향 Blend Tree(바라보는 방향 블렌드) 중 선택
+        DrawMotionSlot("Idle", ref idleSourceMode, ref idleMode, ref idleClip, idleDirClips, idleSource, idleDirSources);
+        if (idleMode == MotionMode.BlendTree8Way)
+        {
+            EditorGUILayout.HelpBox(
+                "Idle Blend Tree는 이동 방향이 아니라 바라보는 방향(마지막으로 이동했던 방향)을 재사용합니다. " +
+                "MonsterController가 FaceX/FaceY 파라미터를 자동으로 갱신합니다.",
+                MessageType.Info);
+        }
 
         // Move: 단일 클립 또는 8방향 Blend Tree(이동 방향 블렌드) 중 선택
         DrawMotionSlot("Move", ref moveSourceMode, ref moveMode, ref moveClip, moveDirClips, moveSource, moveDirSources);
@@ -221,7 +237,15 @@ public class MonsterMakerWindow : EditorWindow
                 MessageType.Info);
         }
 
-        DrawAnimClipSlot("Death", ref deathSourceMode, ref deathClip, deathSource);
+        // Death: 단일 클립 또는 8방향 Blend Tree(바라보는 방향 블렌드) 중 선택
+        DrawMotionSlot("Death", ref deathSourceMode, ref deathMode, ref deathClip, deathDirClips, deathSource, deathDirSources);
+        if (deathMode == MotionMode.BlendTree8Way)
+        {
+            EditorGUILayout.HelpBox(
+                "Death Blend Tree도 바라보는 방향(마지막으로 이동했던 방향)을 재사용합니다. " +
+                "MonsterController가 FaceX/FaceY 파라미터를 자동으로 갱신합니다.",
+                MessageType.Info);
+        }
 
         EditorGUILayout.Space(4);
         if (GUILayout.Button("Assets/Animations/[몬스터이름] 폴더에서 자동으로 채우기 (기존 클립 연결 모드 + 단일 클립만)"))
@@ -237,7 +261,7 @@ public class MonsterMakerWindow : EditorWindow
         }
         EditorGUILayout.HelpBox(
             "자동 채우기는 '기존 클립 연결' 모드로 설정된 항목의 AnimationClip만 찾습니다. " +
-            "Move/Attack이 8방향 Blend Tree 모드라면 각 방향 클립을 직접 드래그하여 연결해주세요.",
+            "8방향 Blend Tree 모드인 항목은 각 방향 클립을 직접 드래그하여 연결해주세요.",
             MessageType.None);
 
         // ── 저장 경로 ──────────────────────────
@@ -262,25 +286,7 @@ public class MonsterMakerWindow : EditorWindow
         EditorGUILayout.EndScrollView();
     }
 
-    // Idle/Death 공용 UI: 이 슬롯만의 소스 모드(기존 클립 연결 / 스프라이트로 생성) 토글 + 그에 맞는 필드.
-    private void DrawAnimClipSlot(string title, ref AnimSourceMode sourceMode, ref AnimationClip clip, SpriteClipSource source)
-    {
-        EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
-        sourceMode = (AnimSourceMode)GUILayout.Toolbar((int)sourceMode, new[] { "기존 클립 연결", "스프라이트로 생성" });
-
-        if (sourceMode == AnimSourceMode.ExistingClips)
-        {
-            clip = (AnimationClip)EditorGUILayout.ObjectField("클립", clip, typeof(AnimationClip), false);
-        }
-        else
-        {
-            source.DrawGUI(title);
-        }
-
-        EditorGUILayout.Space(4);
-    }
-
-    // Move/Attack/Hit 공용 UI: 모션 타입(단일 클립/8방향)과 소스 모드(기존 클립/스프라이트)를 각각 선택.
+    // Idle/Move/Attack/Hit/Death 공용 UI: 모션 타입(단일 클립/8방향)과 소스 모드(기존 클립/스프라이트)를 각각 선택.
     // 단일 클립이면 필드/스프라이트 목록 하나, 8방향이면 방향별 필드(또는 방향별 폴드아웃 스프라이트 목록).
     private void DrawMotionSlot(string title, ref AnimSourceMode sourceMode, ref MotionMode motionMode,
         ref AnimationClip singleClip, AnimationClip[] dirClips, SpriteClipSource singleSource, SpriteClipSource[] dirSources)
@@ -357,10 +363,20 @@ public class MonsterMakerWindow : EditorWindow
         }
 
         if (idleSourceMode == AnimSourceMode.GenerateFromSprites)
-            idleClip = BuildClipOrKeep(idleSource, $"{animFolder}/idle.anim", idleClip);
+        {
+            if (idleMode == MotionMode.SingleClip)
+                idleClip = BuildClipOrKeep(idleSource, $"{animFolder}/idle.anim", idleClip);
+            else
+                BuildDirClips(idleDirSources, idleDirClips, animFolder, "idle");
+        }
 
         if (deathSourceMode == AnimSourceMode.GenerateFromSprites)
-            deathClip = BuildClipOrKeep(deathSource, $"{animFolder}/death.anim", deathClip);
+        {
+            if (deathMode == MotionMode.SingleClip)
+                deathClip = BuildClipOrKeep(deathSource, $"{animFolder}/death.anim", deathClip);
+            else
+                BuildDirClips(deathDirSources, deathDirClips, animFolder, "death");
+        }
 
         if (moveSourceMode == AnimSourceMode.GenerateFromSprites)
         {
@@ -438,15 +454,16 @@ public class MonsterMakerWindow : EditorWindow
         // AnimatorController(+ 필요 시 8방향 Blend Tree)를 먼저 생성하고,
         // 실제 각 상태에 쓰인 Motion(단일 클립 또는 만들어진 BlendTree)을 그대로 데이터에 기록한다.
         AnimatorController controller = BuildAnimatorController(saveFolder,
-            out Motion moveMotionResult, out Motion attackMotionResult, out Motion hitMotionResult);
+            out Motion idleMotionResult, out Motion moveMotionResult, out Motion attackMotionResult,
+            out Motion hitMotionResult, out Motion deathMotionResult);
 
         var animSet = new MonsterAnimationSet
         {
-            idle = idleClip,
+            idle = idleMotionResult,
             move = moveMotionResult,
             attack = attackMotionResult,
             hit = hitMotionResult,
-            death = deathClip
+            death = deathMotionResult
         };
         data.animations = animSet;
 
@@ -493,9 +510,10 @@ public class MonsterMakerWindow : EditorWindow
     // ── AnimatorController / BlendTree 생성 ──────────────────────────
 
     // Idle/Move/Attack/Hit/Death 상태와 그 사이 전이를 갖춘 AnimatorController를 생성한다.
-    // Move/Attack/Hit이 8방향 모드면 2D Freeform Directional Blend Tree로, 아니면 단일 클립 상태로 만든다.
+    // 각 항목이 8방향 모드면 2D Freeform Directional Blend Tree로, 아니면 단일 클립 상태로 만든다.
     private AnimatorController BuildAnimatorController(string folder,
-        out Motion moveMotionResult, out Motion attackMotionResult, out Motion hitMotionResult)
+        out Motion idleMotionResult, out Motion moveMotionResult, out Motion attackMotionResult,
+        out Motion hitMotionResult, out Motion deathMotionResult)
     {
         string path = AssetDatabase.GenerateUniqueAssetPath($"{folder}/{monsterName}_Controller.controller");
         var controller = AnimatorController.CreateAnimatorControllerAtPath(path);
@@ -506,18 +524,19 @@ public class MonsterMakerWindow : EditorWindow
         controller.AddParameter(MonsterController.ParamFaceY, AnimatorControllerParameterType.Float);
         controller.AddParameter(MonsterController.ParamSpeed, AnimatorControllerParameterType.Float);
         controller.AddParameter(MonsterController.ParamAttack, AnimatorControllerParameterType.Trigger);
-        controller.AddParameter(MonsterController.ParamHit, AnimatorControllerParameterType.Trigger);
+        // Hit는 MonsterController가 SetBool로 다룬다(Trigger로 만들면 SetBool 호출이 먹지 않아
+        // Hit 애니메이션이 아예 재생되지 않는다) — Bool 타입으로 만들어야 한다.
+        controller.AddParameter(MonsterController.ParamHit, AnimatorControllerParameterType.Bool);
         controller.AddParameter(MonsterController.ParamDeath, AnimatorControllerParameterType.Trigger);
 
         var rootSM = controller.layers[0].stateMachine;
 
-        AnimatorState idleState = null;
-        if (idleClip != null)
-        {
-            idleState = rootSM.AddState("Idle");
-            idleState.motion = idleClip;
-            rootSM.defaultState = idleState;
-        }
+        // Idle은 바라보는 방향(FaceX/FaceY)을 재사용한다 — 정지 상태에서는 MoveX/MoveY가 0,0으로
+        // 리셋되어(Stop()) 방향 블렌드에 쓸 수 없기 때문에, Attack/Hit/Death와 동일하게
+        // "마지막으로 이동했던 방향"을 그대로 유지하는 FaceX/FaceY를 쓴다.
+        AnimatorState idleState = CreateMotionState(controller, rootSM, "Idle", idleMode, idleClip, idleDirClips,
+            MonsterController.ParamFaceX, MonsterController.ParamFaceY);
+        if (idleState != null) rootSM.defaultState = idleState;
 
         AnimatorState moveState = CreateMotionState(controller, rootSM, "Move", moveMode, moveClip, moveDirClips,
             MonsterController.ParamMoveX, MonsterController.ParamMoveY);
@@ -527,16 +546,14 @@ public class MonsterMakerWindow : EditorWindow
         AnimatorState hitState = CreateMotionState(controller, rootSM, "Hit", hitMode, hitClip, hitDirClips,
             MonsterController.ParamFaceX, MonsterController.ParamFaceY);
 
+        AnimatorState deathState = CreateMotionState(controller, rootSM, "Death", deathMode, deathClip, deathDirClips,
+            MonsterController.ParamFaceX, MonsterController.ParamFaceY);
+
+        idleMotionResult = idleState != null ? idleState.motion : null;
         moveMotionResult = moveState != null ? moveState.motion : null;
         attackMotionResult = attackState != null ? attackState.motion : null;
         hitMotionResult = hitState != null ? hitState.motion : null;
-
-        AnimatorState deathState = null;
-        if (deathClip != null)
-        {
-            deathState = rootSM.AddState("Death");
-            deathState.motion = deathClip;
-        }
+        deathMotionResult = deathState != null ? deathState.motion : null;
 
         // Idle <-> Move : 이동 속도 기준. hasExitTime을 켜서 재생 중인 애니메이션이
         // 끝나기 전(90% 지점 전)에는 다른 상태로 끊기지 않도록 한다.
@@ -660,7 +677,7 @@ public class MonsterMakerWindow : EditorWindow
 
     // Assets/Animations/[몬스터이름]/ 폴더 안에서 이름 규칙으로 클립을 찾아 연결.
     // 규칙: idle.anim, move.anim, attack.anim, hit.anim, death.anim
-    // 주의: 이 자동 감지는 AnimationClip만 찾는다. Move/Attack/Hit이 8방향 Blend Tree 모드라면
+    // 주의: 이 자동 감지는 AnimationClip만 찾는다. 8방향 Blend Tree 모드인 항목은
     // 이 함수로는 채워지지 않으므로 방향별로 수동으로 드래그해서 연결해야 한다.
     private void AutoDetectAnimations(string name)
     {
@@ -672,10 +689,10 @@ public class MonsterMakerWindow : EditorWindow
             return;
         }
 
-        if (idleSourceMode == AnimSourceMode.ExistingClips)
+        if (idleSourceMode == AnimSourceMode.ExistingClips && idleMode == MotionMode.SingleClip)
             idleClip = FindClipInFolder(folder, "idle");
 
-        if (deathSourceMode == AnimSourceMode.ExistingClips)
+        if (deathSourceMode == AnimSourceMode.ExistingClips && deathMode == MotionMode.SingleClip)
             deathClip = FindClipInFolder(folder, "death");
 
         if (moveSourceMode == AnimSourceMode.ExistingClips && moveMode == MotionMode.SingleClip)

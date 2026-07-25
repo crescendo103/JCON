@@ -3,11 +3,11 @@ using UnityEngine;
 [System.Serializable]
 public class MonsterAnimationSet
 {
-    public AnimationClip idle;
+    public Motion idle;
     public Motion move;
     public Motion attack;
     public Motion hit;
-    public AnimationClip death;
+    public Motion death;
 }
 
 // 피격 시 데미지 종류(DamageType)별 넉백 세기/지속시간과 무적 시간을 지정한다.

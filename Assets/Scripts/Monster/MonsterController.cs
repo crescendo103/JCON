@@ -19,8 +19,10 @@ public class MonsterController : MonoBehaviour
     public const string ParamHit = "Hit";
     public const string ParamDeath = "Death";
 
-    // Animator의 Attack 상태 이름(전 몬스터 컨트롤러가 공통으로 이렇게 만듦). 공격 중 이동을 막는 데 쓴다.
+    // Animator의 Attack/Hit 상태 이름(전 몬스터 컨트롤러가 공통으로 이렇게 만듦).
+    // Attack은 공격 중 이동을 막는 데, Hit은 재생 중 재시작을 막는 데 쓴다.
     private const string AttackStateName = "Attack";
+    private const string HitStateName = "Hit";
 
     public MonsterData data;
     protected Animator animator;
@@ -280,9 +282,14 @@ public class MonsterController : MonoBehaviour
     // Hit는 Trigger가 아니라 Bool로 다룬다 — 무적 시간이 끝나는 순간(InvincibilityRoutine)까지
     // Hit 애니메이션을 붙잡아 두었다가 그때 바로 다음 상태로 넘어가게 해서, 클립 자체 길이와
     // 무관하게 Hit 재생 시간이 항상 무적 시간과 정확히 일치하게 한다.
+    // 이미 Hit 상태가 재생 중이면(무적시간이 애니메이션 길이보다 짧게 설정된 경우 등) 다시
+    // SetBool(true)을 호출하지 않는다 — false→true로 값이 바뀌는 것 자체가 재시작을 유발하므로,
+    // 현재 재생 중인 Hit이 끝까지 재생된 뒤에야 다음 피격이 새로 Hit을 시작할 수 있게 한다.
     public virtual void TriggerHit()
     {
-        if (animator != null) animator.SetBool(ParamHit, true);
+        if (animator == null) return;
+        if (IsPlayingState(HitStateName)) return;
+        animator.SetBool(ParamHit, true);
     }
 
     public void TriggerDeath()
@@ -318,7 +325,7 @@ public class MonsterController : MonoBehaviour
     }
 
     // 사망 처리: 진행 중이던 넉백/무적 코루틴을 멈춰 제자리에 고정한 뒤 Death 애니메이션을 재생하고,
-    // 그 클립 길이만큼 기다렸다가 오브젝트를 파괴한다.
+    // 그 재생 길이만큼 기다렸다가 오브젝트를 파괴한다.
     private void Die()
     {
         isDead = true;
@@ -328,11 +335,32 @@ public class MonsterController : MonoBehaviour
         Stop();
         TriggerDeath();
 
-        float deathDuration = (data != null && data.animations != null && data.animations.death != null)
-            ? data.animations.death.length
-            : 1f;
+        StartCoroutine(DestroyAfterDeathAnimation());
+    }
 
-        Destroy(gameObject, deathDuration);
+    // Death는 8방향 Blend Tree일 수도 있어(Motion에는 AnimationClip.length 같은 고정 길이가 없음)
+    // data.animations.death.length를 직접 읽는 대신, 실제로 Death 상태에 들어갈 때까지 기다린 뒤
+    // AnimatorStateInfo.length(현재 블렌드 상태 기준 실제 재생 길이, 단일 클립/Blend Tree 모두 처리됨)로
+    // 대기 시간을 구한다. AnyState -> Death 전이는 hasExitTime이라 즉시 바뀌지 않을 수 있어 대기가 필요하다.
+    private IEnumerator DestroyAfterDeathAnimation()
+    {
+        if (animator != null)
+        {
+            const float timeout = 2f; // 안전장치: 무슨 이유로든 Death 상태에 못 들어가도 무한 대기하지 않음
+            float waited = 0f;
+            while (!IsPlayingState("Death") && waited < timeout)
+            {
+                waited += Time.deltaTime;
+                yield return null;
+            }
+
+            if (IsPlayingState("Death"))
+            {
+                yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+            }
+        }
+
+        Destroy(gameObject);
     }
 
     // data(MonsterData)에 등록된 넉백 설정에서 damageType에 맞는 항목을 찾고, 없으면 기본값을 반환한다.

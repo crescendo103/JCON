@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6330e6d5235e3ee4f97758b91f4d4f2f, type: 3}
+  m_Name: ApstolZombie
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterName: ApstolZombie
+  icon: {fileID: -8042946248893556689, guid: 3de1725f4e644a244bb542d47e6fb1d6, type: 3}
+  maxHP: 150
+  attack: 25
+  defense: 10
+  speed: 4
+  skills: []
+  animations:
+    idle: {fileID: 5371710811849080714, guid: 14c670c50cb5ac4488443420e145669d, type: 2}
+    move: {fileID: 3929064347534947098, guid: 14c670c50cb5ac4488443420e145669d, type: 2}
+    attack: {fileID: -1184414878364167530, guid: 14c670c50cb5ac4488443420e145669d, type: 2}
+    hit: {fileID: 4786711367435945258, guid: 14c670c50cb5ac4488443420e145669d, type: 2}
+    death: {fileID: -320694934971576573, guid: 14c670c50cb5ac4488443420e145669d, type: 2}
+  aiBehavior: {fileID: 11400000, guid: ad0bb70e4fccc594697d747ee4e533f3, type: 2}
+  knockbackSettings:
+  - type: 0
+    force: 1.5
+    duration: 0.1
+    invincibilityDuration: 0.3
+  - type: 1
+    force: 3
+    duration: 0.15
+    invincibilityDuration: 0.5
+  - type: 2
+    force: 6
+    duration: 0.25
+    invincibilityDuration: 1
+  prefab: {fileID: 174512469697256917, guid: b6c9a47e02e892544948eca2d1252964, type: 3}

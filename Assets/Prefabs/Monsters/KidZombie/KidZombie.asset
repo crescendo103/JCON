@@ -14,19 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterName: KidZombie
   icon: {fileID: -2481937153198811225, guid: 1d9081e8003c5084fb1a6da71798b103, type: 3}
-  maxHP: 150
+  maxHP: 10
   attack: 25
   defense: 10
   speed: 4
-  skills:
-  - {fileID: 11400000, guid: d005a2d6048ade042899f174d7cf0b6d, type: 2}
+  skills: []
   animations:
     idle: {fileID: 7400000, guid: e5215b5923986d747bfc00fe467804aa, type: 2}
-    move: {fileID: 2447054174949893744, guid: 876d7250bc819f94aa2c89b2a4634f01, type: 2}
+    move: {fileID: 8901926387962909902, guid: 876d7250bc819f94aa2c89b2a4634f01, type: 2}
     attack: {fileID: 7400000, guid: e45a6e980212de74d92a572b06168edd, type: 2}
-    hit: {fileID: -3212384380715118865, guid: 876d7250bc819f94aa2c89b2a4634f01, type: 2}
+    hit: {fileID: -2658732914781339030, guid: 876d7250bc819f94aa2c89b2a4634f01, type: 2}
     death: {fileID: 7400000, guid: 33e2aca392c56bb44ba93e49f3879a2c, type: 2}
-  aiBehavior: {fileID: 11400000, guid: fecdc8f9b51d48844bf3b216a94a99d5, type: 2}
+  aiBehavior: {fileID: 11400000, guid: c6f8b3eedd2bece498ba3688badc7be8, type: 2}
   knockbackSettings:
   - type: 0
     force: 1.5
@@ -40,4 +39,4 @@ MonoBehaviour:
     force: 6
     duration: 0.25
     invincibilityDuration: 1
-  prefab: {fileID: 7615572209263978762, guid: 07c51fe7b5fbe3f4eaddfbfaf1a204ba, type: 3}
+  prefab: {fileID: 1655583909069736084, guid: 07c51fe7b5fbe3f4eaddfbfaf1a204ba, type: 3}
