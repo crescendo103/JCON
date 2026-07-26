@@ -8,6 +8,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float speed = 1f;
     private Vector2 input;
 
+    public Vector2 CurrentVelocity => rigid.linearVelocity;
+
 #if UNITY_EDITOR
     private void Reset()
     {

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6330e6d5235e3ee4f97758b91f4d4f2f, type: 3}
+  m_Name: TurretZombie1
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterData
+  monsterName: TurretZombie1
+  icon: {fileID: 3816615599098617108, guid: 084ec7d8204a87a4a9432b909700f460, type: 3}
+  maxHP: 150
+  attack: 25
+  defense: 10
+  speed: 4
+  skills: []
+  animations:
+    idle: {fileID: 7400000, guid: d43b170924e15804b9f4638765ee7fd3, type: 2}
+    move: {fileID: -7329888874093163533, guid: 3c0ed76d20e9fed438c9d1a73552f7ee, type: 2}
+    attack: {fileID: 7400000, guid: c77c5be3a2bb737419c85e67226b73e8, type: 2}
+    hit: {fileID: -7098004422985039966, guid: 3c0ed76d20e9fed438c9d1a73552f7ee, type: 2}
+    death: {fileID: 7400000, guid: d218857ecb4868d4a8f9376846cb2079, type: 2}
+  aiBehavior: {fileID: 11400000, guid: a673cea0867810d4a8131d1d7c78b8f6, type: 2}
+  knockbackSettings:
+  - type: 0
+    force: 1.5
+    duration: 0.1
+    invincibilityDuration: 0.3
+  - type: 1
+    force: 3
+    duration: 0.15
+    invincibilityDuration: 0.5
+  - type: 2
+    force: 6
+    duration: 0.25
+    invincibilityDuration: 1
+  prefab: {fileID: 5969141826336869147, guid: cdfa824f28652b5488690207f67b4eca, type: 3}
