@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1214252212998106463
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2413763364205555326}
+  - component: {fileID: 7515237996649149536}
+  m_Layer: 0
+  m_Name: StageManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2413763364205555326
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214252212998106463}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7515237996649149536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214252212998106463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b5522d09bed38f4698602d794bf6c4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StageManager
+  spawnTable:
+  - label: KidZombie
+    prefab: {fileID: 1655583909069736084, guid: 07c51fe7b5fbe3f4eaddfbfaf1a204ba, type: 3}
+    weight: 3
+  - label: SkinnyZombie
+    prefab: {fileID: 8881614192246752600, guid: 436401524ba39b243a7fb3cccbaa1e93, type: 3}
+    weight: 3
+  - label: BigZombie
+    prefab: {fileID: 6308393458126479155, guid: 22106f0e2c0bc304d90a33c2a8b8f776, type: 3}
+    weight: 1.5
+  - label: TurretZombie
+    prefab: {fileID: 2099153619283669250, guid: 286c6e48738d33b41931f096155544b7, type: 3}
+    weight: 1
+  - label: KingZombie
+    prefab: {fileID: 6593791537682058226, guid: c51fb909fd4061d43b5f511841804d98, type: 3}
+    weight: 0.1
+  spawnInterval: 5
+  spawnPerTick: 1
+  maxAliveMonsters: 20
+  ringPadding: 1
+  ringThickness: 3
+  targetCamera: {fileID: 0}
+  player: {fileID: 0}
