@@ -57,9 +57,6 @@ MonoBehaviour:
   - label: TurretZombie
     prefab: {fileID: 2099153619283669250, guid: 286c6e48738d33b41931f096155544b7, type: 3}
     weight: 1
-  - label: KingZombie
-    prefab: {fileID: 6593791537682058226, guid: c51fb909fd4061d43b5f511841804d98, type: 3}
-    weight: 0.1
   spawnInterval: 5
   spawnPerTick: 1
   maxAliveMonsters: 20
