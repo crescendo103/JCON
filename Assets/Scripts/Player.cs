@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour, IPlayable
     private Vector2 input;
     private Action attack;
     private Camera mainCam;
-
+    private float maxHealth;
     public Vector2 CurrentVelocity => rigid.linearVelocity;
 
 #if UNITY_EDITOR
@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour, IPlayable
         rigid = this.GetComponent<Rigidbody2D>();
         rigid.gravityScale = 0f;
         model = this.transform.Find("Model");
+
+        maxHealth = health;
     }
 #endif
 
@@ -120,4 +122,7 @@ public class PlayerController : MonoBehaviour, IPlayable
             Hit(20f);
         }
     }
+    
+    public float GetHealth() { return health; }
+    public float GetMaxHealth() { return maxHealth; }
 }
