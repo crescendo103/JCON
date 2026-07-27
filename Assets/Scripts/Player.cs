@@ -24,16 +24,16 @@ public class PlayerController : MonoBehaviour, IPlayable
     private Vector2 input;
     private Action attack;
     private Camera mainCam;
-<<<<<<< Updated upstream
+
     private float maxHealth;
-=======
+
 
     // 숫자키 1~5 = 슬롯 0~4. 비어있으면(null) 아직 못 주운 무기.
     private readonly WeaponData[] ownedWeapons = new WeaponData[5];
     private int currentSlot = -1;
     private float nextAttackTime;
 
->>>>>>> Stashed changes
+
     public Vector2 CurrentVelocity => rigid.linearVelocity;
 
 #if UNITY_EDITOR
@@ -43,12 +43,12 @@ public class PlayerController : MonoBehaviour, IPlayable
         rigid = this.GetComponent<Rigidbody2D>();
         rigid.gravityScale = 0f;
         model = this.transform.Find("Model");
-<<<<<<< Updated upstream
+
 
         maxHealth = health;
-=======
+
         weaponRenderer = this.transform.Find("WeaponMuzzle")?.GetComponent<SpriteRenderer>();
->>>>>>> Stashed changes
+
     }
 #endif
 
