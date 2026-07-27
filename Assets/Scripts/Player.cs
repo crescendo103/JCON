@@ -44,13 +44,15 @@ public class PlayerController : MonoBehaviour, IPlayable
         rigid.gravityScale = 0f;
         model = this.transform.Find("Model");
 
-
-        maxHealth = health;
-
         weaponRenderer = this.transform.Find("WeaponMuzzle")?.GetComponent<SpriteRenderer>();
 
     }
 #endif
+
+    private void Awake()
+    {
+        maxHealth = health;
+    }
 
     private void Update()
     {

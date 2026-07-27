@@ -29,6 +29,10 @@ public class MonsterController : MonoBehaviour
     private MonsterHealth health;
     public Transform target;
 
+    [Header("피격 이펙트")]
+    [Tooltip("피격 시 이 중 하나를 무작위로 골라 피격 방향으로 스폰한다. 비워두면 스폰하지 않음")]
+    public GameObject[] hitEffectPrefabs;
+
     // 마지막으로 이동했던 방향(정지 상태에서도 유지) → 공격 Blend Tree(FaceX/FaceY)가 재사용
     private Vector2 lastFacingDir = Vector2.down;
 
@@ -267,6 +271,22 @@ public class MonsterController : MonoBehaviour
         }
     }
 
+    // 피격 방향(dir)으로 hitEffectPrefabs 중 하나를 무작위로 골라 스폰하고, 애니메이션을 한 번
+    // 재생한 뒤(클립 길이만큼 대기) 파괴한다. 이동은 하지 않고 몬스터 위치에 고정된 채로 재생된다.
+    private void SpawnHitEffect(Vector2 dir)
+    {
+        if (hitEffectPrefabs == null || hitEffectPrefabs.Length == 0) return;
+
+        GameObject prefab = hitEffectPrefabs[Random.Range(0, hitEffectPrefabs.Length)];
+        if (prefab == null) return;
+
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        GameObject effect = Instantiate(prefab, transform.position, Quaternion.Euler(0f, 0f, angle));
+
+        float duration = GetEffectCycleDuration(effect, 1f);
+        Destroy(effect, duration);
+    }
+
     // effect의 Animator에 연결된 클립들 중 가장 긴 길이(한 사이클)를 이펙트 유지 시간으로 사용한다.
     // Animator나 클립이 없는 이펙트(사운드/파티클만 있는 경우 등)는 fallbackDuration을 그대로 쓴다.
     private float GetEffectCycleDuration(GameObject effect, float fallbackDuration)
@@ -318,6 +338,8 @@ public class MonsterController : MonoBehaviour
         Vector2 knockDir = (Vector2)transform.position - sourcePosition;
         if (knockDir.sqrMagnitude < 0.0001f) knockDir = -lastFacingDir;
         knockDir.Normalize();
+
+        SpawnHitEffect(knockDir);
 
         KnockbackSetting setting = GetKnockbackSetting(damageType);
         StartCoroutine(KnockbackRoutine(knockDir, setting));
