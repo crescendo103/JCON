@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour, IPlayable
 {
     [SerializeField] private Rigidbody2D rigid;
     [SerializeField] private Animator anim;
+    [SerializeField] private Transform model;
 
     [Space(20f)]
     [SerializeField] private float health = 100f;
@@ -14,6 +15,7 @@ public class PlayerController : MonoBehaviour, IPlayable
     private bool isAttack;
     private Vector2 input;
     private Action attack;
+    private Camera mainCam;
 
     public Vector2 CurrentVelocity => rigid.linearVelocity;
 
@@ -23,6 +25,7 @@ public class PlayerController : MonoBehaviour, IPlayable
         anim = this.GetComponent<Animator>();
         rigid = this.GetComponent<Rigidbody2D>();
         rigid.gravityScale = 0f;
+        model = this.transform.Find("Model");
     }
 #endif
 
@@ -50,13 +53,30 @@ public class PlayerController : MonoBehaviour, IPlayable
     private void Move()
     {
         if (!isAttack)
-        { 
+        {
             if(input != Vector2.zero) anim.Play("Run", 0);
             else anim.Play("Idle", 0);
         }
 
-
+        Face();
         rigid.linearVelocity = input.normalized * speed;
+    }
+
+    /// <summary>
+    /// 마우스 포인터가 있는 쪽을 바라보게 함 (스프라이트가 정면 단일 방향이라 좌우 반전만 처리)
+    /// </summary>
+    private void Face()
+    {
+        if (model == null) return;
+
+        if (mainCam == null) mainCam = Camera.main;
+        if (mainCam == null) return;
+
+        Vector3 mouseWorld = mainCam.ScreenToWorldPoint(Input.mousePosition);
+        float dx = mouseWorld.x - transform.position.x;
+
+        if (dx > 0f) model.localScale = new Vector3(-1f, 1f, 1f);
+        else if (dx < 0f) model.localScale = new Vector3(1f, 1f, 1f);
     }
 
     private void Click()
