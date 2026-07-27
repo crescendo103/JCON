@@ -119,6 +119,60 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &202429503
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 202429505}
+  - component: {fileID: 202429504}
+  m_Layer: 0
+  m_Name: WeaponPickupSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &202429504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202429503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00e3d7bad64ff544e8016b553b60856d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponPickupSpawner
+  possibleWeapons:
+  - {fileID: 11400000, guid: c59a6aabb3ac2b345ada01fdd603bf0c, type: 2}
+  - {fileID: 11400000, guid: 86b2eab75fced35498ed247515c96ca0, type: 2}
+  - {fileID: 11400000, guid: 172bcde24178bca4aa2d1ba2cabddb13, type: 2}
+  - {fileID: 11400000, guid: 606102d83e90dfe4c9e6a4184c5772c5, type: 2}
+  - {fileID: 11400000, guid: 391b7ec179a0c96428c8e5a56e7db74c, type: 2}
+  pickupPrefab: {fileID: 4111138561488968656, guid: b51df73f0c902984f8ba25d92eb51241, type: 3}
+  spawnInterval: 15
+  spawnRadius: 8
+  initialSpawnRadius: 3
+--- !u!4 &202429505
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202429503}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &364540043
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -534,9 +588,45 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 323982759145187959, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: m_Size.x
+      value: 3.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 323982759145187959, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: m_Size.y
+      value: 1.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 461006292025402860, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.33349705
+      objectReference: {fileID: 0}
+    - target: {fileID: 461006292025402860, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.10620591
+      objectReference: {fileID: 0}
+    - target: {fileID: 461006292025402860, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9881419
+      objectReference: {fileID: 0}
+    - target: {fileID: 461006292025402860, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.15354347
+      objectReference: {fileID: 0}
+    - target: {fileID: 1903934199209440941, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: m_Size.x
+      value: 2.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1903934199209440941, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: m_Size.y
+      value: 1.6
+      objectReference: {fileID: 0}
     - target: {fileID: 2872065270235520434, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 3612495129861985945, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: m_LocalScale.x
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 8444202902887063615, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -694,3 +784,4 @@ SceneRoots:
   - {fileID: 1353498385}
   - {fileID: 988997326}
   - {fileID: 513538303}
+  - {fileID: 202429505}
