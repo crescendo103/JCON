@@ -36,6 +36,8 @@ public class WeaponData : ScriptableObject
     public MeleeAttackMode meleeMode;
     public float meleeRange = 1f;
     public float meleeHitRadius = 0.6f;
+    [Tooltip("한 번의 공격으로 타격할 최대 대상 수. 1이면 가장 가까운 하나만, 0 이하면 범위 내 전원")]
+    public int maxTargets = 1;
 
     [Header("원거리 전용")]
     public GameObject bulletPrefab;

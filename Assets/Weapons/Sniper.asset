@@ -18,7 +18,7 @@ MonoBehaviour:
   pickupSprite: {fileID: 21300000, guid: 6d0bcb00a713ad6418700cb4cd697ba0, type: 3}
   slotIndex: 4
   attackAnimState: AttackMagic
-  displayScale: 0.32
+  displayScale: 0.19
   damage: 60
   cooldown: 1.2
   damageType: 2
@@ -26,6 +26,7 @@ MonoBehaviour:
   meleeMode: 0
   meleeRange: 1
   meleeHitRadius: 0.6
+  maxTargets: 1
   bulletPrefab: {fileID: 3198205077590414770, guid: fda04be3b728c5d4bab6c0a0898168a3, type: 3}
   projectileSpeed: 35
   projectileMaxDistance: 30

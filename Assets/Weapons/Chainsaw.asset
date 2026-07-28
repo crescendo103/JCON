@@ -25,7 +25,8 @@ MonoBehaviour:
   sfx: {fileID: 0}
   meleeMode: 1
   meleeRange: 0.7
-  meleeHitRadius: 0.6
+  meleeHitRadius: 1
+  maxTargets: 5
   bulletPrefab: {fileID: 0}
   projectileSpeed: 15
   projectileMaxDistance: 15

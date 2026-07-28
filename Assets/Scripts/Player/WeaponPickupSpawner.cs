@@ -7,15 +7,19 @@ public class WeaponPickupSpawner : MonoBehaviour
 {
     public WeaponData[] possibleWeapons;
     public GameObject pickupPrefab;
-    public float spawnInterval = 15f;
+    public float spawnInterval = 5f;
     public float spawnRadius = 8f;
     public float initialSpawnRadius = 3f;
+    public int initialSpawnCount = 3;
 
     private float timer;
 
     private void Start()
     {
-        SpawnRandom(initialSpawnRadius);
+        for (int i = 0; i < initialSpawnCount; i++)
+        {
+            SpawnRandom(initialSpawnRadius);
+        }
     }
 
     private void Update()
@@ -39,6 +43,6 @@ public class WeaponPickupSpawner : MonoBehaviour
 
         var go = Instantiate(pickupPrefab, pos, Quaternion.identity);
         var pickup = go.GetComponent<WeaponPickup>();
-        if (pickup != null) pickup.weapon = weapon;
+        if (pickup != null) pickup.Setup(weapon);
     }
 }

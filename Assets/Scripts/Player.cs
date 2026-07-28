@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -9,6 +10,10 @@ public class PlayerController : MonoBehaviour, IPlayable
         KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5
     };
 
+    // 숫자키 1번(슬롯 0)은 항상 맨손 기본공격 전용으로 예약한다. ownedWeapons[FistsSlot]은
+    // 절대 채워지지 않으므로 언제든 눌러 맨손으로 되돌아갈 수 있다.
+    private const int FistsSlot = 0;
+
     [SerializeField] private Rigidbody2D rigid;
     [SerializeField] private Animator anim;
     [SerializeField] private Transform model;
@@ -18,7 +23,8 @@ public class PlayerController : MonoBehaviour, IPlayable
     [SerializeField] private float health = 100f;
     [SerializeField] private float speed = 1f;
     [SerializeField] private float fistsCooldown = 0.4f;
-    [SerializeField] private float muzzleHoldDistance = 0.35f;
+    [Tooltip("무기 아이콘 고정 위치(플레이어 로컬 기준). 머리 밑에 오도록 조정")]
+    [SerializeField] private Vector2 weaponHeldOffset = new Vector2(0f, 0.15f);
 
     private bool isAttack;
     private Vector2 input;
@@ -28,10 +34,13 @@ public class PlayerController : MonoBehaviour, IPlayable
     private float maxHealth;
 
 
-    // 숫자키 1~5 = 슬롯 0~4. 비어있으면(null) 아직 못 주운 무기.
+    // 숫자키 1~5 = 슬롯 0~4. 슬롯 0(FistsSlot)은 맨손 전용으로 항상 비어있다.
+    // 1~4는 비어있으면(null) 아직 못 주운 무기.
     private readonly WeaponData[] ownedWeapons = new WeaponData[5];
-    private int currentSlot = -1;
+    private int currentSlot = FistsSlot;
+    private WeaponData equippedWeapon;
     private float nextAttackTime;
+    private readonly List<MonsterController> meleeTargetBuffer = new List<MonsterController>();
 
 
     public Vector2 CurrentVelocity => rigid.linearVelocity;
@@ -52,6 +61,7 @@ public class PlayerController : MonoBehaviour, IPlayable
     private void Awake()
     {
         maxHealth = health;
+        EquipSlot(FistsSlot);
     }
 
     private void Update()
@@ -61,9 +71,7 @@ public class PlayerController : MonoBehaviour, IPlayable
         GetInput();
         Move();
         HandleWeaponSwitch();
-        AimWeapon();
         Click();
-        Test();
     }
 
     private void GetInput()
@@ -114,13 +122,13 @@ public class PlayerController : MonoBehaviour, IPlayable
     }
 
     /// <summary>
-    /// 숫자키 1~5로 보유 중인 무기 슬롯을 전환. 아직 못 주운 슬롯(null)은 무시.
+    /// 숫자키 1~5로 무기 슬롯을 전환. 1번(FistsSlot)은 항상 가능하고, 2~5는 아직 못 주운 슬롯(null)이면 무시.
     /// </summary>
     private void HandleWeaponSwitch()
     {
         for (int i = 0; i < SlotKeys.Length; i++)
         {
-            if (Input.GetKeyDown(SlotKeys[i]) && ownedWeapons[i] != null)
+            if (Input.GetKeyDown(SlotKeys[i]) && (i == FistsSlot || ownedWeapons[i] != null))
             {
                 EquipSlot(i);
                 break;
@@ -132,28 +140,29 @@ public class PlayerController : MonoBehaviour, IPlayable
     {
         currentSlot = slot;
         var weapon = ownedWeapons[slot];
+        equippedWeapon = weapon;
 
-        if (weaponRenderer != null)
-        {
-            weaponRenderer.sprite = weapon?.equippedSprite;
-            weaponRenderer.transform.localScale = Vector3.one * (weapon != null ? weapon.displayScale : 1f);
-        }
-    }
-
-    /// <summary>
-    /// 무기(WeaponMuzzle)가 항상 마우스 포인터 방향을 정확히 가리키도록 회전/위치를 갱신한다.
-    /// WeaponMuzzle은 Model(좌우반전용) 밖의 독립 트랜스폼이라 반전 보정 없이 월드 각도를 그대로 적용하면 된다.
-    /// </summary>
-    private void AimWeapon()
-    {
         if (weaponRenderer == null) return;
 
-        Vector2 aimDir = (Vector2)GetMouseWorld() - (Vector2)transform.position;
-        aimDir = aimDir.sqrMagnitude > 0.0001f ? aimDir.normalized : Vector2.right;
+        if (weapon == null)
+        {
+            weaponRenderer.sprite = null;
+            weaponRenderer.transform.localScale = Vector3.one;
+            return;
+        }
 
-        float angle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
-        weaponRenderer.transform.position = (Vector2)transform.position + aimDir * muzzleHoldDistance;
-        weaponRenderer.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        Sprite sprite;
+        Color color;
+        float scale;
+        WeaponVisuals.Resolve(weapon.equippedSprite, weapon.displayScale, out sprite, out color, out scale);
+
+        weaponRenderer.sprite = sprite;
+        weaponRenderer.color = color;
+        weaponRenderer.transform.localScale = Vector3.one * scale;
+
+        // 무기는 더 이상 마우스를 따라 움직이지 않고, 머리 밑 고정 위치에 그대로 표시된다.
+        weaponRenderer.transform.localPosition = weaponHeldOffset;
+        weaponRenderer.transform.localRotation = Quaternion.identity;
     }
 
     /// <summary>
@@ -163,7 +172,8 @@ public class PlayerController : MonoBehaviour, IPlayable
     {
         if (weapon == null) return;
 
-        int slot = Mathf.Clamp(weapon.slotIndex, 0, ownedWeapons.Length - 1);
+        // FistsSlot(0)은 맨손 전용으로 예약되어 있어 주운 무기가 덮어쓰지 못하게 클램프한다.
+        int slot = Mathf.Clamp(weapon.slotIndex, FistsSlot + 1, ownedWeapons.Length - 1);
         ownedWeapons[slot] = weapon;
         EquipSlot(slot);
     }
@@ -188,7 +198,7 @@ public class PlayerController : MonoBehaviour, IPlayable
             return;
         }
 
-        // 단발(야구방망이) / 맨손: 기존과 동일하게 스윙 1회 후 애니메이션이 끝날 때까지 잠금.
+        // 단발(SingleSwing 근접무기) / 맨손: 기존과 동일하게 스윙 1회 후 애니메이션이 끝날 때까지 잠금.
         if (!isAttack && Input.GetKeyDown(KeyCode.Mouse0) && Time.time >= nextAttackTime)
         {
             isAttack = true;
@@ -225,29 +235,49 @@ public class PlayerController : MonoBehaviour, IPlayable
         DamageType type = weapon != null ? weapon.damageType : DamageType.Normal;
         float range = weapon != null ? weapon.meleeRange : 0.8f;
         float radius = weapon != null ? weapon.meleeHitRadius : 0.6f;
+        int maxTargets = weapon != null ? weapon.maxTargets : 1;
 
         // model.localScale.x < 0 이면 오른쪽을 보고 있는 상태(Face() 참고).
         Vector2 facing = (model != null && model.localScale.x < 0f) ? Vector2.right : Vector2.left;
         Vector2 origin = (Vector2)transform.position + facing * range;
 
-        // 판정 범위 안에 여러 몬스터가 있어도 가장 가까운 하나만 타격한다.
         var hits = Physics2D.OverlapCircleAll(origin, radius);
-        MonsterController closest = null;
-        float closestSqrDist = float.MaxValue;
+        CollectMeleeTargets(hits, origin, maxTargets, meleeTargetBuffer);
+
+        foreach (var monster in meleeTargetBuffer)
+        {
+            monster.TakeDamage(dmg, type, transform.position);
+        }
+    }
+
+    /// <summary>
+    /// hits 중 몬스터만 골라 origin에 가까운 순으로 정렬해 results에 담는다(중복 제거).
+    /// maxTargets가 1이면 가장 가까운 하나만(기존 단일 타격 무기와 동일한 동작),
+    /// 0 이하면 범위 내 전원, 그 외에는 가까운 순으로 maxTargets명까지만 남긴다.
+    /// </summary>
+    private static void CollectMeleeTargets(Collider2D[] hits, Vector2 origin, int maxTargets, List<MonsterController> results)
+    {
+        results.Clear();
+
         foreach (var hit in hits)
         {
             var monster = hit.GetComponent<MonsterController>();
-            if (monster == null) continue;
+            if (monster == null || results.Contains(monster)) continue;
 
-            float sqrDist = ((Vector2)monster.transform.position - origin).sqrMagnitude;
-            if (sqrDist < closestSqrDist)
-            {
-                closestSqrDist = sqrDist;
-                closest = monster;
-            }
+            results.Add(monster);
         }
 
-        closest?.TakeDamage(dmg, type, transform.position);
+        results.Sort((a, b) =>
+        {
+            float da = ((Vector2)a.transform.position - origin).sqrMagnitude;
+            float db = ((Vector2)b.transform.position - origin).sqrMagnitude;
+            return da.CompareTo(db);
+        });
+
+        if (maxTargets > 0 && results.Count > maxTargets)
+        {
+            results.RemoveRange(maxTargets, results.Count - maxTargets);
+        }
     }
 
     private void DoRangedAttack(WeaponData weapon)
@@ -258,7 +288,8 @@ public class PlayerController : MonoBehaviour, IPlayable
         aimDir = aimDir.sqrMagnitude > 0.0001f ? aimDir.normalized : Vector2.right;
 
         int pellets = Mathf.Max(1, weapon.pelletCount);
-        Vector3 spawnPos = weaponRenderer != null ? weaponRenderer.transform.position : transform.position;
+        // 무기가 더 이상 조준 방향을 가리키지 않으므로(머리 밑 고정 표시), 총알은 플레이어 중심에서 나간다.
+        Vector3 spawnPos = transform.position;
 
         for (int i = 0; i < pellets; i++)
         {
@@ -300,14 +331,6 @@ public class PlayerController : MonoBehaviour, IPlayable
         attack += attackEvent;
     }
 
-    private void Test()
-    {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            Hit(20f);
-        }
-    }
-    
     public float GetHealth() { return health; }
     public float GetMaxHealth() { return maxHealth; }
 }
