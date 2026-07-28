@@ -650,6 +650,7 @@ MonoBehaviour:
   anim: {fileID: 9207523875929657897}
   model: {fileID: 3612495129861985945}
   weaponRenderer: {fileID: 1903934199209440941}
+  scoreCanvasPrefab: {fileID: 4976890438660266658, guid: 6c9bdb09de6395b46b09c3a8c86ac3d9, type: 3}
   health: 100
   speed: 5
   fistsCooldown: 0.4

@@ -1,51 +1,89 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using MoreMountains.Feedbacks;
 
 public class TotalScoreUI : MonoBehaviour
 {
-    [Header("¾Ö´Ï¸ŞÀÌ¼Ç ¼³Á¤")]
-    public float countDuration = 1f; // ¸ñÇ¥°ª±îÁö ¿Ã¶ó°¡´Â µ¥ °É¸®´Â ÃÑ ½Ã°£
+    [Header("ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒì‹œê°„")]
+    public float countDuration = 1f; // ì´ì‹œê°„ë™ì•ˆ ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ
+
+    [Header("ìŠ¤í”„ë¼ì´íŠ¸")]
+    public Image[] starImages;      // ë³„ ë‹´ì„ ì´ë¯¸ì§€
+    public Sprite emptyStarSprite;  // ë¹ˆë³„
+    public Sprite fullStarSprite;   // ë°ì€ë³„
+
+    [Header("MMFPlayer(MMF)")]
+    public MMF_Player starFeedbackPlayer; // ì§ì ‘ ëŒì–´ì™€ ì—°ê²°
 
     private TextMeshProUGUI scoreText;
     private ScoreUI scoreUI;
     private TimeUI timeUI;
-
     private int displayedValue = 0;
     private int targetValue = 0;
 
     void Awake()
     {
         scoreText = GetComponent<TextMeshProUGUI>();
+        if (starFeedbackPlayer == null)
+            starFeedbackPlayer = GetComponent<MMF_Player>();
     }
 
     void Start()
     {
-        // ÀÌ¸§À¸·Î Ã£¾Æ¼­ ¿¬°á
-        scoreUI = GameObject.Find("ScoreUI").GetComponent<ScoreUI>();
-        timeUI = GameObject.Find("TimeUI").GetComponent<TimeUI>();
+        GameObject scoreUIObj = GameObject.Find("scoretext");
+        GameObject timeUIObj = GameObject.Find("timertext");
+        scoreUI = scoreUIObj != null ? scoreUIObj.GetComponent<ScoreUI>() : null;
+        timeUI = timeUIObj != null ? timeUIObj.GetComponent<TimeUI>() : null;
 
-        // °ªÀ» °¡Á®¿Í¼­ ÀúÀå
-        targetValue = scoreUI.GetScore() + timeUI.GetRemainingSeconds();
+        if (scoreUI == null || timeUI == null)
+        {
+            targetValue = 100;
+        }
+        else
+        {
+            targetValue = scoreUI.GetScore() + timeUI.GetRemainingSeconds();
+        }
+
+        ResetStarsToEmpty();
 
         scoreText.text = "0";
         StartCoroutine(CountUpToTarget());
 
-        if(targetValue > 100)
-        {//º° 3°³
+        int starCount = GetStarCount(targetValue);
+        PlayStars(starCount);
+    }
 
-        }else if(targetValue > 50)
-        {//º° 2°³
+    private int GetStarCount(int value)
+    {
+        if (value > 100) return 3;
+        else if (value > 50) return 2;
+        else if (value > 30) return 1;
+        else return 0;
+    }
 
+    private void ResetStarsToEmpty()
+    {
+        for (int i = 0; i < starImages.Length; i++)
+        {
+            if (starImages[i] != null)
+                starImages[i].sprite = emptyStarSprite;
         }
-        else if(targetValue >30)
-        {//º° 1°³
+    }
 
-        }
-        else
-        {//º° 0°³
+    private void PlayStars(int starCount)
+    {
+        if (starFeedbackPlayer == null) return;
 
+        // ìŠ¤í”„ë¼ì´íŠ¸ë§Œ ê°œìˆ˜ì— ë§ê²Œ ì±„ìš°ê³ , ì• ë‹ˆë©”ì´ì…˜ì€ 3ê°œ ë‹¤ ì¬ìƒ
+        for (int i = 0; i < starImages.Length; i++)
+        {
+            if (starImages[i] != null)
+                starImages[i].sprite = (i < starCount) ? fullStarSprite : emptyStarSprite;
         }
+
+        starFeedbackPlayer.PlayFeedbacks();
     }
 
     private IEnumerator CountUpToTarget()
@@ -55,9 +93,7 @@ public class TotalScoreUI : MonoBehaviour
             scoreText.text = "0";
             yield break;
         }
-
         float interval = countDuration / targetValue;
-
         while (displayedValue < targetValue)
         {
             displayedValue++;

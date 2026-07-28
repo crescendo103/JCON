@@ -18,6 +18,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [SerializeField] private Animator anim;
     [SerializeField] private Transform model;
     [SerializeField] private SpriteRenderer weaponRenderer;
+    [SerializeField] private GameObject scoreCanvasPrefab;
 
     [Space(20f)]
     [SerializeField] private float health = 100f;
@@ -323,8 +324,20 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (health < 0f) return;
         health -= dmg;
 
-        if (health < 0f) anim.Play("Death", 0);
+        if (health < 0f)
+        {
+            anim.Play("Death", 0);
+            SpawnScoreCanvas();
+        }
         else anim.Play("Hit", 0);
+    }
+
+    private void SpawnScoreCanvas()
+    {
+        if (scoreCanvasPrefab == null) return;
+
+        var scoreCanvas = Instantiate(scoreCanvasPrefab);
+        scoreCanvas.SetActive(true);
     }
 
     /// <summary>
