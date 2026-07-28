@@ -653,7 +653,7 @@ MonoBehaviour:
   health: 100
   speed: 5
   fistsCooldown: 0.4
-  weaponHeldOffset: {x: 0, y: 0.15}
+  weaponHeldOffset: {x: 0, y: 0.19}
 --- !u!58 &394008080862247787
 CircleCollider2D:
   m_ObjectHideFlags: 0

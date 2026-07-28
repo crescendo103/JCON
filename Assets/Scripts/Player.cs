@@ -108,6 +108,9 @@ public class PlayerController : MonoBehaviour, IPlayable
 
         if (dx > 0f) model.localScale = new Vector3(-1f, 1f, 1f);
         else if (dx < 0f) model.localScale = new Vector3(1f, 1f, 1f);
+
+        // 총 원본 아트가 오른쪽을 보고 그려져 있으므로, 왼쪽을 볼 때만(model.localScale.x > 0) 뒤집는다.
+        if (weaponRenderer != null) weaponRenderer.flipX = model.localScale.x > 0f;
     }
 
     /// <summary>
