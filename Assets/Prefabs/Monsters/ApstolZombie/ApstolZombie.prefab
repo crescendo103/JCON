@@ -196,6 +196,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterController
   data: {fileID: 0}
   target: {fileID: 0}
+  hitEffectPrefabs:
+  - {fileID: 9092835396800067803, guid: 4e2a563be49cbf64b9f485682b4981bf, type: 3}
+  - {fileID: 1069725914446905809, guid: 061a940f48aa8cc49ac4b9f42bcf7d80, type: 3}
 --- !u!114 &6008563772728883712
 MonoBehaviour:
   m_ObjectHideFlags: 0

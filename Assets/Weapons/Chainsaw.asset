@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfa62c42a26a1fc45ab722d17f98fa48, type: 3}
+  m_Name: Chainsaw
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
+  weaponName: "\uC804\uAE30\uD1B1"
+  category: 0
+  equippedSprite: {fileID: 0}
+  pickupSprite: {fileID: 0}
+  slotIndex: 1
+  attackAnimState: AttackPrick
+  displayScale: 1
+  damage: 8
+  cooldown: 0.3
+  damageType: 0
+  sfx: {fileID: 0}
+  meleeMode: 1
+  meleeRange: 0.7
+  meleeHitRadius: 0.6
+  bulletPrefab: {fileID: 0}
+  projectileSpeed: 15
+  projectileMaxDistance: 15
+  pelletCount: 1
+  spreadAngleDeg: 0
+  pierceCount: 0

@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // 플레이어 사격에서 발사되는 총알. 지정한 방향으로 날아가다가 몬스터와 부딪히면 데미지를 주고 사라진다.
+// pierce가 있으면(저격총 등) 이미 맞은 대상은 건너뛰고 남은 관통 횟수만큼 계속 날아간다.
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
 public class Projectile : MonoBehaviour
@@ -12,6 +14,8 @@ public class Projectile : MonoBehaviour
     private DamageType damageType;
     private Vector2 direction = Vector2.right;
     private Vector3 startPosition;
+    private int pierceRemaining;
+    private readonly HashSet<MonsterController> hitMonsters = new HashSet<MonsterController>();
 
     void Awake()
     {
@@ -23,12 +27,14 @@ public class Projectile : MonoBehaviour
         col.isTrigger = true;
     }
 
-    public void Launch(Vector2 dir, int dmg, DamageType type)
+    public void Launch(Vector2 dir, int dmg, DamageType type, int pierce = 0)
     {
         direction = dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.right;
         damage = dmg;
         damageType = type;
         startPosition = transform.position;
+        pierceRemaining = pierce;
+        hitMonsters.Clear();
 
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
@@ -45,9 +51,18 @@ public class Projectile : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         var monster = other.GetComponent<MonsterController>();
-        if (monster == null) return;
+        if (monster == null || hitMonsters.Contains(monster)) return;
 
         monster.TakeDamage(damage, damageType, transform.position);
-        Destroy(gameObject);
+        hitMonsters.Add(monster);
+
+        if (pierceRemaining <= 0)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            pierceRemaining--;
+        }
     }
 }

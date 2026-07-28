@@ -27,7 +27,7 @@ public class StageManager : MonoBehaviour
     [Tooltip("한 번에 스폰할 몬스터 수")]
     [Min(1)] public int spawnPerTick = 1;
     [Tooltip("동시에 존재할 수 있는 최대 몬스터 수")]
-    public int maxAliveMonsters = 20;
+    public int maxAliveMonsters = 3;
 
     [Header("스폰 위치 (카메라 화면 밖 링)")]
     [Tooltip("화면 경계로부터 최소로 떨어뜨릴 여유 거리")]
