@@ -1273,6 +1273,9 @@ GameObject:
   - component: {fileID: 660402986}
   - component: {fileID: 660402985}
   - component: {fileID: 660402984}
+  - component: {fileID: 660402989}
+  - component: {fileID: 660402988}
+  - component: {fileID: 660402987}
   m_Layer: 5
   m_Name: socre
   m_TagString: Untagged
@@ -1414,6 +1417,303 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 660402982}
   m_CullTransparentMesh: 1
+--- !u!114 &660402987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660402982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6da43522623d4704e979466dc7650b65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Feedbacks.MMF_Player
+  Feedbacks: []
+  InitializationMode: 2
+  AutoInitialization: 1
+  SafeMode: 3
+  Direction: 0
+  AutoChangeDirectionOnEnd: 0
+  AutoPlayOnStart: 0
+  AutoPlayOnEnable: 0
+  ForceTimescaleMode: 0
+  ForcedTimescaleMode: 1
+  DurationMultiplier: 1
+  TimescaleMultiplier: 1
+  RandomizeDuration: 0
+  RandomDurationMultiplier: {x: 0.5, y: 1.5}
+  DisplayFullDurationDetails: 0
+  PlayerTimescaleMode: 0
+  OnlyPlayIfWithinRange: 0
+  RangeCenter: {fileID: 0}
+  RangeDistance: 5
+  UseRangeFalloff: 0
+  RangeFalloff:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  RemapRangeFalloff: {x: 0, y: 1}
+  IgnoreRangeEvents: 0
+  CooldownDuration: 0
+  InitialDelay: 0
+  CanPlay: 1
+  CanPlayWhileAlreadyPlaying: 1
+  ChanceToPlay: 100
+  FeedbacksIntensity: 1
+  Events:
+    TriggerMMFeedbacksEvents: 0
+    TriggerUnityEvents: 1
+    OnPlay:
+      m_PersistentCalls:
+        m_Calls: []
+    OnPause:
+      m_PersistentCalls:
+        m_Calls: []
+    OnStop:
+      m_PersistentCalls:
+        m_Calls: []
+    OnResume:
+      m_PersistentCalls:
+        m_Calls: []
+    OnChangeDirection:
+      m_PersistentCalls:
+        m_Calls: []
+    OnComplete:
+      m_PersistentCalls:
+        m_Calls: []
+    OnRestoreInitialValues:
+      m_PersistentCalls:
+        m_Calls: []
+    OnSkipToTheEnd:
+      m_PersistentCalls:
+        m_Calls: []
+    OnInitializationComplete:
+      m_PersistentCalls:
+        m_Calls: []
+    OnEnable:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDisable:
+      m_PersistentCalls:
+        m_Calls: []
+  DebugActive: 0
+  InScriptDrivenPause: 0
+  FeedbacksList: []
+  KeepPlayModeChanges: 0
+  PerformanceMode: 0
+  RestoreInitialValuesOnDisable: 0
+  StopFeedbacksOnDisable: 0
+  PlayCount: 0
+  MMF_ChannelMode: 0
+  MMF_Channel: 0
+  MMF_ChannelDefinition: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &660402988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660402982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e640499a55d3f348b303b7c2ce7d452, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Feedbacks.MMFeedbacksSequencer
+  Sequence: {fileID: 0}
+  BPM: 160
+  SequencerLength: 8
+  TimeScale: 0
+  Loop: 1
+  RandomSequence: 0
+  PlayOnStart: 0
+  MetronomeSound: {fileID: 0}
+  MetronomeVolume: 0.2
+  TrackEvents: []
+  Playing: 0
+  PlayedOnce: 0
+  BeatThisFrame: 0
+  LastBeatIndex: 0
+  LastBPM: -1
+  LastTracksCount: -1
+  LastSequencerLength: -1
+  LastSequence: {fileID: 0}
+  CurrentSequenceIndex: 0
+  LastBeatTimestamp: 0
+  Feedbacks: []
+--- !u!114 &660402989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660402982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be090172b5d6e3149b78c6da8b309d47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Feedbacks.MMFeedbacksAuthorizations
+  ToggleAnimationButton: 0
+  AnimationParameter: 1
+  AnimatorSpeed: 1
+  ToggleAudioButton: 0
+  AudioFilterDistortion: 1
+  AudioFilterEcho: 1
+  AudioFilterHighPass: 1
+  AudioFilterLowPass: 1
+  AudioFilterReverb: 1
+  AudioMixerSnapshotTransition: 1
+  AudioSource: 1
+  AudioSourcePitch: 1
+  AudioSourceStereoPan: 1
+  AudioSourceVolume: 1
+  MMPlaylist: 1
+  MMSoundManagerAllSoundsControl: 1
+  MMSoundManagerSaveAndLoad: 1
+  MMSoundManagerSound: 1
+  MMSoundManagerSoundControl: 1
+  MMSoundManagerSoundFade: 1
+  MMSoundManagerTrackControl: 1
+  MMSoundManagerTrackFade: 1
+  Sound: 1
+  ToggleCameraButton: 0
+  CameraShake: 1
+  CameraZoom: 1
+  ClippingPlanes: 1
+  Fade: 1
+  FieldOfView: 1
+  Flash: 1
+  OrthographicSize: 1
+  ToggleDebugButton: 0
+  Comment: 1
+  Log: 1
+  ToggleEventsButton: 0
+  MMGameEvent: 1
+  UnityEvents: 1
+  ToggleGameObjectButton: 0
+  Broadcast: 1
+  Collider: 1
+  Collider2D: 1
+  DestroyTargetObject: 1
+  EnableBehaviour: 1
+  FloatController: 1
+  InstantiateObject: 1
+  MMRadioSignal: 1
+  Rigidbody: 1
+  Rigidbody2D: 1
+  SetActive: 1
+  ToggleHapticsButton: 0
+  HapticClip: 1
+  HapticContinuous: 1
+  HapticControl: 1
+  HapticEmphasis: 1
+  HapticPreset: 1
+  ToggleLightButton: 0
+  Light: 1
+  ToggleLoopButton: 0
+  Looper: 1
+  LooperStart: 1
+  ToggleParticlesButton: 0
+  ParticlesInstantiation: 1
+  ParticlesPlay: 1
+  TogglePauseButton: 0
+  HoldingPause: 1
+  Pause: 1
+  TogglePostProcessButton: 0
+  Bloom: 1
+  ChromaticAberration: 1
+  ColorGrading: 1
+  DepthOfField: 1
+  GlobalPPVolumeAutoBlend: 1
+  LensDistortion: 1
+  PPMovingFilter: 1
+  Vignette: 1
+  ToggleFlickerButton: 0
+  Flicker: 1
+  Fog: 1
+  Material: 1
+  MMBlink: 1
+  ShaderGlobal: 1
+  ShaderController: 1
+  Skybox: 1
+  SpriteRenderer: 1
+  TextureOffset: 1
+  TextureScale: 1
+  ToggleSceneButton: 0
+  LoadScene: 1
+  UnloadScene: 1
+  ToggleTimeButton: 0
+  FreezeFrame: 1
+  TimescaleModifier: 1
+  ToggleTransformButton: 0
+  Destination: 1
+  Position: 1
+  PositionShake: 1
+  RotatePositionAround: 1
+  Rotation: 1
+  RotationShake: 1
+  Scale: 1
+  ScaleShake: 1
+  SquashAndStretch: 1
+  Wiggle: 1
+  ToggleUiButton: 0
+  CanvasGroup: 1
+  CanvasGroupBlocksRaycasts: 1
+  FloatingText: 1
+  Graphic: 1
+  GraphicCrossFade: 1
+  Image: 1
+  ImageAlpha: 1
+  ImageFill: 1
+  ImageRaycastTarget: 1
+  ImageTextureOffset: 1
+  ImageTextureScale: 1
+  RectTransformAnchor: 1
+  RectTransformOffset: 1
+  RectTransformPivot: 1
+  RectTransformSizeDelta: 1
+  Text: 1
+  TextColor: 1
+  TextFontSize: 1
+  VideoPlayer: 1
+  ToggleTextMeshProButton: 0
+  TMPAlpha: 1
+  TMPCharacterSpacing: 1
+  TMPColor: 1
+  TMPCountTo: 1
+  TMPDilate: 1
+  TMPFontSize: 1
+  TMPLineSpacing: 1
+  TMPOutlineColor: 1
+  TMPOutlineWidth: 1
+  TMPParagraphSpacing: 1
+  TMPSoftness: 1
+  TMPText: 1
+  TMPTextReveal: 1
+  TMPWordSpacing: 1
 --- !u!1 &829070700
 GameObject:
   m_ObjectHideFlags: 0
