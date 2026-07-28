@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class WeaponPickup : MonoBehaviour
 {
-    public WeaponData weapon;
+    public GameWeaponData weapon;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [Tooltip("스케일과 무관하게 유지할 픽업 판정 반경(월드 기준)")]
     [SerializeField] private float pickupRadius = 0.4f;
@@ -25,7 +25,7 @@ public class WeaponPickup : MonoBehaviour
 
     // 스포너가 Instantiate 직후 무기를 지정할 때 사용. Awake는 Instantiate 도중 이미 실행되므로
     // Instantiate 이후에 weapon을 대입하는 것만으로는 스프라이트가 갱신되지 않는다.
-    public void Setup(WeaponData w)
+    public void Setup(GameWeaponData w)
     {
         weapon = w;
         ApplyVisual();
@@ -68,7 +68,7 @@ public class WeaponPickup : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        var pc = other.GetComponent<PlayerController>();
+        var pc = other.GetComponent<GamePlayerController>();
         if (pc != null && weapon != null)
         {
             pc.PickupWeapon(weapon);

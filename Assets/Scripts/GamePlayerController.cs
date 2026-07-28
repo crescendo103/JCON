@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerController : MonoBehaviour, IPlayable
+public class GamePlayerController : MonoBehaviour, IPlayable
 {
     private static readonly KeyCode[] SlotKeys =
     {
@@ -36,9 +36,9 @@ public class PlayerController : MonoBehaviour, IPlayable
 
     // 숫자키 1~5 = 슬롯 0~4. 슬롯 0(FistsSlot)은 맨손 전용으로 항상 비어있다.
     // 1~4는 비어있으면(null) 아직 못 주운 무기.
-    private readonly WeaponData[] ownedWeapons = new WeaponData[5];
+    private readonly GameWeaponData[] ownedWeapons = new GameWeaponData[5];
     private int currentSlot = FistsSlot;
-    private WeaponData equippedWeapon;
+    private GameWeaponData equippedWeapon;
     private float nextAttackTime;
     private readonly List<MonsterController> meleeTargetBuffer = new List<MonsterController>();
 
@@ -171,7 +171,7 @@ public class PlayerController : MonoBehaviour, IPlayable
     /// <summary>
     /// 필드에서 무기를 주웠을 때 호출(WeaponPickup에서 호출). 해당 슬롯에 등록하고 바로 장착한다.
     /// </summary>
-    public void PickupWeapon(WeaponData weapon)
+    public void PickupWeapon(GameWeaponData weapon)
     {
         if (weapon == null) return;
 
@@ -220,7 +220,7 @@ public class PlayerController : MonoBehaviour, IPlayable
     /// <summary>
     /// 무기 종류에 따라 실제 데미지 판정을 실행한다. weapon이 null이면 맨손 근접 공격.
     /// </summary>
-    private void ExecuteAttack(WeaponData weapon)
+    private void ExecuteAttack(GameWeaponData weapon)
     {
         if (weapon == null || weapon.category == WeaponCategory.Melee)
         {
@@ -232,7 +232,7 @@ public class PlayerController : MonoBehaviour, IPlayable
         }
     }
 
-    private void DoMeleeAttack(WeaponData weapon)
+    private void DoMeleeAttack(GameWeaponData weapon)
     {
         int dmg = weapon != null ? weapon.damage : 5;
         DamageType type = weapon != null ? weapon.damageType : DamageType.Normal;
@@ -283,7 +283,7 @@ public class PlayerController : MonoBehaviour, IPlayable
         }
     }
 
-    private void DoRangedAttack(WeaponData weapon)
+    private void DoRangedAttack(GameWeaponData weapon)
     {
         if (weapon.bulletPrefab == null) return;
 
@@ -306,7 +306,7 @@ public class PlayerController : MonoBehaviour, IPlayable
             Vector2 dir = Quaternion.Euler(0f, 0f, angleOffset) * aimDir;
 
             var bullet = Instantiate(weapon.bulletPrefab, spawnPos, Quaternion.identity);
-            var projectile = bullet.GetComponent<Projectile>();
+            var projectile = bullet.GetComponent<GameProjectile>();
             if (projectile != null)
             {
                 projectile.speed = weapon.projectileSpeed;

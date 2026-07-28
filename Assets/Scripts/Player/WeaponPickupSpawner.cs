@@ -5,7 +5,7 @@ using UnityEngine;
 // 이후에는 spawnInterval/spawnRadius 주기로 플레이어 주변에 계속 스폰한다.
 public class WeaponPickupSpawner : MonoBehaviour
 {
-    public WeaponData[] possibleWeapons;
+    public GameWeaponData[] possibleWeapons;
     public GameObject pickupPrefab;
     public float spawnInterval = 5f;
     public float spawnRadius = 8f;

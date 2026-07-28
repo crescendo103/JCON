@@ -2,7 +2,7 @@ using UnityEngine;
 
 // 플레이어를 따라다니는 카메라. 2D 게임이므로 X/Y만 목표 위치를 따라가고
 // Z는 카메라 원래 값(깊이)을 그대로 유지한다. SmoothDamp로 부드럽게 뒤쫓아간다.
-public class CameraFollow : MonoBehaviour
+public class GameCameraFollow : MonoBehaviour
 {
     [Header("추적 대상 (비워두면 \"Player\" 태그로 자동 탐색)")]
     public Transform target;

@@ -5,18 +5,18 @@ using static UnityEngine.GraphicsBuffer;
 
 public class PlayerHealthBarUI : MonoBehaviour
 {
-    [Header("Ã¼·Â¹Ù¸¦ ±¸¼ºÇÏ´Â ÀÌ¹ÌÁöµé (10°³)")]
+    [Header("Ã¼ï¿½Â¹Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ (10ï¿½ï¿½)")]
     public Image[] healthImages;
 
-    [Header("ÂüÁ¶ÇÒ ÇÃ·¹ÀÌ¾î Ã¼·Â ½ºÅ©¸³Æ®(µð¹ö±×¿ë) ¾Ë¾Æ¼­ Ã£À½")]
-    public PlayerController playerController; // º»ÀÎ ÇÁ·ÎÁ§Æ®ÀÇ Ã¼·Â ½ºÅ©¸³Æ®·Î ±³Ã¼
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Ã¼ï¿½ï¿½ ï¿½ï¿½Å©ï¿½ï¿½Æ®(ï¿½ï¿½ï¿½ï¿½×¿ï¿½) ï¿½Ë¾Æ¼ï¿½ Ã£ï¿½ï¿½")]
+    public GamePlayerController playerController; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ Ã¼ï¿½ï¿½ ï¿½ï¿½Å©ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½Ã¼
 
     private void Start()
     {
         var player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            playerController = player.GetComponent<PlayerController>();
+            playerController = player.GetComponent<GamePlayerController>();
         }
     }
     void Update()
@@ -28,7 +28,7 @@ public class PlayerHealthBarUI : MonoBehaviour
     {
         float percent = currentHealth / maxHealth; // 0.0 ~ 1.0
 
-        // 10%¸¶´Ù ÇÏ³ª¾¿ -> ¸î °³¸¦ ÄÑ¾ß ÇÏ´ÂÁö °è»ê
+        // 10%ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ -> ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¾ï¿½ ï¿½Ï´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         int activeCount = Mathf.CeilToInt(percent * healthImages.Length);
 
         for (int i = 0; i < healthImages.Length; i++)

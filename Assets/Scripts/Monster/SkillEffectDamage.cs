@@ -10,6 +10,6 @@ public class SkillEffectDamage : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        other.GetComponent<PlayerController>()?.Hit(damage);
+        other.GetComponent<GamePlayerController>()?.Hit(damage);
     }
 }

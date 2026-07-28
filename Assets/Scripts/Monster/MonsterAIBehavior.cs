@@ -75,14 +75,14 @@ public class RangedKiterAI : MonsterAIBehavior
         }
     }
 
-    // 플레이어의 현재 이동 방향(PlayerController.CurrentVelocity)을 바탕으로 aimLeadTime 뒤의
+    // 플레이어의 현재 이동 방향(GamePlayerController.CurrentVelocity)을 바탕으로 aimLeadTime 뒤의
     // 위치를 예측한 뒤, aimError 반경 안에서 무작위 오차를 더해 반환한다(항상 정확히 맞지는 않도록).
-    // PlayerController가 없거나 멈춰 있으면 현재 위치를 기준으로 오차만 더한다.
+    // GamePlayerController가 없거나 멈춰 있으면 현재 위치를 기준으로 오차만 더한다.
     private Vector3 GetPredictedAimPoint(MonsterController monster)
     {
         Vector3 currentPos = monster.target.position;
 
-        var player = monster.target.GetComponent<PlayerController>();
+        var player = monster.target.GetComponent<GamePlayerController>();
         Vector3 predicted = player != null
             ? currentPos + (Vector3)(player.CurrentVelocity * aimLeadTime)
             : currentPos;

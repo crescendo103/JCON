@@ -9,7 +9,7 @@ public enum MeleeAttackMode { SingleSwing, HoldContinuous }
 // 플레이어 무기 데이터. Monster/SkillData.cs와 동일한 패턴(ScriptableObject + CreateAssetMenu)으로
 // 기획자가 Inspector에서 수치를 바로 조정할 수 있게 한다.
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Player/Weapon Data")]
-public class WeaponData : ScriptableObject
+public class GameWeaponData : ScriptableObject
 {
     [Header("기본 정보")]
     public string weaponName;

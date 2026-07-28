@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // 무기 스프라이트가 아직 없는 경우(예: 전기톱) 임시 도형으로 대체 표시하기 위한 공용 유틸.
-// WeaponPickup(필드 픽업)과 PlayerController(장착) 양쪽에서 동일한 규칙을 쓰기 위해 분리했다.
+// WeaponPickup(필드 픽업)과 GamePlayerController(장착) 양쪽에서 동일한 규칙을 쓰기 위해 분리했다.
 public static class WeaponVisuals
 {
     public const float PlaceholderScale = 0.5f;

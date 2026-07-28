@@ -5,7 +5,7 @@ using UnityEngine;
 // pierce가 있으면(저격총 등) 이미 맞은 대상은 건너뛰고 남은 관통 횟수만큼 계속 날아간다.
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
-public class Projectile : MonoBehaviour
+public class GameProjectile : MonoBehaviour
 {
     public float speed = 15f;
     public float maxDistance = 20f;
