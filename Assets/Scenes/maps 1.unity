@@ -903,9 +903,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3864649952505333912, guid: b51df73f0c902984f8ba25d92eb51241, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4111138561488968656, guid: b51df73f0c902984f8ba25d92eb51241, type: 3}
       propertyPath: m_Name
       value: WeaponPickup
+      objectReference: {fileID: 0}
+    - target: {fileID: 6303331893207017418, guid: b51df73f0c902984f8ba25d92eb51241, type: 3}
+      propertyPath: groundedSortingOrder
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6348287990303629437, guid: b51df73f0c902984f8ba25d92eb51241, type: 3}
       propertyPath: m_LocalPosition.x

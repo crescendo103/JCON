@@ -16,8 +16,8 @@ public class WeaponPickup : MonoBehaviour
     [SerializeField] private float boxScale = 0.7f;
     [Tooltip("공중에 떠 있는 동안의 정렬 순서. 플레이어 자식 스프라이트 최대치(4)보다 커야 앞을 지나간다")]
     [SerializeField] private int fallingSortingOrder = 6;
-    [Tooltip("착지 후 정렬 순서. 기존 픽업과 동일하게 바닥 클러터로 취급해 플레이어 뒤로 보낸다")]
-    [SerializeField] private int groundedSortingOrder = -1;
+    [Tooltip("착지 후 정렬 순서. 맵 배경 스프라이트(sortingOrder 0)보다 높아야 가려지지 않는다")]
+    [SerializeField] private int groundedSortingOrder = 2;
 
     [Header("낙하산")]
     [Tooltip("낙하 중에만 보이는 낙하산 그래픽. 비워두면 절차형(코드로 그린) 낙하산을 사용한다")]
