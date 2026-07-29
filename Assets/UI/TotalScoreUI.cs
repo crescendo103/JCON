@@ -53,6 +53,9 @@ public class TotalScoreUI : MonoBehaviour
 
         int starCount = GetStarCount(targetValue);
         PlayStars(starCount);
+
+        // 이번 스테이지 결과(별 개수)를 진행도 매니저에 보고한다. 이전 기록보다 좋을 때만 저장된다.
+        StageProgressManager.Instance.ReportCurrentStageResult(starCount);
     }
 
     private int GetStarCount(int value)
