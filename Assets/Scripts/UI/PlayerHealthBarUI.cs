@@ -5,11 +5,11 @@ using static UnityEngine.GraphicsBuffer;
 
 public class PlayerHealthBarUI : MonoBehaviour
 {
-    [Header("ü�¹ٸ� �����ϴ� �̹����� (10��)")]
+    [Header("플레이어 피 이미지 10개")]
     public Image[] healthImages;
 
-    [Header("������ �÷��̾� ü�� ��ũ��Ʈ(����׿�) �˾Ƽ� ã��")]
-    public GamePlayerController playerController; // ���� ������Ʈ�� ü�� ��ũ��Ʈ�� ��ü
+    [Header("플레이어 컨트롤러")]
+    public GamePlayerController playerController;
 
     private void Start()
     {

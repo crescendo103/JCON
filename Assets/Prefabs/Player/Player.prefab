@@ -208,7 +208,7 @@ Transform:
   m_GameObject: {fileID: 1902340801521365659}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.03, y: 0.245, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -650,10 +650,12 @@ MonoBehaviour:
   anim: {fileID: 9207523875929657897}
   model: {fileID: 3612495129861985945}
   weaponRenderer: {fileID: 1903934199209440941}
+  scoreCanvasPrefab: {fileID: 4976890438660266658, guid: 6c9bdb09de6395b46b09c3a8c86ac3d9, type: 3}
   health: 100
   speed: 5
   fistsCooldown: 0.4
   weaponHeldOffset: {x: 0, y: 0.19}
+  bulletSpawnHeight: 0.2
 --- !u!58 &394008080862247787
 CircleCollider2D:
   m_ObjectHideFlags: 0

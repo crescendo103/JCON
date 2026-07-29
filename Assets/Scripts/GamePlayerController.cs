@@ -18,6 +18,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [SerializeField] private Animator anim;
     [SerializeField] private Transform model;
     [SerializeField] private SpriteRenderer weaponRenderer;
+    [SerializeField] private GameObject scoreCanvasPrefab;
 
     [Space(20f)]
     [SerializeField] private float health = 100f;
@@ -25,6 +26,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [SerializeField] private float fistsCooldown = 0.4f;
     [Tooltip("무기 아이콘 고정 위치(플레이어 로컬 기준). 머리 밑에 오도록 조정")]
     [SerializeField] private Vector2 weaponHeldOffset = new Vector2(0f, 0.15f);
+    [Tooltip("원거리 무기 총알이 생성되는 높이(플레이어 중심 기준 위로 오프셋)")]
+    [SerializeField] private float bulletSpawnHeight = 0.3f;
 
     private bool isAttack;
     private Vector2 input;
@@ -300,7 +303,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
         int pellets = Mathf.Max(1, weapon.pelletCount);
         // 무기가 더 이상 조준 방향을 가리키지 않으므로(머리 밑 고정 표시), 총알은 플레이어 중심에서 나간다.
-        Vector3 spawnPos = transform.position;
+        Vector3 spawnPos = transform.position + Vector3.up * bulletSpawnHeight;
 
         for (int i = 0; i < pellets; i++)
         {
@@ -329,8 +332,20 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (health < 0f) return;
         health -= dmg;
 
-        if (health < 0f) anim.Play("Death", 0);
+        if (health < 0f)
+        {
+            anim.Play("Death", 0);
+            SpawnScoreCanvas();
+        }
         else anim.Play("Hit", 0);
+    }
+
+    private void SpawnScoreCanvas()
+    {
+        if (scoreCanvasPrefab == null) return;
+
+        var scoreCanvas = Instantiate(scoreCanvasPrefab);
+        scoreCanvas.SetActive(true);
     }
 
     /// <summary>
