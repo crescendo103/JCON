@@ -2742,8 +2742,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Level Complete
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 782d70c689951c24a876adb7e1cb7f8c, type: 2}
-  m_sharedMaterial: {fileID: -9087501277027906569, guid: 782d70c689951c24a876adb7e1cb7f8c, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2946,6 +2946,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonStateEffect
   hoverSprite: {fileID: 6406189502320623755, guid: 345bcc35c4b8e734b86f0f222298e19c, type: 3}
+  hoverAlpha: 0.6
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
@@ -3188,6 +3189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonStateEffect
   hoverSprite: {fileID: 6406189502320623755, guid: bc02931438d1d114cbd5815fbf009532, type: 3}
+  hoverAlpha: 0.6
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
@@ -3261,7 +3263,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 35.5, y: 7.6}
+  m_AnchoredPosition: {x: 84, y: 7.6}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &285206051366236355
@@ -3296,8 +3298,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
-  m_sharedMaterial: {fileID: 8492004674694424716, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3453,8 +3455,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Score  : '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
-  m_sharedMaterial: {fileID: 8492004674694424716, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3543,18 +3545,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &900000101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4976890438660266658}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b2c15293409c8043a7170eca51d0fc0, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::ScoreCanvasButtons
 --- !u!224 &2637350741363821632
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3647,6 +3637,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &900000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4976890438660266658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b2c15293409c8043a7170eca51d0fc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScoreCanvasButtons
 --- !u!1 &5438812884779945021
 GameObject:
   m_ObjectHideFlags: 0
@@ -3704,7 +3706,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1646518486172465884
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3819,6 +3821,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonStateEffect
   hoverSprite: {fileID: 6406189502320623755, guid: f8fc8269517c6814da9987f79ed84534, type: 3}
+  hoverAlpha: 0.6
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}

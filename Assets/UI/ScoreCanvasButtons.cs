@@ -12,12 +12,16 @@ public class ScoreCanvasButtons : MonoBehaviour
     {
         Button restartButton = FindButton("restartButton");
         Button homeButton = FindButton("homeButton (2)");
+        Button nextStageButton = FindButton("playButton (1)");
 
         if (restartButton != null)
             restartButton.onClick.AddListener(OnClickRestart);
 
         if (homeButton != null)
             homeButton.onClick.AddListener(OnClickHome);
+
+        if (nextStageButton != null)
+            nextStageButton.onClick.AddListener(OnClickNextStage);
     }
 
     // 하위 계층이 몇 단계든 상관없이 이름으로 버튼을 찾는다.
@@ -31,15 +35,21 @@ public class ScoreCanvasButtons : MonoBehaviour
         return null;
     }
 
-    // 같은 스테이지를 다시 플레이한다.
+    // 지금 스테이지를 처음부터 다시 로드한다.
     private void OnClickRestart()
     {
-        UINavigator.Instance.OpenStageScene(StageProgressManager.Instance.CurrentStage);
+        UINavigator.Instance.ReloadCurrentScene();
     }
 
     // 시작 화면(UIScene의 StartSceneCanvas)으로 돌아간다.
     private void OnClickHome()
     {
         UINavigator.Instance.OpenStartSceneCanvas();
+    }
+
+    // CurrentStage로 진입한다 (별 3개일 때만 이 버튼이 보이므로, 실제로는 다음 스테이지로 들어간다).
+    private void OnClickNextStage()
+    {
+        UINavigator.Instance.OpenNextStage();
     }
 }

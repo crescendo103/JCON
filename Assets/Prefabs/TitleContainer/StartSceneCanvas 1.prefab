@@ -20,18 +20,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &900000201
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 178204709779816096}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e8380c5808430842ac2db9c354296ba, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::StartSceneCanvasButtons
 --- !u!224 &2991109815378013017
 RectTransform:
   m_ObjectHideFlags: 0
@@ -119,6 +107,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &900000201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178204709779816096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e8380c5808430842ac2db9c354296ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StartSceneCanvasButtons
 --- !u!1 &1123590704965377156
 GameObject:
   m_ObjectHideFlags: 0
@@ -191,7 +191,7 @@ MonoBehaviour:
 '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 0}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials:
   - {fileID: 0}
   m_fontMaterial: {fileID: 0}
@@ -1057,8 +1057,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
-  m_sharedMaterial: {fileID: 8492004674694424716, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1156,7 +1156,7 @@ RectTransform:
   m_GameObject: {fileID: 4458460300979568894}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.2875, y: 2.4875, z: 1}
+  m_LocalScale: {x: 1.0122979, y: 1.9655253, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2250012748967799815}
@@ -1262,6 +1262,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonStateEffect
   hoverSprite: {fileID: 6406189502320623755, guid: 541a18a134e83ed4682b6dc822a5b4a7, type: 3}
+  hoverAlpha: 0.6
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
@@ -1406,8 +1407,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
-  m_sharedMaterial: {fileID: 8492004674694424716, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1511,9 +1512,9 @@ RectTransform:
   - {fileID: 2450126303762249685}
   m_Father: {fileID: 2991109815378013017}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 416.4, y: -202}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -91, y: 51}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8774853709474187533
@@ -1611,6 +1612,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonStateEffect
   hoverSprite: {fileID: 6406189502320623755, guid: a157539cf54d3f24e972a32d137fea8b, type: 3}
+  hoverAlpha: 0.6
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
@@ -1649,9 +1651,9 @@ RectTransform:
   - {fileID: 4459145156195473999}
   m_Father: {fileID: 2991109815378013017}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -425, y: -202}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 97, y: 51}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5592718520371187353
@@ -1749,6 +1751,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonStateEffect
   hoverSprite: {fileID: 6406189502320623755, guid: 1aef43f7d6494bb48881d8642284f93c, type: 3}
+  hoverAlpha: 0.6
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
@@ -1821,8 +1824,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
-  m_sharedMaterial: {fileID: 8492004674694424716, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

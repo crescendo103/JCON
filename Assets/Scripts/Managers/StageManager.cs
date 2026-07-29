@@ -29,6 +29,10 @@ public class StageManager : MonoBehaviour
     [Tooltip("동시에 존재할 수 있는 최대 몬스터 수")]
     public int maxAliveMonsters = 3;
 
+    [Header("스테이지 목표")]
+    [Tooltip("이번 스테이지에서 총 스폰할 몬스터 수. 이 수만큼 스폰하고 나면 더 이상 스폰하지 않는다")]
+    public int totalMonstersToSpawn = 5;
+
     [Header("스폰 위치 (카메라 화면 밖 링)")]
     [Tooltip("화면 경계로부터 최소로 떨어뜨릴 여유 거리")]
     public float ringPadding = 1f;
@@ -44,6 +48,15 @@ public class StageManager : MonoBehaviour
     // 지금까지 스폰해서 살아있는(파괴되지 않은) 몬스터 목록
     private readonly List<GameObject> aliveMonsters = new List<GameObject>();
     private float spawnTimer;
+
+    // 이번 스테이지에서 지금까지 스폰한 마릿수(총 한도 체크용, 동시 생존 수와는 별개)
+    private int spawnedCount;
+    // 이번 스테이지에서 지금까지 잡은 마릿수
+    private int killedCount;
+    // 다 잡았을 때 스코어 화면을 한 번만 띄우기 위한 플래그
+    private bool stageCleared;
+
+    private ZombieCountUI zombieCountUI;
 
     private void Awake()
     {
@@ -66,10 +79,16 @@ public class StageManager : MonoBehaviour
             if (playerObj != null)
                 player = playerObj.transform;
         }
+
+        zombieCountUI = FindFirstObjectByType<ZombieCountUI>();
+        UpdateZombieCountUI();
     }
 
     private void Update()
     {
+        // 죽어서 파괴된(null) 몬스터를 감지해서 처치 수를 늘린다. 스폰 주기와 무관하게 매 프레임 확인한다.
+        CountKills();
+
         spawnTimer += Time.deltaTime;
         if (spawnTimer < spawnInterval)
             return;
@@ -78,9 +97,50 @@ public class StageManager : MonoBehaviour
         TrySpawn();
     }
 
-    /// <summary>스폰 조건(카메라/최대 마릿수)을 확인하고 spawnPerTick 만큼 스폰을 시도한다.</summary>
+    /// <summary>죽어서 파괴된 몬스터를 목록에서 정리하고, 정리된 수만큼 처치 수로 반영한다.</summary>
+    private void CountKills()
+    {
+        int before = aliveMonsters.Count;
+        aliveMonsters.RemoveAll(m => m == null);
+        int killedJustNow = before - aliveMonsters.Count;
+
+        if (killedJustNow <= 0)
+            return;
+
+        killedCount += killedJustNow;
+        UpdateZombieCountUI();
+
+        if (killedCount >= totalMonstersToSpawn)
+            TriggerStageClear();
+    }
+
+    private void UpdateZombieCountUI()
+    {
+        if (zombieCountUI != null)
+            zombieCountUI.SetCount(killedCount, totalMonstersToSpawn);
+    }
+
+    /// <summary>목표 마릿수를 전부 잡았을 때 스코어 화면을 띄운다. 한 번만 실행된다.</summary>
+    private void TriggerStageClear()
+    {
+        if (stageCleared)
+            return;
+        stageCleared = true;
+
+        if (player == null)
+            return;
+
+        GamePlayerController playerController = player.GetComponent<GamePlayerController>();
+        if (playerController != null)
+            playerController.SpawnScoreCanvas();
+    }
+
+    /// <summary>스폰 조건(카메라/최대 마릿수/총 한도)을 확인하고 spawnPerTick 만큼 스폰을 시도한다.</summary>
     private void TrySpawn()
     {
+        if (spawnedCount >= totalMonstersToSpawn)
+            return; // 이번 스테이지에서 스폰할 총 마릿수를 다 썼다
+
         if (targetCamera == null)
         {
             targetCamera = Camera.main;
@@ -88,11 +148,10 @@ public class StageManager : MonoBehaviour
                 return; // 카메라가 없으면 화면 밖 위치를 계산할 수 없음
         }
 
-        // 죽어서 파괴된(null) 몬스터를 목록에서 정리
-        aliveMonsters.RemoveAll(m => m == null);
-
         for (int i = 0; i < spawnPerTick; i++)
         {
+            if (spawnedCount >= totalMonstersToSpawn)
+                break;
             if (aliveMonsters.Count >= maxAliveMonsters)
                 break;
 
@@ -110,6 +169,7 @@ public class StageManager : MonoBehaviour
         Vector3 spawnPos = GetOffScreenPosition();
         GameObject spawned = Instantiate(prefab, spawnPos, Quaternion.identity);
         aliveMonsters.Add(spawned);
+        spawnedCount++;
     }
 
     /// <summary>spawnTable의 weight를 이용한 룰렛 방식 랜덤 선택.</summary>

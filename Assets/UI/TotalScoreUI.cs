@@ -56,6 +56,22 @@ public class TotalScoreUI : MonoBehaviour
 
         // 이번 스테이지 결과(별 개수)를 진행도 매니저에 보고한다. 이전 기록보다 좋을 때만 저장된다.
         StageProgressManager.Instance.ReportCurrentStageResult(starCount);
+
+        // 별 3개(만점)로 깼을 때만 "다음 스테이지" 버튼을 보여준다.
+        Button nextStageButton = FindButtonInRoot("playButton (1)");
+        if (nextStageButton != null)
+            nextStageButton.gameObject.SetActive(starCount >= StageProgressManager.StarsPerStage);
+    }
+
+    // 하위 계층이 몇 단계든 상관없이 이름으로 버튼을 찾는다.
+    private Button FindButtonInRoot(string buttonName)
+    {
+        foreach (Button button in transform.root.GetComponentsInChildren<Button>(true))
+        {
+            if (button.name == buttonName)
+                return button;
+        }
+        return null;
     }
 
     private int GetStarCount(int value)

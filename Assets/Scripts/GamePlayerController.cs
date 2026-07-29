@@ -430,7 +430,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         else anim.Play("Hit", 0);
     }
 
-    private void SpawnScoreCanvas()
+    // StageManager가 몬스터를 전부 잡았을 때도 호출하므로 public으로 연다.
+    public void SpawnScoreCanvas()
     {
         if (scoreCanvasPrefab == null) return;
 

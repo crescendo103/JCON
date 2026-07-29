@@ -106,4 +106,20 @@ public class UINavigator : MonoBehaviour
         StageProgressManager.Instance.CurrentStage = stageNumber;
         SceneManager.LoadScene(StageSceneName);
     }
+
+    /// <summary>지금 열려 있는 씬을 처음부터 다시 로드한다. 재시작 버튼에서 호출한다.</summary>
+    public void ReloadCurrentScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    /// <summary>
+    /// CurrentStage로 바로 진입한다. ScoreUI의 "다음 스테이지" 버튼에서 호출한다.
+    /// 별 3개로 깼으면 CurrentStage가 이미 다음 스테이지로 넘어가 있고,
+    /// 3개를 못 채웠으면 CurrentStage가 그대로라 같은 스테이지로 다시 들어간다.
+    /// </summary>
+    public void OpenNextStage()
+    {
+        OpenStageScene(StageProgressManager.Instance.CurrentStage);
+    }
 }
