@@ -766,10 +766,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 606102d83e90dfe4c9e6a4184c5772c5, type: 2}
   - {fileID: 11400000, guid: 391b7ec179a0c96428c8e5a56e7db74c, type: 2}
   pickupPrefab: {fileID: 4111138561488968656, guid: b51df73f0c902984f8ba25d92eb51241, type: 3}
-  spawnInterval: 5
+  spawnInterval: 15
   spawnRadius: 8
   initialSpawnRadius: 3
-  initialSpawnCount: 3
+  initialSpawnCount: 0
 --- !u!4 &202429505
 Transform:
   m_ObjectHideFlags: 0

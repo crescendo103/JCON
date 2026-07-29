@@ -1,16 +1,17 @@
 using UnityEngine;
 
 // 몬스터용 StageManager(화면 밖 링 스폰)와는 별개의 단순한 무기 픽업 스포너.
-// 씬 시작 직후 화면 안(initialSpawnRadius)에 하나 즉시 스폰해 곧바로 슬롯을 채울 수 있게 하고,
-// 이후에는 spawnInterval/spawnRadius 주기로 플레이어 주변에 계속 스폰한다.
+// 초기 일괄 스폰 없이, spawnInterval(15초) 주기로 플레이어 주변(spawnRadius)에
+// 랜덤 무기 1개씩 계속 스폰한다. initialSpawnCount를 0보다 크게 설정하면
+// 씬 시작 직후 화면 안(initialSpawnRadius)에도 즉시 스폰할 수 있다.
 public class WeaponPickupSpawner : MonoBehaviour
 {
     public GameWeaponData[] possibleWeapons;
     public GameObject pickupPrefab;
-    public float spawnInterval = 5f;
+    public float spawnInterval = 15f;
     public float spawnRadius = 8f;
     public float initialSpawnRadius = 3f;
-    public int initialSpawnCount = 3;
+    public int initialSpawnCount = 0;
 
     private float timer;
 

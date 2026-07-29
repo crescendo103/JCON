@@ -49,4 +49,6 @@ public class GameWeaponData : ScriptableObject
     public float spreadAngleDeg = 0f;
     [Tooltip("관통 가능 횟수. 0이면 첫 명중 시 소멸(저격총만 1 이상)")]
     public int pierceCount = 0;
+    [Tooltip("탄창 최대 탄약 수. 0 이하면 무제한(근접무기/맨손). 발사 1회당 1발 소모(샷건 펠릿은 1발로 계산)")]
+    public int maxAmmo = 0;
 }

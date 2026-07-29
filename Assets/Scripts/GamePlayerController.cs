@@ -40,6 +40,9 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     // 숫자키 1~5 = 슬롯 0~4. 슬롯 0(FistsSlot)은 맨손 전용으로 항상 비어있다.
     // 1~4는 비어있으면(null) 아직 못 주운 무기.
     private readonly GameWeaponData[] ownedWeapons = new GameWeaponData[5];
+    // ownedWeapons와 같은 인덱싱(슬롯 0~4)의 현재 탄약. GameWeaponData는 픽업들이 공유하는
+    // ScriptableObject라 현재 탄약을 거기에 저장할 수 없어, 런타임 상태는 여기에만 둔다.
+    private readonly int[] ammoInSlot = new int[5];
     private int currentSlot = FistsSlot;
     private GameWeaponData equippedWeapon;
     private float nextAttackTime;
@@ -189,6 +192,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // FistsSlot(0)은 맨손 전용으로 예약되어 있어 주운 무기가 덮어쓰지 못하게 클램프한다.
         int slot = Mathf.Clamp(weapon.slotIndex, FistsSlot + 1, ownedWeapons.Length - 1);
         ownedWeapons[slot] = weapon;
+        ammoInSlot[slot] = weapon.maxAmmo;
         EquipSlot(slot);
     }
 
@@ -203,11 +207,14 @@ public class GamePlayerController : MonoBehaviour, IPlayable
             // isAttack을 건드리지 않으므로 이동/Idle-Run 애니메이션도 그대로 유지된다.
             if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextAttackTime)
             {
+                if (!TryConsumeAmmo(weapon)) return;
+
                 nextAttackTime = Time.time + weapon.cooldown;
                 attack?.Invoke();
 
                 anim.Play(weapon.attackAnimState, 0);
                 ExecuteAttack(weapon);
+                SwitchToFistsIfOutOfAmmo(weapon);
             }
             return;
         }
@@ -215,17 +222,46 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // 단발(SingleSwing 근접무기) / 맨손: 기존과 동일하게 스윙 1회 후 애니메이션이 끝날 때까지 잠금.
         if (!isAttack && Input.GetKeyDown(KeyCode.Mouse0) && Time.time >= nextAttackTime)
         {
+            if (!TryConsumeAmmo(weapon)) return;
+
             isAttack = true;
             nextAttackTime = Time.time + (weapon != null ? weapon.cooldown : fistsCooldown);
             attack?.Invoke();
 
             anim.Play(weapon != null ? weapon.attackAnimState : "AttackSlash", 0);
             ExecuteAttack(weapon);
+            SwitchToFistsIfOutOfAmmo(weapon);
         }
         else if (isAttack && 1f <= anim.GetCurrentAnimatorStateInfo(0).normalizedTime)
         {
             isAttack = false;
         }
+    }
+
+    /// <summary>
+    /// 발사 직전 탄약을 1발 소모한다. 맨손·근접무기·maxAmmo 0 이하(무제한)는 항상 true.
+    /// 원거리 무기이고 탄약이 0이면 false를 반환해 발사 자체를 취소시킨다.
+    /// </summary>
+    private bool TryConsumeAmmo(GameWeaponData weapon)
+    {
+        if (weapon == null || weapon.category != WeaponCategory.Ranged || weapon.maxAmmo <= 0) return true;
+
+        if (ammoInSlot[currentSlot] <= 0) return false;
+
+        ammoInSlot[currentSlot]--;
+        return true;
+    }
+
+    /// <summary>
+    /// 마지막 탄을 쏜 직후 호출. 빈 총을 들고 딜레이 없이 계속 전투할 수 있게 맨손으로 되돌린다.
+    /// 무기는 슬롯에 남아 있어, 같은 무기를 다시 주우면 탄약이 충전된다.
+    /// </summary>
+    private void SwitchToFistsIfOutOfAmmo(GameWeaponData weapon)
+    {
+        if (weapon == null || weapon.category != WeaponCategory.Ranged || weapon.maxAmmo <= 0) return;
+        if (ammoInSlot[currentSlot] > 0) return;
+
+        EquipSlot(FistsSlot);
     }
 
     /// <summary>
@@ -359,4 +395,22 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
     public float GetHealth() { return health; }
     public float GetMaxHealth() { return maxHealth; }
+
+    /// <summary>
+    /// 현재 장착 무기의 탄약. 탄약 개념이 없는 무기(맨손·근접·무제한)면 false를 반환한다.
+    /// </summary>
+    public bool TryGetAmmo(out int current, out int max)
+    {
+        var weapon = ownedWeapons[currentSlot];
+        if (weapon == null || weapon.category != WeaponCategory.Ranged || weapon.maxAmmo <= 0)
+        {
+            current = 0;
+            max = 0;
+            return false;
+        }
+
+        current = ammoInSlot[currentSlot];
+        max = weapon.maxAmmo;
+        return true;
+    }
 }

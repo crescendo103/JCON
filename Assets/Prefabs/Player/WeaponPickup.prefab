@@ -142,4 +142,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponPickup
   weapon: {fileID: 0}
-  spriteRenderer: {fileID: 3864649952505333912}
+  boxSprite: {fileID: -1892719683055620533, guid: fc66d17542a96b44abe312adaddb88a4, type: 3}
+  brokenBoxSprite: {fileID: 3851786134587250647, guid: 9992e4dd504d07440bbd941bd0a0c1b6, type: 3}

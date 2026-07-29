@@ -33,3 +33,4 @@ MonoBehaviour:
   pelletCount: 6
   spreadAngleDeg: 30
   pierceCount: 0
+  maxAmmo: 10
