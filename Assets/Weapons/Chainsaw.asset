@@ -16,9 +16,10 @@ MonoBehaviour:
   category: 0
   equippedSprite: {fileID: 0}
   pickupSprite: {fileID: 0}
+  useProceduralChainsawIcon: 1
   slotIndex: 1
   attackAnimState: AttackPrick
-  displayScale: 1
+  displayScale: 0.2
   damage: 8
   cooldown: 0.3
   damageType: 0

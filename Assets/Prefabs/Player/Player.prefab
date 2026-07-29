@@ -561,6 +561,7 @@ GameObject:
   - component: {fileID: 8520003381725614351}
   - component: {fileID: 1041822998418825666}
   - component: {fileID: 394008080862247787}
+  - component: {fileID: 5185294811473002001}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -692,6 +693,24 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.4
+--- !u!114 &5185294811473002001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2872065270235520434}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f3c7a1e5b2d4f6889ac0d3e7b1f5a92, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStaminaBar
+  offsetY: 0.95
+  width: 0.5
+  height: 0.08
+  backgroundColor: {r: 0, g: 0, b: 0, a: 0.5}
+  fillColor: {r: 1, g: 0.85, b: 0.2, a: 1}
+  sortingOrder: 10
 --- !u!1 &3244798924061608008
 GameObject:
   m_ObjectHideFlags: 0

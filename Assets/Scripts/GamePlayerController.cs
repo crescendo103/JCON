@@ -23,6 +23,14 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [Space(20f)]
     [SerializeField] private float health = 100f;
     [SerializeField] private float speed = 1f;
+    [Tooltip("Shift를 누르고 있는 동안 speed에 곱해지는 배율")]
+    [SerializeField] private float sprintSpeedMultiplier = 1.6f;
+    [Tooltip("스태미나 최대치")]
+    [SerializeField] private float staminaMax = 100f;
+    [Tooltip("스프린트 중 초당 소모량")]
+    [SerializeField] private float staminaDrainPerSecond = 25f;
+    [Tooltip("스프린트를 안 쓰는 동안 초당 회복량")]
+    [SerializeField] private float staminaRegenPerSecond = 15f;
     [SerializeField] private float fistsCooldown = 0.4f;
     [Tooltip("무기 아이콘 고정 위치(플레이어 로컬 기준). 머리 밑에 오도록 조정")]
     [SerializeField] private Vector2 weaponHeldOffset = new Vector2(0f, 0.15f);
@@ -30,11 +38,15 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [SerializeField] private float bulletSpawnHeight = 0.3f;
 
     private bool isAttack;
+    private bool isSprinting;
     private Vector2 input;
     private Action attack;
     private Camera mainCam;
 
     private float maxHealth;
+    private float stamina;
+    // 스태미나가 0이 되면 켜지고, 100% 회복될 때까지 꺼지지 않는다("다 닳으면 다 찰 때까지 못 달림").
+    private bool staminaExhausted;
 
 
     // 숫자키 1~5 = 슬롯 0~4. 슬롯 0(FistsSlot)은 맨손 전용으로 항상 비어있다.
@@ -67,6 +79,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     private void Awake()
     {
         maxHealth = health;
+        stamina = staminaMax;
         EquipSlot(FistsSlot);
     }
 
@@ -75,6 +88,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (health < 0f) return;
 
         GetInput();
+        UpdateStamina();
         Move();
         HandleWeaponSwitch();
         Click();
@@ -85,7 +99,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // 실제 이동은 물리 스텝(FixedUpdate)에서만 적용한다. Update에서 매 프레임 velocity를
         // 덮어쓰면 물리 엔진이 그 프레임 안에서 계산한 충돌 반응(벽에 닿아 밀려나는 등)을
         // 다음 렌더 프레임이 바로 지워버려서 벽에 파고들거나 걸리는 현상이 생긴다.
-        rigid.linearVelocity = health < 0f ? Vector2.zero : input.normalized * speed;
+        float currentSpeed = isSprinting ? speed * sprintSpeedMultiplier : speed;
+        rigid.linearVelocity = health < 0f ? Vector2.zero : input.normalized * currentSpeed;
     }
 
     private void GetInput()
@@ -97,6 +112,42 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (Input.GetKey(KeyCode.W)) input.y = 1f;
         else if (Input.GetKey(KeyCode.S)) input.y = -1f;
         else input.y = 0f;
+
+        isSprinting = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+    }
+
+    /// <summary>
+    /// 스프린트 중 스태미나를 소모하고, 안 쓰는 동안 회복한다. 0이 되면 소진 상태로 잠기고
+    /// 100%로 완전히 회복되기 전까지는(부분 회복만으로는) 다시 스프린트할 수 없다.
+    /// isSprinting은 GetInput()이 저장한 "Shift 눌림" 원값을 여기서 실제 가능 여부로 덮어써서,
+    /// FixedUpdate의 속도 계산은 그대로 isSprinting만 보면 되게 한다.
+    /// </summary>
+    private void UpdateStamina()
+    {
+        bool wantsSprint = isSprinting;
+        bool activelySprinting = wantsSprint && !staminaExhausted && input != Vector2.zero;
+
+        if (activelySprinting)
+        {
+            stamina -= staminaDrainPerSecond * Time.deltaTime;
+            if (stamina <= 0f)
+            {
+                stamina = 0f;
+                staminaExhausted = true;
+            }
+        }
+        else
+        {
+            stamina += staminaRegenPerSecond * Time.deltaTime;
+            if (stamina >= staminaMax)
+            {
+                stamina = staminaMax;
+                staminaExhausted = false;
+            }
+        }
+
+        stamina = Mathf.Clamp(stamina, 0f, staminaMax);
+        isSprinting = wantsSprint && !staminaExhausted;
     }
 
     private void Move()
@@ -168,10 +219,13 @@ public class GamePlayerController : MonoBehaviour, IPlayable
             return;
         }
 
+        Sprite equipSource = weapon.equippedSprite;
+        if (equipSource == null && weapon.useProceduralChainsawIcon) equipSource = WeaponVisuals.ChainsawIcon;
+
         Sprite sprite;
         Color color;
         float scale;
-        WeaponVisuals.Resolve(weapon.equippedSprite, weapon.displayScale, out sprite, out color, out scale);
+        WeaponVisuals.Resolve(equipSource, weapon.displayScale, out sprite, out color, out scale);
 
         weaponRenderer.sprite = sprite;
         weaponRenderer.color = color;
@@ -398,6 +452,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
     public float GetHealth() { return health; }
     public float GetMaxHealth() { return maxHealth; }
+    public float GetStamina() { return stamina; }
+    public float GetMaxStamina() { return staminaMax; }
 
     /// <summary>
     /// 현재 장착 무기의 탄약. 탄약 개념이 없는 무기(맨손·근접·무제한)면 false를 반환한다.
