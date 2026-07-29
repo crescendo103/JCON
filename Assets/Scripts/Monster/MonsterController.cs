@@ -27,7 +27,12 @@ public class MonsterController : MonoBehaviour
     public MonsterData data;
     protected Animator animator;
     private MonsterHealth health;
+    private Rigidbody2D rb;
     public Transform target;
+
+    // MoveTowards가 계산한 이번 프레임 이동 속도. 실제 적용은 FixedUpdate에서 rb에 대입한다
+    // (transform을 직접 옮기면 Rigidbody2D/Collider2D 물리 충돌을 그냥 통과해버리기 때문).
+    private Vector2 desiredVelocity;
 
     [Header("피격 이펙트")]
     [Tooltip("피격 시 이 중 하나를 무작위로 골라 피격 방향으로 스폰한다. 비워두면 스폰하지 않음")]
@@ -57,6 +62,7 @@ public class MonsterController : MonoBehaviour
     void Awake()
     {
         animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     void Start()
@@ -83,10 +89,19 @@ public class MonsterController : MonoBehaviour
 
         HandleSkillTestInput();
 
+        // AI가 이번 프레임에 MoveTowards를 호출하지 않으면(공격 중, 사거리 안 등) 자동으로 멈춘다.
+        desiredVelocity = Vector2.zero;
+
         if (data != null && data.aiBehavior != null)
         {
             data.aiBehavior.Execute(this);
         }
+    }
+
+    void FixedUpdate()
+    {
+        if (isDead || isKnockedBack || rb == null) return;
+        rb.linearVelocity = desiredVelocity;
     }
 
     private void HandleSkillTestInput()
@@ -124,10 +139,14 @@ public class MonsterController : MonoBehaviour
 
         float speed = data != null ? data.speed : 1f;
         Vector3 currentPos = transform.position;
-        Vector2 dir = ((Vector2)destination - (Vector2)currentPos).normalized;
+        Vector2 toDestination = (Vector2)destination - (Vector2)currentPos;
+        Vector2 dir = toDestination.normalized;
 
-        Vector2 movedXY = Vector2.MoveTowards(currentPos, destination, speed * Time.deltaTime);
-        transform.position = new Vector3(movedXY.x, movedXY.y, currentPos.z);
+        // 목적지에 거의 다 왔으면(한 물리 스텝 안에 도착하는 거리) 그만큼만 속도를 줄여
+        // Rigidbody2D 기반 이동에서도 MoveTowards처럼 목적지를 지나치지 않게 한다.
+        float step = speed * Time.fixedDeltaTime;
+        float moveSpeed = toDestination.magnitude < step ? toDestination.magnitude / Time.fixedDeltaTime : speed;
+        desiredVelocity = dir * moveSpeed;
 
         if (dir.sqrMagnitude > 0.0001f)
         {
@@ -152,6 +171,9 @@ public class MonsterController : MonoBehaviour
 
     public void Stop()
     {
+        desiredVelocity = Vector2.zero;
+        if (rb != null) rb.linearVelocity = Vector2.zero;
+
         if (animator != null)
         {
             animator.SetFloat(ParamMoveX, 0);
@@ -355,6 +377,8 @@ public class MonsterController : MonoBehaviour
         StopAllCoroutines();
         isKnockedBack = false;
         Stop();
+        // 사망 연출 동안 다른 몬스터/이펙트에 밀려 시체가 미끄러지지 않게 물리를 완전히 끈다.
+        if (rb != null) rb.simulated = false;
         TriggerDeath();
 
         StartCoroutine(DestroyAfterDeathAnimation());
@@ -407,25 +431,24 @@ public class MonsterController : MonoBehaviour
         }
     }
 
-    // dir 방향으로 setting.force 만큼 setting.duration에 걸쳐 밀려난다. Rigidbody2D가 Kinematic이므로
-    // 물리 힘(AddForce) 대신 MoveTowards와 동일하게 transform을 직접 보간해서 옮긴다.
+    // dir 방향으로 setting.force 만큼 setting.duration에 걸쳐 밀려난다. Rigidbody2D가 Dynamic이므로
+    // transform을 직접 보간하는 대신 velocity를 걸어 물리 엔진이 벽 충돌을 함께 처리하게 한다
+    // (그래야 넉백 도중 벽을 뚫고 나가지 않는다).
     private IEnumerator KnockbackRoutine(Vector2 dir, KnockbackSetting setting)
     {
         isKnockedBack = true;
 
-        Vector3 start = transform.position;
-        Vector3 end = start + (Vector3)(dir * setting.force);
-        float elapsed = 0f;
-
-        while (elapsed < setting.duration)
+        if (setting.duration > 0f)
         {
-            elapsed += Time.deltaTime;
-            float t = setting.duration > 0f ? Mathf.Clamp01(elapsed / setting.duration) : 1f;
-            transform.position = Vector3.Lerp(start, end, t);
-            yield return null;
+            if (rb != null) rb.linearVelocity = dir * (setting.force / setting.duration);
+            yield return new WaitForSeconds(setting.duration);
+        }
+        else if (rb != null)
+        {
+            rb.position += dir * setting.force; // duration이 0이면 그 자리에서 즉시 이동
         }
 
-        transform.position = end;
+        if (rb != null) rb.linearVelocity = Vector2.zero;
         isKnockedBack = false;
     }
 

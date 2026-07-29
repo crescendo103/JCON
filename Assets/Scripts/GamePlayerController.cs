@@ -74,6 +74,14 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         Click();
     }
 
+    private void FixedUpdate()
+    {
+        // 실제 이동은 물리 스텝(FixedUpdate)에서만 적용한다. Update에서 매 프레임 velocity를
+        // 덮어쓰면 물리 엔진이 그 프레임 안에서 계산한 충돌 반응(벽에 닿아 밀려나는 등)을
+        // 다음 렌더 프레임이 바로 지워버려서 벽에 파고들거나 걸리는 현상이 생긴다.
+        rigid.linearVelocity = health < 0f ? Vector2.zero : input.normalized * speed;
+    }
+
     private void GetInput()
     {
         if (Input.GetKey(KeyCode.A)) input.x = -1f;
@@ -94,7 +102,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         }
 
         Face();
-        rigid.linearVelocity = input.normalized * speed;
+        // 실제 velocity 적용은 FixedUpdate에서 한다 (물리 스텝과 어긋나 벽 충돌이 어색해지는 것을 방지).
     }
 
     /// <summary>

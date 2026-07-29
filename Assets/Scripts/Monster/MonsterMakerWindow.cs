@@ -643,7 +643,8 @@ public class MonsterMakerWindow : EditorWindow
 
     // ── 프리팹 생성 ──────────────────────────
 
-    // 2D 몬스터 프리팹: SpriteRenderer + Rigidbody2D + CircleCollider2D + Animator + MonsterController
+    // 2D 몬스터 프리팹: SpriteRenderer + Rigidbody2D(Dynamic, 벽/다른 몬스터와 충돌) + CircleCollider2D
+    // + Animator + MonsterController
     private GameObject BuildPrefab(AnimatorController controller, MonsterData data, string folder)
     {
         var go = new GameObject(monsterName);
@@ -653,7 +654,9 @@ public class MonsterMakerWindow : EditorWindow
 
         var rb = go.AddComponent<Rigidbody2D>();
         rb.gravityScale = 0f;
-        rb.bodyType = RigidbodyType2D.Kinematic;
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
         go.AddComponent<CircleCollider2D>();
 
