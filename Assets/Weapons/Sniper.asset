@@ -18,7 +18,7 @@ MonoBehaviour:
   pickupSprite: {fileID: 21300000, guid: 6d0bcb00a713ad6418700cb4cd697ba0, type: 3}
   slotIndex: 4
   attackAnimState: AttackMagic
-  displayScale: 0.19
+  displayScale: 0.2
   damage: 60
   cooldown: 1.2
   damageType: 2
