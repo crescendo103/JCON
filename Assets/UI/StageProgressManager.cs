@@ -121,7 +121,8 @@ public class StageProgressManager : MonoBehaviour
 
     /// <summary>
     /// 이 스테이지를 지금 플레이할 수 있는지. 1스테이지는 항상 열려 있고,
-    /// 그 외에는 바로 이전 스테이지를 클리어해야 열린다.
+    /// 그 외에는 바로 이전 스테이지를 별 3개(만점)로 깨야 열린다.
+    /// 별 1~2개로는 다음 스테이지가 열리지 않는다.
     /// 스테이지 선택 UI에서 Unlocked/Locked 표시를 나누는 기준으로 쓴다.
     /// </summary>
     public bool IsUnlocked(int stage)
@@ -131,7 +132,7 @@ public class StageProgressManager : MonoBehaviour
         if (stage == 1)
             return true;
 
-        return IsCleared(stage - 1);
+        return GetStars(stage - 1) >= StarsPerStage;
     }
 
     /// <summary>
@@ -162,8 +163,20 @@ public class StageProgressManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>CurrentStage에 대한 결과를 기록하는 편의 메서드. ScoreCanvas(TotalScoreUI) 등에서 호출한다.</summary>
-    public bool ReportCurrentStageResult(int stars) => SetStageResult(currentStage, stars);
+    /// <summary>
+    /// CurrentStage에 대한 결과를 기록하는 편의 메서드. ScoreCanvas(TotalScoreUI) 등에서 호출한다.
+    /// 별 3개(만점)로 깼을 때만 CurrentStage를 다음 스테이지로 넘긴다.
+    /// 그렇지 않으면 CurrentStage를 그대로 유지해서, 다시 플레이하면 같은 스테이지로 들어가게 한다.
+    /// </summary>
+    public bool ReportCurrentStageResult(int stars)
+    {
+        bool improved = SetStageResult(currentStage, stars);
+
+        if (Mathf.Clamp(stars, 0, StarsPerStage) >= StarsPerStage && currentStage < StageCount)
+            CurrentStage = currentStage + 1;
+
+        return improved;
+    }
 
     /// <summary>저장된 진행도를 전부 초기화한다 (디버그/테스트용). 인스펙터 우클릭으로도 실행 가능.</summary>
     [ContextMenu("진행도 초기화")]

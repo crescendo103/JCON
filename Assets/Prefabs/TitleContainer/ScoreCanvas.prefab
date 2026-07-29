@@ -3535,6 +3535,7 @@ GameObject:
   - component: {fileID: 7637723750001214943}
   - component: {fileID: 2960114848012140843}
   - component: {fileID: 5104755160068981565}
+  - component: {fileID: 900000101}
   m_Layer: 5
   m_Name: ScoreCanvas
   m_TagString: UICanvas
@@ -3542,6 +3543,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &900000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4976890438660266658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b2c15293409c8043a7170eca51d0fc0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ScoreCanvasButtons
 --- !u!224 &2637350741363821632
 RectTransform:
   m_ObjectHideFlags: 0

@@ -380,6 +380,9 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     {
         if (scoreCanvasPrefab == null) return;
 
+        // CrosshairUI가 Cursor.visible을 false로 숨겨둔 채라, 결과 화면 버튼을 눌러도 커서가 안 보였다.
+        Cursor.visible = true;
+
         var scoreCanvas = Instantiate(scoreCanvasPrefab);
         scoreCanvas.SetActive(true);
     }

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5122868942855044948}
   - component: {fileID: 7821122377282231094}
   - component: {fileID: 3849146226499586111}
+  - component: {fileID: 900000201}
   m_Layer: 5
   m_Name: StartSceneCanvas 1
   m_TagString: UICanvas
@@ -19,6 +20,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &900000201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178204709779816096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e8380c5808430842ac2db9c354296ba, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::StartSceneCanvasButtons
 --- !u!224 &2991109815378013017
 RectTransform:
   m_ObjectHideFlags: 0

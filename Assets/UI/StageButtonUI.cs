@@ -28,28 +28,26 @@ public class StageButtonUI : MonoBehaviour
     [Tooltip("인덱스 = 별 개수. 0-3.png, 1-3.png, 2-3.png, 3-3.png 순서로 넣는다")]
     public Sprite[] starSprites = new Sprite[4];
 
-    [Header("현재(다음에 깰) 스테이지 호버 연출")]
-    [Tooltip("지금 클리어해야 하는 스테이지 버튼에 마우스를 올렸을 때, 스프라이트 대신 이 알파값으로 살짝 어둡게 표시한다")]
-    public float currentStageHoverAlpha = 0.8f;
+    [Header("호버 연출")]
+    [Tooltip("클릭 가능한(클리어했거나 지금 클리어할 차례인) 스테이지 버튼에 마우스를 올렸을 때, 스프라이트 대신 이 알파값으로 살짝 어둡게 표시한다")]
+    public float unlockedHoverAlpha = 0.8f;
 
     private Button button;
     private Image stateImage;
     private GameObject starSlot;
     private Image starImage;
     private ButtonStateEffect hoverEffect;
-    private Sprite defaultHoverSprite;
     private GameObject nameText;
 
     private void Awake()
     {
         // 인스펙터 드래그 연결 대신, 이름으로 찾아 코드로 연결한다 (팀 규칙)
         button = GetComponent<Button>();
+        button.onClick.AddListener(OnClickButton);
 
         Transform imageTransform = transform.Find("Image");
         stateImage = imageTransform?.GetComponent<Image>();
         hoverEffect = imageTransform?.GetComponent<ButtonStateEffect>();
-        if (hoverEffect != null)
-            defaultHoverSprite = hoverEffect.hoverSprite;
 
         Transform starSlotTransform = transform.Find("StarImage");
         if (starSlotTransform != null)
@@ -107,7 +105,7 @@ public class StageButtonUI : MonoBehaviour
             }
         }
 
-        // 지금 클리어해야 하는(다음) 스테이지만 호버 시 스프라이트 대신 알파로 연출한다.
+        // 클릭 가능한(클리어했거나 지금 클리어할 차례인) 스테이지는 호버 시 스프라이트 대신 알파로 연출한다.
         if (hoverEffect != null)
         {
             // 아직 도달 못한(잠긴) 스테이지는 호버 효과 자체를 끈다.
@@ -117,13 +115,18 @@ public class StageButtonUI : MonoBehaviour
 
             if (unlocked)
             {
-                hoverEffect.hoverSprite = isCurrent ? null : defaultHoverSprite;
-                if (isCurrent)
-                    hoverEffect.hoverAlpha = currentStageHoverAlpha;
+                hoverEffect.hoverSprite = null; // 스프라이트 대신 알파로만 호버 효과를 낸다
+                hoverEffect.hoverAlpha = unlockedHoverAlpha;
             }
 
             // stateImage 스프라이트가 방금 바뀌었으니, 호버가 끝났을 때 되돌아갈 기준값도 다시 잡는다.
             hoverEffect.RefreshNormalState();
         }
+    }
+
+    // 잠긴 스테이지는 button.interactable이 false라 애초에 클릭 이벤트가 오지 않는다.
+    private void OnClickButton()
+    {
+        UINavigator.Instance.OpenStageScene(stageNumber);
     }
 }

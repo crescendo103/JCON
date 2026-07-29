@@ -867,7 +867,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -33.5, y: -7.6}
+  m_AnchoredPosition: {x: -1.3999443, y: 29.399984}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5143864346126896061
@@ -1225,6 +1225,7 @@ MonoBehaviour:
   - {fileID: 7222866208273113179}
   - {fileID: 1737352863748354596}
   - {fileID: 6079672763541392762}
+  playerController: {fileID: 0}
 --- !u!114 &4601550885258269646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2767,7 +2768,7 @@ RectTransform:
   m_GameObject: {fileID: 6271600282685583539}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.275, y: 0.38734373, z: 1}
+  m_LocalScale: {x: 0.275, y: 0.30019137, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5520778210850062591}
@@ -2780,7 +2781,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -32.1, y: 22}
+  m_AnchoredPosition: {x: 0, y: 59}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6355609895952951579
@@ -2979,7 +2980,7 @@ RectTransform:
   m_GameObject: {fileID: 7768320920640431937}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 0.78751, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1825553198685737624}
@@ -2988,8 +2989,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -100.4, y: -40.2}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -100.4, y: -87}
+  m_SizeDelta: {x: 198.69, y: 175.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3379887360775735063
 CanvasRenderer:
@@ -3019,8 +3020,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 3ba648da66410184e928993242b0e839, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4

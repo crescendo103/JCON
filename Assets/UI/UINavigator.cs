@@ -16,6 +16,9 @@ public class UINavigator : MonoBehaviour
     /// <summary>UI 화면들이 모여 있는 씬 이름.</summary>
     public const string UISceneName = "UIScene";
 
+    /// <summary>스테이지(게임플레이) 씬 이름. 지금은 스테이지가 전부 이 씬 하나를 공유해서 쓴다.</summary>
+    public const string StageSceneName = "kimdongjuplayer 1";
+
     private static UINavigator instance;
 
     /// <summary>어디서든 이 프로퍼티로 접근한다. 아직 없으면 스스로 생성하므로 항상 사용 가능하다.</summary>
@@ -92,5 +95,15 @@ public class UINavigator : MonoBehaviour
     public void OpenScoreCanvas()
     {
         OpenCanvas(UISceneName, "ScoreCanvas");
+    }
+
+    /// <summary>
+    /// 스테이지 선택 화면에서 스테이지 버튼을 눌렀을 때 호출한다.
+    /// CurrentStage를 지정한 뒤 스테이지 씬을 로드한다 (지금은 스테이지 전부 씬 하나를 공유).
+    /// </summary>
+    public void OpenStageScene(int stageNumber)
+    {
+        StageProgressManager.Instance.CurrentStage = stageNumber;
+        SceneManager.LoadScene(StageSceneName);
     }
 }
