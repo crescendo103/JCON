@@ -1086,7 +1086,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 4
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1378,7 +1378,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1041822998418825666, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
       propertyPath: fistsSwordHandOffset.y
-      value: 0
+      value: 0.19
       objectReference: {fileID: 0}
     - target: {fileID: 1041822998418825666, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
       propertyPath: fistsSwordGripOffsets.Array.size
