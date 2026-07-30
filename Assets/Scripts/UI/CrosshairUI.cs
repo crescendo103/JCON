@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-// 마우스 포인터 위치에 표시되는 "+" 모양 조준점. OS 기본 커서를 숨기고 대체한다.
+// 마우스 포인터 위치에 표시되는 "+" 모양 조준점. OS 기본 커서 위에 덧그려서 같이 보인다.
 [RequireComponent(typeof(RectTransform), typeof(Image))]
 public class CrosshairUI : MonoBehaviour
 {
@@ -13,11 +13,11 @@ public class CrosshairUI : MonoBehaviour
         rect = GetComponent<RectTransform>();
         image = GetComponent<Image>();
         if (image.sprite == null) image.sprite = BuildCrosshairSprite();
-        Cursor.visible = false;
     }
 
     private void OnDisable()
     {
+        // 혹시 다른 곳에서 커서를 숨긴 채로 이 오브젝트가 꺼지는 경우를 대비한 안전장치.
         Cursor.visible = true;
     }
 

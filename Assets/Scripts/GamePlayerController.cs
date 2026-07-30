@@ -97,11 +97,11 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         model = this.transform.Find("Model");
 
         weaponRenderer = this.transform.Find("WeaponMuzzle")?.GetComponent<SpriteRenderer>();
-<<<<<<< Updated upstream
+
         hitVignette = this.GetComponent<PlayerHitVignette>();
-=======
+
         handWeaponRenderer = this.transform.Find("Model/LeftHand/LeftHandWeapon")?.GetComponent<SpriteRenderer>();
->>>>>>> Stashed changes
+
 
     }
 #endif
