@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // 무기 스프라이트가 아직 없는 경우(예: 전기톱) 임시 도형으로 대체 표시하기 위한 공용 유틸.
@@ -110,6 +111,44 @@ public static class WeaponVisuals
         var sprite = Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 16f);
         sprite.hideFlags = HideFlags.DontSave;
         return sprite;
+    }
+
+    // Assets/Weapons/Resources/Sward/ 의 검 프리팹 3종. 이 순서가 그대로 한 번의 내려베기가 된다:
+    // 1 = 칼날 위(치켜든 자세, 평상시 자세이기도 함) → 2 = 칼날 옆(휘두르는 중) → 3 = 칼날 아래(내려친 자세).
+    // 프레임별 손잡이 위치는 여기서 정하지 않는다 — 인스펙터에서 조정할 수 있어야 해서
+    // GamePlayerController.fistsSwordGripOffsets에 둔다(이 배열과 같은 순서로 맞춰야 함).
+    private static readonly string[] FistsSwordResourcePaths =
+    {
+        "Sward/Sward 1", "Sward/Sward 2", "Sward/Sward 3"
+    };
+
+    private static Sprite[] fistsSwordSprites;
+
+    // 검 아트가 스프라이트가 아니라 SpriteRenderer 프리팹으로 들어와 있어서(원본 텍스처가 Resources
+    // 밖의 타일셋이라 직접 로드가 안 된다) 프리팹을 읽어 거기 물린 스프라이트만 꺼내 쓴다.
+    // 프리팹을 Instantiate하지는 않는다. 로드에 실패하면 빈 배열이라 호출부가 조용히 넘어간다.
+    public static Sprite[] FistsSwordSprites
+    {
+        get
+        {
+            if (fistsSwordSprites == null)
+            {
+                var sprites = new List<Sprite>(FistsSwordResourcePaths.Length);
+
+                foreach (var path in FistsSwordResourcePaths)
+                {
+                    var prefab = Resources.Load<GameObject>(path);
+                    var renderer = prefab != null ? prefab.GetComponent<SpriteRenderer>() : null;
+                    if (renderer == null || renderer.sprite == null) continue;
+
+                    sprites.Add(renderer.sprite);
+                }
+
+                fistsSwordSprites = sprites.ToArray();
+            }
+
+            return fistsSwordSprites;
+        }
     }
 
     /// <summary>

@@ -13,11 +13,32 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     // 숫자키 1번(슬롯 0)은 항상 맨손 기본공격 전용으로 예약한다. ownedWeapons[FistsSlot]은
     // 절대 채워지지 않으므로 언제든 눌러 맨손으로 되돌아갈 수 있다.
     private const int FistsSlot = 0;
+    // Pixem 파츠 잔재라 sortingOrder가 Body와 같은 0이라 몸통에 가려진다. WeaponMuzzle과 같은 레벨로 끌어올린다.
+    private const int HandWeaponSortingOrder = 4;
 
     [SerializeField] private Rigidbody2D rigid;
     [SerializeField] private Animator anim;
     [SerializeField] private Transform model;
     [SerializeField] private SpriteRenderer weaponRenderer;
+    [Tooltip("맨손일 때 검을 표시할 렌더러 (Model/LeftHand/LeftHandWeapon)")]
+    [SerializeField] private SpriteRenderer handWeaponRenderer;
+    [Tooltip("캐릭터 손 위치(Model 로컬). Idle 프레임 손 픽셀(x39,row48) 실측값. 크기/기울기와 무관하게 여기만 맞추면 된다")]
+    [SerializeField] private Vector2 fistsSwordHandOffset = new Vector2(0.2344f, -0.5156f);
+    [Tooltip("검 3프레임(Sward 1,2,3 순서)의 손잡이 위치. 스프라이트 피벗에서 손잡이 중심까지의 거리(월드 단위, 배율 1 기준). 아트에서 픽셀로 실측한 값이라 웬만하면 안 건드려도 됨")]
+    [SerializeField] private Vector2[] fistsSwordGripOffsets =
+    {
+        new Vector2(-0.02f, -0.12f),
+        new Vector2(-0.12f,  0.02f),
+        new Vector2( 0.02f,  0.12f),
+    };
+    [Tooltip("검 아트가 진행 방향과 반대로(칼끝이 등 뒤로) 그려져 있어 기본은 켜서 좌우로 뒤집는다")]
+    [SerializeField] private bool fistsSwordFlipX = true;
+    [Tooltip("맨손 검 기울기(도). 0이면 스프라이트 원래 각도")]
+    [SerializeField] private float fistsSwordTiltDeg = 0f;
+    [Tooltip("맨손 검 크기 배율. 검 아트는 PPU 25라 캐릭터(PPU 32)와 픽셀 밀도를 맞추려면 25/32 = 0.78125")]
+    [SerializeField] private float fistsSwordScale = 0.78125f;
+    [Tooltip("맨손 검 휘두르기 1회에 걸리는 시간(초). 검 3프레임을 이 시간에 나눠 재생한다. AttackSlash 클립 길이(0.3초)에 맞춰둠")]
+    [SerializeField] private float fistsSwordSwingDuration = 0.3f;
     [SerializeField] private GameObject scoreCanvasPrefab;
     [SerializeField] private PlayerHitVignette hitVignette;
 
@@ -60,6 +81,9 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     private GameWeaponData equippedWeapon;
     private float nextAttackTime;
     private readonly List<MonsterController> meleeTargetBuffer = new List<MonsterController>();
+    // 맨손 검 휘두르기 진행 상태. 휘두르는 동안에만 true이고, 끝나면 기본 자세(0번 프레임)로 돌아간다.
+    private bool fistsSwordSwinging;
+    private float fistsSwordSwingStart;
 
 
     public Vector2 CurrentVelocity => rigid.linearVelocity;
@@ -73,7 +97,11 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         model = this.transform.Find("Model");
 
         weaponRenderer = this.transform.Find("WeaponMuzzle")?.GetComponent<SpriteRenderer>();
+<<<<<<< Updated upstream
         hitVignette = this.GetComponent<PlayerHitVignette>();
+=======
+        handWeaponRenderer = this.transform.Find("Model/LeftHand/LeftHandWeapon")?.GetComponent<SpriteRenderer>();
+>>>>>>> Stashed changes
 
     }
 #endif
@@ -84,6 +112,13 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
         maxHealth = health;
         stamina = staminaMax;
+
+        // 프리팹에 직렬화된 값이 없어도 동작하도록 런타임에서도 경로로 찾는다(README: 코드로 연결).
+        if (handWeaponRenderer == null)
+            handWeaponRenderer = transform.Find("Model/LeftHand/LeftHandWeapon")?.GetComponent<SpriteRenderer>();
+
+        if (handWeaponRenderer != null) handWeaponRenderer.sortingOrder = HandWeaponSortingOrder;
+
         EquipSlot(FistsSlot);
     }
 
@@ -96,6 +131,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         Move();
         HandleWeaponSwitch();
         Click();
+        TickFistsSword();
     }
 
     private void FixedUpdate()
@@ -214,6 +250,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         var weapon = ownedWeapons[slot];
         equippedWeapon = weapon;
 
+        UpdateFistsSword(weapon == null);
+
         if (weaponRenderer == null) return;
 
         if (weapon == null)
@@ -238,6 +276,77 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // 무기는 더 이상 마우스를 따라 움직이지 않고, 머리 밑 고정 위치에 그대로 표시된다.
         weaponRenderer.transform.localPosition = weaponHeldOffset;
         weaponRenderer.transform.localRotation = Quaternion.identity;
+    }
+
+    /// <summary>
+    /// 장착이 바뀔 때 손의 검을 켜고 끈다. 무기를 들면 WeaponMuzzle 아이콘이 대신하므로 숨긴다.
+    /// 실제 프레임 갱신은 매 프레임 TickFistsSword()가 맡는다.
+    /// </summary>
+    private void UpdateFistsSword(bool unarmed)
+    {
+        if (handWeaponRenderer == null) return;
+
+        // 무기를 바꾸면 휘두르던 동작은 취소하고 기본 자세부터 다시 시작한다.
+        fistsSwordSwinging = false;
+
+        if (!unarmed)
+        {
+            handWeaponRenderer.sprite = null;
+            return;
+        }
+
+        ApplyFistsSwordFrame(0);
+    }
+
+    /// <summary>
+    /// 맨손일 때 손에 든 검의 프레임을 매 프레임 갱신한다. 휘두르는 중이면 경과 시간에 따라
+    /// Sward 1(치켜듦) → 2(휘두름) → 3(내려침)을 차례로 보여주고, 끝나면 기본 자세로 되돌린다.
+    /// </summary>
+    private void TickFistsSword()
+    {
+        if (handWeaponRenderer == null || equippedWeapon != null) return;
+
+        int frameCount = WeaponVisuals.FistsSwordSprites.Length;
+        int frame = 0;
+
+        if (fistsSwordSwinging && frameCount > 0)
+        {
+            float progress = (Time.time - fistsSwordSwingStart) / Mathf.Max(0.01f, fistsSwordSwingDuration);
+
+            if (progress >= 1f) fistsSwordSwinging = false;
+            else frame = Mathf.Clamp((int)(progress * frameCount), 0, frameCount - 1);
+        }
+
+        ApplyFistsSwordFrame(frame);
+    }
+
+    /// <summary>
+    /// 검 스프라이트 한 프레임을 손 위치에 맞춰 배치한다.
+    /// 노드의 원점은 스프라이트 피벗이지 손잡이가 아니고, 그 간격이 프레임마다 다르다(검이 손잡이를
+    /// 축으로 돌기 때문). 그래서 프레임별 손잡이 간격(fistsSwordGripOffsets)을 배율·반전·기울기까지
+    /// 반영해 역으로 빼준다. 덕분에 어떤 프레임이든, 크기나 각도를 바꾸든 손잡이는 항상 손에 붙어
+    /// 있어 휘두르는 동안 검이 손에서 떨어지지 않는다. Model의 자식이라 좌우 반전(캐릭터가 도는 것)은
+    /// Face()가 캐릭터 전체를 뒤집을 때 자동으로 따라온다 — fistsSwordFlipX는 그것과 별개로, 검 아트
+    /// 자체가 진행 방향과 반대로 그려져 있는 것을 바로잡는 고정 보정이다.
+    /// (베이크된 캐릭터 시트가 64x64 프레임 안에서 우하단으로 치우쳐 있어 손 좌표 자체도 (0,0)이 아니다.)
+    /// </summary>
+    private void ApplyFistsSwordFrame(int index)
+    {
+        var sprites = WeaponVisuals.FistsSwordSprites;
+        if (sprites.Length == 0) return;
+
+        index = Mathf.Clamp(index, 0, sprites.Length - 1);
+        Vector2 gripOffset = index < fistsSwordGripOffsets.Length ? fistsSwordGripOffsets[index] : Vector2.zero;
+
+        var scale = new Vector3(fistsSwordFlipX ? -fistsSwordScale : fistsSwordScale, fistsSwordScale, 1f);
+        var tilt = Quaternion.Euler(0f, 0f, fistsSwordTiltDeg);
+        Vector3 gripFromPivot = tilt * Vector3.Scale(gripOffset, scale);
+
+        var t = handWeaponRenderer.transform;
+        handWeaponRenderer.sprite = sprites[index];
+        t.localPosition = (Vector3)fistsSwordHandOffset - gripFromPivot;
+        t.localRotation = tilt;
+        t.localScale = scale;
     }
 
     /// <summary>
@@ -285,6 +394,13 @@ public class GamePlayerController : MonoBehaviour, IPlayable
             isAttack = true;
             nextAttackTime = Time.time + (weapon != null ? weapon.cooldown : fistsCooldown);
             attack?.Invoke();
+
+            // 맨손일 때는 손에 든 검도 몸통 애니메이션과 같이 휘두르기 시작한다.
+            if (weapon == null)
+            {
+                fistsSwordSwinging = true;
+                fistsSwordSwingStart = Time.time;
+            }
 
             anim.Play(weapon != null ? weapon.attackAnimState : "AttackSlash", 0);
             ExecuteAttack(weapon);
