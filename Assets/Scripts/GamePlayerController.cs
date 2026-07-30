@@ -19,6 +19,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [SerializeField] private Transform model;
     [SerializeField] private SpriteRenderer weaponRenderer;
     [SerializeField] private GameObject scoreCanvasPrefab;
+    [SerializeField] private PlayerHitVignette hitVignette;
 
     [Space(20f)]
     [SerializeField] private float health = 100f;
@@ -72,12 +73,15 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         model = this.transform.Find("Model");
 
         weaponRenderer = this.transform.Find("WeaponMuzzle")?.GetComponent<SpriteRenderer>();
+        hitVignette = this.GetComponent<PlayerHitVignette>();
 
     }
 #endif
 
     private void Awake()
     {
+        if (hitVignette == null) hitVignette = GetComponent<PlayerHitVignette>();
+
         maxHealth = health;
         stamina = staminaMax;
         EquipSlot(FistsSlot);
@@ -421,6 +425,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     {
         if (health < 0f) return;
         health -= dmg;
+
+        hitVignette?.PlayHitFlash();
 
         if (health < 0f)
         {
