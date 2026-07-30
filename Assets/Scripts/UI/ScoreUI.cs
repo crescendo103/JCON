@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using DG;
-using DG.Tweening;
 
 public class ScoreUI : MonoBehaviour
 {
@@ -23,8 +21,7 @@ public class ScoreUI : MonoBehaviour
         // 시작할 때 00000으로 초기화
         UpdateDigits(0);
 
-        //DOTween ddd;
-        //ddd.
+        
 
     }
 
