@@ -30,5 +30,16 @@ public class StageMapGeneratorEditor : Editor
                 BuildingFootprintCalculator.CalculateAndApply(generator);
             }
         }
+
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("타일맵 초기화", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox(
+            "groundTilemap / wallTilemap을 비우고, 생성된 건물/장식(GeneratedContent)도 전부 지웁니다.",
+            MessageType.Info);
+
+        if (GUILayout.Button("타일맵 초기화"))
+        {
+            generator.ClearTilemaps();
+        }
     }
 }

@@ -24,8 +24,8 @@ public class StageMapGenerator : MonoBehaviour
     [Header("Tilemap 참조")]
     public Tilemap groundTilemap;
     public Tilemap wallTilemap;
-    public TileBase groundTile;
-    public TileBase[] wallTiles; // 1x1 벽 타일 (여러 종류면 랜덤 선택)
+    public TileBase[] groundTiles; // 바닥 타일 (여러 종류면 랜덤 선택)
+    public TileBase wallTile; // Rule Tile 권장: 주변 벽 패턴에 맞춰 이음새(코너/직선/T자 등) 자동 선택
 
     [Header("건물 블루프린트")]
     public GameObject[] buildingPrefabs; // 각 프리팹은 자체 크기 정보를 buildingSizes와 짝지어 관리
@@ -58,6 +58,7 @@ public class StageMapGenerator : MonoBehaviour
     {
         seed = stageSeed;
         rng = new System.Random(seed);
+        UnityEngine.Random.InitState(seed); // Rule Tile의 Random 매칭 옵션이 UnityEngine.Random을 쓰므로 같이 시드 고정
 
         ClearPrevious();
 
@@ -69,13 +70,41 @@ public class StageMapGenerator : MonoBehaviour
         ScatterDecorations();
     }
 
+    // 인스펙터에서 맵 생성 없이 바로 비우고 싶을 때(테스트 중 잘못 쌓인 결과물 정리 등) 쓰는 버튼.
+    // contentParent 캐시가 도메인 리로드 등으로 어긋나 있을 수 있으니, 캐시 대신 이름으로 자식을
+    // 전부 찾아서 지운다 - "Generate Now"를 에디터에서 여러 번 눌러 GeneratedContent가 중복으로
+    // 쌓인 경우까지 이 버튼 한 번으로 정리할 수 있다.
+    [ContextMenu("Clear Tilemaps")]
+    public void ClearTilemaps()
+    {
+        if (groundTilemap != null) groundTilemap.ClearAllTiles();
+        if (wallTilemap != null) wallTilemap.ClearAllTiles();
+
+        for (int i = transform.childCount - 1; i >= 0; i--)
+        {
+            Transform child = transform.GetChild(i);
+            if (child.name != "GeneratedContent") continue;
+
+            if (Application.isPlaying) Destroy(child.gameObject);
+            else DestroyImmediate(child.gameObject);
+        }
+        contentParent = null;
+    }
+
     // ---------- 0. 이전 결과 정리 ----------
     private void ClearPrevious()
     {
         groundTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
 
-        if (contentParent != null) Destroy(contentParent.gameObject);
+        // Destroy()는 플레이 모드에서만 실제로 파괴되고, 에디터에서 "Generate Now"로 테스트할 때는
+        // 다음 프레임까지 미뤄지는데 에디트 모드는 그 프레임이 안 돌아서 사실상 무시된다.
+        // 그 결과 이전 GeneratedContent가 안 지워지고 계속 쌓여서 건물이 중복 생성된 것처럼 보였다.
+        if (contentParent != null)
+        {
+            if (Application.isPlaying) Destroy(contentParent.gameObject);
+            else DestroyImmediate(contentParent.gameObject);
+        }
         contentParent = new GameObject("GeneratedContent").transform;
         contentParent.SetParent(transform);
     }
@@ -87,13 +116,13 @@ public class StageMapGenerator : MonoBehaviour
 
         // 랜덤 초기화 + 테두리 강제 벽
         for (int x = 0; x < width; x++)
-        for (int y = 0; y < height; y++)
-        {
-            if (IsBorder(x, y))
-                map[x, y] = 1;
-            else
-                map[x, y] = rng.NextDouble() < initialWallDensity ? 1 : 0;
-        }
+            for (int y = 0; y < height; y++)
+            {
+                if (IsBorder(x, y))
+                    map[x, y] = 1;
+                else
+                    map[x, y] = rng.NextDouble() < initialWallDensity ? 1 : 0;
+            }
 
         // 스무딩 반복
         for (int i = 0; i < caIterations; i++)
@@ -108,15 +137,15 @@ public class StageMapGenerator : MonoBehaviour
     {
         int[,] next = new int[width, height];
         for (int x = 0; x < width; x++)
-        for (int y = 0; y < height; y++)
-        {
-            if (IsBorder(x, y)) { next[x, y] = 1; continue; }
+            for (int y = 0; y < height; y++)
+            {
+                if (IsBorder(x, y)) { next[x, y] = 1; continue; }
 
-            int wallCount = CountWallNeighbors(src, x, y);
-            if (wallCount > wallThreshold) next[x, y] = 1;
-            else if (wallCount < wallThreshold) next[x, y] = 0;
-            else next[x, y] = src[x, y];
-        }
+                int wallCount = CountWallNeighbors(src, x, y);
+                if (wallCount > wallThreshold) next[x, y] = 1;
+                else if (wallCount < wallThreshold) next[x, y] = 0;
+                else next[x, y] = src[x, y];
+            }
         return next;
     }
 
@@ -124,13 +153,13 @@ public class StageMapGenerator : MonoBehaviour
     {
         int count = 0;
         for (int dx = -1; dx <= 1; dx++)
-        for (int dy = -1; dy <= 1; dy++)
-        {
-            if (dx == 0 && dy == 0) continue;
-            int nx = x + dx, ny = y + dy;
-            if (nx < 0 || ny < 0 || nx >= width || ny >= height) { count++; continue; }
-            count += src[nx, ny];
-        }
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                if (dx == 0 && dy == 0) continue;
+                int nx = x + dx, ny = y + dy;
+                if (nx < 0 || ny < 0 || nx >= width || ny >= height) { count++; continue; }
+                count += src[nx, ny];
+            }
         return count;
     }
 
@@ -138,17 +167,19 @@ public class StageMapGenerator : MonoBehaviour
     private void DrawGroundAndWalls()
     {
         for (int x = 0; x < width; x++)
-        for (int y = 0; y < height; y++)
-        {
-            Vector3Int pos = new Vector3Int(x, y, 0);
-            groundTilemap.SetTile(pos, groundTile); // 바닥은 항상 깔아둠 (벽 밑에도 상관없음)
-
-            if (wallMap[x, y] == 1)
+            for (int y = 0; y < height; y++)
             {
-                TileBase tile = wallTiles[rng.Next(wallTiles.Length)];
-                wallTilemap.SetTile(pos, tile);
+                Vector3Int pos = new Vector3Int(x, y, 0);
+                TileBase ground = groundTiles[rng.Next(groundTiles.Length)];
+                groundTilemap.SetTile(pos, ground); // 바닥은 항상 깔아둠 (벽 밑에도 상관없음)
+
+                if (wallMap[x, y] == 1)
+                {
+                    // Rule Tile이면 SetTile 시점에 주변 벽 패턴을 보고 알맞은 스프라이트(코너/직선/T자 등)를
+                    // 자동으로 골라줌 -> 여기서 랜덤 선택할 필요 없음
+                    wallTilemap.SetTile(pos, wallTile);
+                }
             }
-        }
 
         // 벽 Tilemap에 Composite Collider가 붙어 있다는 전제 (에디터에서 미리 세팅)
     }
@@ -157,7 +188,10 @@ public class StageMapGenerator : MonoBehaviour
     // 반드시 this.rng(=seed로 초기화된 인스턴스)만 사용해서 셔플해야 동일 시드 -> 동일 결과가 유지됨.
     private List<int> SelectBuildingIndices()
     {
-        int total = buildingPrefabs.Length;
+        int total = Mathf.Min(buildingPrefabs.Length, buildingSizes.Length);
+        if (buildingPrefabs.Length != buildingSizes.Length)
+            Debug.LogWarning($"StageMapGenerator: buildingPrefabs({buildingPrefabs.Length}개)와 buildingSizes({buildingSizes.Length}개) 배열 길이가 다릅니다. " +
+                              $"인스펙터에서 두 배열을 같은 길이로 맞춰주세요. 우선 앞쪽 {total}개만 사용합니다.");
         if (total == 0) return new List<int>();
 
         int min = Mathf.Clamp(minBuildingsToPlace, 0, total);
@@ -215,20 +249,20 @@ public class StageMapGenerator : MonoBehaviour
         if (x + size.x >= width || y + size.y >= height) return false;
 
         for (int dx = 0; dx < size.x; dx++)
-        for (int dy = 0; dy < size.y; dy++)
-        {
-            int nx = x + dx, ny = y + dy;
-            if (wallMap[nx, ny] == 1) return false;  // 벽 위에는 못 놓음
-            if (occupied[nx, ny]) return false;       // 다른 건물과 겹침
-        }
+            for (int dy = 0; dy < size.y; dy++)
+            {
+                int nx = x + dx, ny = y + dy;
+                if (wallMap[nx, ny] == 1) return false;  // 벽 위에는 못 놓음
+                if (occupied[nx, ny]) return false;       // 다른 건물과 겹침
+            }
         return true;
     }
 
     private void MarkOccupied(int x, int y, Vector2Int size)
     {
         for (int dx = 0; dx < size.x; dx++)
-        for (int dy = 0; dy < size.y; dy++)
-            occupied[x + dx, y + dy] = true;
+            for (int dy = 0; dy < size.y; dy++)
+                occupied[x + dx, y + dy] = true;
     }
 
     private void InstantiateBuilding(int x, int y, GameObject prefab, int prefabIndex)
@@ -253,21 +287,21 @@ public class StageMapGenerator : MonoBehaviour
         float offsetY = seed * 1000f;
 
         for (int x = 0; x < width; x++)
-        for (int y = 0; y < height; y++)
-        {
-            if (wallMap[x, y] == 1 || occupied[x, y]) continue; // 벽/건물 위에는 안 놓음
-
-            float noise = Mathf.PerlinNoise((x + offsetX) * decorationNoiseScale,
-                                             (y + offsetY) * decorationNoiseScale);
-            if (noise < decorationDensity) continue;
-
-            // 밀도 통과했으면 확률적으로 실제 배치 (너무 빽빽하지 않게)
-            if (rng.NextDouble() < 0.15)
+            for (int y = 0; y < height; y++)
             {
-                Vector3 worldPos = groundTilemap.CellToWorld(new Vector3Int(x, y, 0));
-                GameObject prefab = decorationPrefabs[rng.Next(decorationPrefabs.Length)];
-                Instantiate(prefab, worldPos, Quaternion.identity, contentParent);
+                if (wallMap[x, y] == 1 || occupied[x, y]) continue; // 벽/건물 위에는 안 놓음
+
+                float noise = Mathf.PerlinNoise((x + offsetX) * decorationNoiseScale,
+                                                 (y + offsetY) * decorationNoiseScale);
+                if (noise < decorationDensity) continue;
+
+                // 밀도 통과했으면 확률적으로 실제 배치 (너무 빽빽하지 않게)
+                if (rng.NextDouble() < 0.15)
+                {
+                    Vector3 worldPos = groundTilemap.CellToWorld(new Vector3Int(x, y, 0));
+                    GameObject prefab = decorationPrefabs[rng.Next(decorationPrefabs.Length)];
+                    Instantiate(prefab, worldPos, Quaternion.identity, contentParent);
+                }
             }
-        }
     }
 }
