@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 플레이어 시야(카메라 화면) 밖에서 몬스터를 주기적으로 자동 스폰하는 매니저.
+/// 맵 임의의 위치에 몬스터를 주기적으로 자동 스폰하는 매니저. 벽/건물 위나 플레이어가 갈 수 없는
+/// 고립 구역에는 스폰되지 않는다(mapGenerator 참조 필요). mapGenerator가 없으면 카메라 화면 밖 링에서 스폰한다.
 /// 스폰 후보는 가중치(weight)를 가지고 있어서, 가중치가 클수록 더 자주 등장한다.
 /// </summary>
 public class StageManager : MonoBehaviour
@@ -33,7 +34,7 @@ public class StageManager : MonoBehaviour
     [Tooltip("이번 스테이지에서 총 스폰할 몬스터 수. 이 수만큼 스폰하고 나면 더 이상 스폰하지 않는다")]
     public int totalMonstersToSpawn = 5;
 
-    [Header("스폰 위치 (카메라 화면 밖 링)")]
+    [Header("스폰 위치 (mapGenerator 없을 때만 사용하는 카메라 화면 밖 링 폴백)")]
     [Tooltip("화면 경계로부터 최소로 떨어뜨릴 여유 거리")]
     public float ringPadding = 1f;
     [Tooltip("ringPadding 이후 추가로 랜덤하게 더 벌어질 수 있는 두께")]
@@ -44,6 +45,12 @@ public class StageManager : MonoBehaviour
     public Camera targetCamera;
     [Tooltip("비워두면 \"Player\" 태그로 자동 탐색")]
     public Transform player;
+    [Tooltip("비워두면 씬에서 자동으로 찾음. 벽/건물 위나 플레이어가 갈 수 없는 고립 구역에 스폰되는 것을 막는 데 사용")]
+    public StageMapGenerator mapGenerator;
+
+    [Header("스폰 위치 유효성 검사")]
+    [Tooltip("화면 밖 링에서 뽑은 위치가 벽/건물 위이거나 도달 불가 구역이면 다시 뽑는 최대 횟수")]
+    [Min(1)] public int maxSpawnPositionAttempts = 10;
 
     // 지금까지 스폰해서 살아있는(파괴되지 않은) 몬스터 목록
     private readonly List<GameObject> aliveMonsters = new List<GameObject>();
@@ -79,6 +86,9 @@ public class StageManager : MonoBehaviour
             if (playerObj != null)
                 player = playerObj.transform;
         }
+
+        if (mapGenerator == null)
+            mapGenerator = FindFirstObjectByType<StageMapGenerator>();
 
         zombieCountUI = FindFirstObjectByType<ZombieCountUI>();
         UpdateZombieCountUI();
@@ -166,10 +176,44 @@ public class StageManager : MonoBehaviour
         if (prefab == null)
             return;
 
-        Vector3 spawnPos = GetOffScreenPosition();
+        if (!TryGetSpawnPosition(out Vector3 spawnPos))
+            return; // 유효한 위치를 못 찾았으면 이번 시도는 건너뛴다 (다음 스폰 타이밍에 다시 시도)
+
         GameObject spawned = Instantiate(prefab, spawnPos, Quaternion.identity);
         aliveMonsters.Add(spawned);
         spawnedCount++;
+    }
+
+    /// <summary>
+    /// mapGenerator가 있으면 맵 전체에서 임의의 칸을 후보로 뽑아, 벽/건물 위이거나 플레이어가 갈 수 없는
+    /// 고립 구역인지 검사해서 걸러낸다. maxSpawnPositionAttempts번 안에 유효한 자리를 못 찾으면 실패로 처리한다.
+    /// mapGenerator가 없는 경우(맵 없이 이 스크립트를 쓰는 경우 대비)는 기존 화면 밖 링 방식으로 대체한다.
+    /// </summary>
+    private bool TryGetSpawnPosition(out Vector3 spawnPos)
+    {
+        if (mapGenerator != null && player != null)
+            mapGenerator.ComputeReachability(player.position); // 이미 계산됐으면 내부에서 바로 리턴됨
+
+        for (int attempt = 0; attempt < maxSpawnPositionAttempts; attempt++)
+        {
+            Vector3 candidate = mapGenerator != null ? GetRandomMapPosition() : GetOffScreenPosition();
+            if (mapGenerator == null || mapGenerator.IsWorldPositionSpawnable(candidate))
+            {
+                spawnPos = candidate;
+                return true;
+            }
+        }
+
+        spawnPos = default;
+        return false;
+    }
+
+    /// <summary>맵 칸 범위(0 ~ Width-1, 0 ~ Height-1) 안에서 임의의 칸 하나를 골라 월드 좌표로 반환한다.</summary>
+    private Vector3 GetRandomMapPosition()
+    {
+        int x = Random.Range(0, mapGenerator.Width);
+        int y = Random.Range(0, mapGenerator.Height);
+        return mapGenerator.GetCellCenterWorld(x, y);
     }
 
     /// <summary>spawnTable의 weight를 이용한 룰렛 방식 랜덤 선택.</summary>

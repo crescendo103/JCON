@@ -55,9 +55,19 @@ public class StageMapGenerator : MonoBehaviour
 
     // 내부 상태
     private int[,] wallMap;      // 0 = 바닥, 1 = 벽
-    private bool[,] occupied;    // 건물이 차지한 칸
+    private bool[,] occupied;    // 건물/장식이 차지한 칸 (배치 시 겹침 방지용 - 장식은 콜라이더가 없어 이동은 막지 않음)
+    private bool[,] blocksMovement; // 실제로 이동/스폰/경로탐색을 막는 칸 (벽 + 건물만. 장식은 플레이어처럼 지나갈 수 있어 제외)
     private System.Random rng;
     private Transform contentParent;
+
+    // 스폰 가능 여부(도달 가능 범위) 캐시. ComputeReachability가 한 번 계산해두면 재사용한다.
+    private bool[,] reachable;
+    private bool reachabilityComputed;
+
+    private static readonly Vector2Int[] FourDirections =
+    {
+        new Vector2Int(1, 0), new Vector2Int(-1, 0), new Vector2Int(0, 1), new Vector2Int(0, -1)
+    };
 
     public void GenerateStage(int stageSeed)
     {
@@ -69,6 +79,9 @@ public class StageMapGenerator : MonoBehaviour
 
         wallMap = RunCellularAutomata();
         occupied = new bool[width, height];
+        blocksMovement = new bool[width, height];
+        reachable = null;
+        reachabilityComputed = false;
 
         DrawGroundAndWalls();
         DrawWaterBorder();
@@ -281,11 +294,16 @@ public class StageMapGenerator : MonoBehaviour
         return true;
     }
 
-    private void MarkOccupied(int x, int y, Vector2Int size)
+    // blocksMovementToo: 건물처럼 실제 콜라이더가 있어서 이동도 막는 오브젝트면 true, 장식처럼 콜라이더
+    // 없이 시각적으로만 배치되는 오브젝트면 false (겹침 방지용 occupied만 표시하고 이동은 막지 않음).
+    private void MarkOccupied(int x, int y, Vector2Int size, bool blocksMovementToo = true)
     {
         for (int dx = 0; dx < size.x; dx++)
             for (int dy = 0; dy < size.y; dy++)
+            {
                 occupied[x + dx, y + dy] = true;
+                if (blocksMovementToo) blocksMovement[x + dx, y + dy] = true;
+            }
     }
 
     private void InstantiateBuilding(int x, int y, GameObject prefab, int prefabIndex)
@@ -333,7 +351,7 @@ public class StageMapGenerator : MonoBehaviour
 
                 Vector3 worldPos = groundTilemap.CellToWorld(new Vector3Int(x, y, 0));
                 Instantiate(prefab, worldPos, Quaternion.identity, contentParent);
-                MarkOccupied(originX, originY, footprintSize);
+                MarkOccupied(originX, originY, footprintSize, blocksMovementToo: false); // 장식은 콜라이더가 없어 이동을 막지 않음
             }
     }
 
@@ -366,5 +384,289 @@ public class StageMapGenerator : MonoBehaviour
                 if (occupied[x + dx, y + dy]) return false;
             }
         return true;
+    }
+
+    // ---------- 스폰 가능 여부 조회 (StageManager 등 외부에서 사용) ----------
+
+    public int Width => width;
+    public int Height => height;
+
+    /// <summary>맵 칸 좌표(x, y)의 월드 중심 좌표. 스폰 위치 후보를 뽑을 때 사용.</summary>
+    public Vector3 GetCellCenterWorld(int x, int y) => groundTilemap.GetCellCenterWorld(new Vector3Int(x, y, 0));
+
+    /// <summary>
+    /// 맵에서 가장 큰 연결된 걸을 수 있는 구역 안의 칸 하나를 무작위로 골라 월드 중심 좌표를 반환한다.
+    /// 걸을 수 있는 칸이라도 벽으로 둘러싸여 나머지 맵과 끊긴 작은 고립 구역에는 플레이어가 시작하지
+    /// 않도록, 단순히 걸을 수 있는 칸 전체가 아니라 4방향으로 연결된 구역 중 제일 큰 것만 후보로 삼는다.
+    /// 플레이어 시작 위치처럼 스테이지 생성 직후 한 번만 뽑는 용도. seed 기반 rng를 사용하므로
+    /// 같은 시드 -> 같은 시작 위치가 유지된다. 걸을 수 있는 칸이 하나도 없는 극단적인 경우엔 맵 중앙을 반환.
+    /// GenerateStage 이후(벽/건물/장식이 모두 배치된 뒤)에 호출해야 한다.
+    /// </summary>
+    public Vector3 GetRandomWalkableWorldPosition()
+    {
+        List<Vector2Int> largestRegion = FindLargestWalkableRegion();
+        if (largestRegion.Count == 0) return GetCellCenterWorld(width / 2, height / 2);
+
+        Vector2Int cell = largestRegion[rng.Next(largestRegion.Count)];
+        return GetCellCenterWorld(cell.x, cell.y);
+    }
+
+    // 맵 전체를 4방향으로 연결된 걸을 수 있는 구역들로 나누고, 그중 칸 수가 가장 많은 구역을 반환한다.
+    private List<Vector2Int> FindLargestWalkableRegion()
+    {
+        var visited = new bool[width, height];
+        var largest = new List<Vector2Int>();
+
+        for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; y++)
+            {
+                if (visited[x, y] || !IsCellWalkable(x, y)) continue;
+
+                List<Vector2Int> region = FloodFillWalkableRegion(x, y, visited);
+                if (region.Count > largest.Count) largest = region;
+            }
+
+        return largest;
+    }
+
+    // (startX, startY)에서 4방향 플러드필로 이어지는 걸을 수 있는 칸을 전부 모아 반환하고, visited에 표시한다.
+    private List<Vector2Int> FloodFillWalkableRegion(int startX, int startY, bool[,] visited)
+    {
+        var region = new List<Vector2Int>();
+        var queue = new Queue<Vector2Int>();
+        var start = new Vector2Int(startX, startY);
+        visited[startX, startY] = true;
+        queue.Enqueue(start);
+
+        while (queue.Count > 0)
+        {
+            Vector2Int cur = queue.Dequeue();
+            region.Add(cur);
+
+            foreach (Vector2Int d in FourDirections)
+            {
+                int nx = cur.x + d.x, ny = cur.y + d.y;
+                if (!InBounds(nx, ny) || visited[nx, ny] || !IsCellWalkable(nx, ny)) continue;
+                visited[nx, ny] = true;
+                queue.Enqueue(new Vector2Int(nx, ny));
+            }
+        }
+        return region;
+    }
+
+    private bool InBounds(int x, int y) => x >= 0 && y >= 0 && x < width && y < height;
+
+    /// <summary>
+    /// 해당 칸이 벽도 아니고 건물도 차지하지 않아 실제로 지나갈 수 있는지. 장식(나무/덤불 등)은 콜라이더가
+    /// 없어 플레이어가 그냥 지나갈 수 있으므로 여기서는 막지 않는다 - 배치 겹침 방지용 occupied와는 별개.
+    /// </summary>
+    public bool IsCellWalkable(int x, int y)
+    {
+        if (!InBounds(x, y)) return false;
+        return wallMap[x, y] == 0 && !blocksMovement[x, y];
+    }
+
+    /// <summary>
+    /// seedWorldPos(보통 플레이어 위치)에서 4방향 플러드필로 실제로 걸어서 갈 수 있는 바닥 칸을 모두 표시한다.
+    /// 벽으로 둘러싸여 플레이어가 갈 수 없는 고립된 빈 바닥 칸은 여기서 제외된다.
+    /// 이미 계산된 적이 있으면(같은 스테이지에서) 다시 계산하지 않는다 - GenerateStage에서 새 스테이지마다 리셋됨.
+    /// </summary>
+    public void ComputeReachability(Vector3 seedWorldPos)
+    {
+        if (reachabilityComputed) return;
+
+        reachable = new bool[width, height];
+        Vector3Int seedCell = groundTilemap.WorldToCell(seedWorldPos);
+        Vector2Int start = FindNearestWalkableCell(new Vector2Int(seedCell.x, seedCell.y));
+
+        reachabilityComputed = true; // 못 찾아도 계산 자체는 끝난 것으로 처리 (매 프레임 재시도 방지)
+        if (start.x < 0) return;     // 맵에 걸어갈 수 있는 칸이 하나도 없는 극단적인 경우 - reachable 전부 false로 남음
+
+        var queue = new Queue<Vector2Int>();
+        reachable[start.x, start.y] = true;
+        queue.Enqueue(start);
+
+        while (queue.Count > 0)
+        {
+            Vector2Int cur = queue.Dequeue();
+            foreach (Vector2Int d in FourDirections)
+            {
+                int nx = cur.x + d.x, ny = cur.y + d.y;
+                if (!InBounds(nx, ny) || reachable[nx, ny] || !IsCellWalkable(nx, ny)) continue;
+                reachable[nx, ny] = true;
+                queue.Enqueue(new Vector2Int(nx, ny));
+            }
+        }
+    }
+
+    // start 칸 자체가 벽/건물 위일 수 있으므로(예: 시드 좌표가 약간 어긋난 경우), 인접 칸으로 퍼져나가며
+    // 가장 가까운 걸을 수 있는 칸을 찾는다. 벽인 칸도 큐에 넣어 계속 퍼지므로 벽 몇 겹 안쪽에서 시작해도 찾아낸다.
+    private Vector2Int FindNearestWalkableCell(Vector2Int start)
+    {
+        if (InBounds(start.x, start.y) && IsCellWalkable(start.x, start.y))
+            return start;
+
+        var visited = new HashSet<Vector2Int> { start };
+        var queue = new Queue<Vector2Int>();
+        queue.Enqueue(start);
+
+        while (queue.Count > 0)
+        {
+            Vector2Int cur = queue.Dequeue();
+            foreach (Vector2Int d in FourDirections)
+            {
+                Vector2Int next = cur + d;
+                if (!InBounds(next.x, next.y) || visited.Contains(next)) continue;
+                visited.Add(next);
+                if (IsCellWalkable(next.x, next.y)) return next;
+                queue.Enqueue(next);
+            }
+        }
+        return new Vector2Int(-1, -1); // 찾지 못함
+    }
+
+    /// <summary>
+    /// 이 월드 좌표가 몬스터를 스폰해도 되는 자리인지: 벽/건물 위가 아니고(장식 위는 허용), ComputeReachability가
+    /// 계산됐다면 플레이어가 실제로 갈 수 있는 영역인지까지 확인한다.
+    /// ComputeReachability를 아직 호출하지 않았다면 벽/건물 회피만 검사한다(호출 전 방어적 동작).
+    /// </summary>
+    public bool IsWorldPositionSpawnable(Vector3 worldPos)
+    {
+        Vector3Int cellPos = groundTilemap.WorldToCell(worldPos);
+        if (!IsCellWalkable(cellPos.x, cellPos.y)) return false;
+
+        if (!reachabilityComputed) return true;
+        return reachable[cellPos.x, cellPos.y];
+    }
+
+    // ---------- 타일 경로탐색 (몬스터 AI가 사용) ----------
+
+    /// <summary>월드 좌표가 속한 칸 좌표.</summary>
+    public Vector2Int WorldToCell(Vector3 worldPos)
+    {
+        Vector3Int cell = groundTilemap.WorldToCell(worldPos);
+        return new Vector2Int(cell.x, cell.y);
+    }
+
+    /// <summary>
+    /// DFS로 from에서 to까지 걸어갈 수 있는 경로를 찾는다. 최단 경로는 보장하지 않지만, 매번 목표에
+    /// 가까워지는 방향을 먼저 시도해서(그리디) 열린 공간에서는 거의 직선으로 다가가고 벽에 막혔을 때만
+    /// DFS의 스택 기반 되돌아가기가 발동한다. 순수 무작위 순서로 시도하면 열린 맵에서 첫 경로 자체가
+    /// "목표까지의 임의 행보"에 가까워져 아주 길고 구불구불해지고, repathInterval마다 그 경로를 통째로
+    /// 버리고 다시 계산하니 실제로는 거의 진전이 없어 보이는 문제가 있었다(플레이어가 가만히 있어도 못 옴).
+    /// 그래서 목표까지의 거리가 똑같이 줄어드는 방향이 여럿일 때만(동률일 때만) 그 사이에서 무작위로
+    /// 순서를 섞어, 매번 완전히 똑같은 모양으로 도는 문제 없이도 꾸준히 목표 쪽으로 진행하게 한다.
+    /// 반환값은 from이 속한 칸부터 to가 속한 칸까지 순서대로 나열한 칸 좌표 목록이고, 도달 불가하면 null.
+    /// </summary>
+    public List<Vector2Int> FindPathDFS(Vector3 fromWorldPos, Vector3 toWorldPos)
+    {
+        Vector2Int start = WorldToCell(fromWorldPos);
+        Vector2Int goal = WorldToCell(toWorldPos);
+        if (!InBounds(goal.x, goal.y) || !IsCellWalkable(goal.x, goal.y)) return null;
+
+        var visited = new HashSet<Vector2Int> { start };
+        var parent = new Dictionary<Vector2Int, Vector2Int>();
+        var stack = new Stack<Vector2Int>();
+        stack.Push(start);
+
+        while (stack.Count > 0)
+        {
+            Vector2Int cur = stack.Pop();
+            if (cur == goal) return BuildPath(parent, start, goal);
+
+            // 스택은 후입선출이라, 목표에서 먼 방향부터 push해서 가장 가까운 방향이 맨 위(다음 pop)에 오게 한다.
+            foreach (Vector2Int d in OrderDirectionsAwayFromGoal(cur, goal))
+            {
+                Vector2Int next = cur + d;
+                if (visited.Contains(next) || !IsCellWalkable(next.x, next.y)) continue;
+
+                visited.Add(next);
+                parent[next] = cur;
+                stack.Push(next);
+            }
+        }
+        return null; // 도달 불가
+    }
+
+    // FourDirections를 goal까지의 맨해튼 거리가 먼 순서대로 정렬해서 반환한다. 거리가 같은 방향들은
+    // 먼저 무작위로 섞어둔 뒤 정렬하므로(OrderByDescending은 안정 정렬) 동률 사이에서만 순서가 매번 바뀐다.
+    private Vector2Int[] OrderDirectionsAwayFromGoal(Vector2Int from, Vector2Int goal)
+    {
+        return ShuffleDirections()
+            .OrderByDescending(d => ManhattanDistance(from + d, goal))
+            .ToArray();
+    }
+
+    // FourDirections를 무작위로 섞은 새 배열로 반환한다(원본은 그대로 둠).
+    private Vector2Int[] ShuffleDirections()
+    {
+        var dirs = (Vector2Int[])FourDirections.Clone();
+        for (int i = dirs.Length - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            (dirs[i], dirs[j]) = (dirs[j], dirs[i]);
+        }
+        return dirs;
+    }
+
+    private static int ManhattanDistance(Vector2Int a, Vector2Int b) => Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+
+    /// <summary>
+    /// 다익스트라로 from에서 to까지 항상 최단 경로를 찾는다(칸마다 이동 비용이 같은 균일 그리드라
+    /// 결과 자체는 BFS와 같지만, 다익스트라 방식(거리값이 가장 작은 칸을 매번 뽑아 확정)으로 구현했다).
+    /// 반환/도달 불가 규칙은 FindPathDFS와 동일.
+    /// </summary>
+    public List<Vector2Int> FindPathDijkstra(Vector3 fromWorldPos, Vector3 toWorldPos)
+    {
+        Vector2Int start = WorldToCell(fromWorldPos);
+        Vector2Int goal = WorldToCell(toWorldPos);
+        if (!InBounds(goal.x, goal.y) || !IsCellWalkable(goal.x, goal.y)) return null;
+
+        var dist = new Dictionary<Vector2Int, int> { [start] = 0 };
+        var parent = new Dictionary<Vector2Int, Vector2Int>();
+        var visited = new HashSet<Vector2Int>();
+        var frontier = new List<Vector2Int> { start };
+
+        while (frontier.Count > 0)
+        {
+            int bestIndex = 0;
+            for (int i = 1; i < frontier.Count; i++)
+                if (dist[frontier[i]] < dist[frontier[bestIndex]]) bestIndex = i;
+
+            Vector2Int cur = frontier[bestIndex];
+            frontier.RemoveAt(bestIndex);
+
+            if (cur == goal) return BuildPath(parent, start, goal);
+            if (!visited.Add(cur)) continue;
+
+            foreach (Vector2Int d in FourDirections)
+            {
+                Vector2Int next = cur + d;
+                if (visited.Contains(next) || !IsCellWalkable(next.x, next.y)) continue;
+
+                int newDist = dist[cur] + 1;
+                if (!dist.TryGetValue(next, out int oldDist) || newDist < oldDist)
+                {
+                    dist[next] = newDist;
+                    parent[next] = cur;
+                    frontier.Add(next);
+                }
+            }
+        }
+        return null; // 도달 불가
+    }
+
+    // parent 역추적 맵으로 start부터 goal까지의 경로를 복원한다(start 포함, goal 포함).
+    private List<Vector2Int> BuildPath(Dictionary<Vector2Int, Vector2Int> parent, Vector2Int start, Vector2Int goal)
+    {
+        var path = new List<Vector2Int> { goal };
+        Vector2Int cur = goal;
+        while (cur != start)
+        {
+            cur = parent[cur];
+            path.Add(cur);
+        }
+        path.Reverse();
+        return path;
     }
 }
