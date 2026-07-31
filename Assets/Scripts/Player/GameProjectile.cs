@@ -15,6 +15,7 @@ public class GameProjectile : MonoBehaviour
     private Vector2 direction = Vector2.right;
     private Vector3 startPosition;
     private int pierceRemaining;
+    private int wallLayer;
     private readonly HashSet<MonsterController> hitMonsters = new HashSet<MonsterController>();
 
     void Awake()
@@ -25,6 +26,8 @@ public class GameProjectile : MonoBehaviour
 
         var col = GetComponent<Collider2D>();
         col.isTrigger = true;
+
+        wallLayer = LayerMask.NameToLayer("WallGrid");
     }
 
     public void Launch(Vector2 dir, int dmg, DamageType type, int pierce = 0)
@@ -50,6 +53,12 @@ public class GameProjectile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        if (other.gameObject.layer == wallLayer)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         var monster = other.GetComponent<MonsterController>();
         if (monster == null || hitMonsters.Contains(monster)) return;
 
