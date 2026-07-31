@@ -17,7 +17,7 @@ public class UINavigator : MonoBehaviour
     public const string UISceneName = "UIScene";
 
     /// <summary>스테이지(게임플레이) 씬 이름. 지금은 스테이지가 전부 이 씬 하나를 공유해서 쓴다.</summary>
-    public const string StageSceneName = "kimdongjuplayer 1";
+    public const string StageSceneName = "MapBuildScene";
 
     private static UINavigator instance;
 

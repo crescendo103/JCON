@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags:
   - UICanvas
   layers:
@@ -42,3 +42,23 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Ground
+    uniqueID: 453068219
+    locked: 0
+  - name: Wall
+    uniqueID: 1824766051
+    locked: 0
+  - name: Building
+    uniqueID: 3260037411
+    locked: 0
+  - name: Decortae
+    uniqueID: 2653785529
+    locked: 0
+  - name: Player
+    uniqueID: 1903868641
+    locked: 0
+  - name: BuildingPlayer
+    uniqueID: 3118357363
+    locked: 0
+  m_RenderingLayers:
+  - Default

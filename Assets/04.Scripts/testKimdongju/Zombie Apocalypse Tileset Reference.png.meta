@@ -1646,7 +1646,7 @@ TextureImporter:
         x: 16
         y: 264
         width: 18
-        height: 9
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1668,7 +1668,7 @@ TextureImporter:
         x: 33
         y: 264
         width: 18
-        height: 9
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1690,7 +1690,7 @@ TextureImporter:
         x: 50
         y: 264
         width: 18
-        height: 11
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1712,7 +1712,7 @@ TextureImporter:
         x: 67
         y: 264
         width: 18
-        height: 11
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1734,7 +1734,7 @@ TextureImporter:
         x: 84
         y: 264
         width: 18
-        height: 11
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -1756,7 +1756,7 @@ TextureImporter:
         x: 101
         y: 264
         width: 18
-        height: 9
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -3340,7 +3340,7 @@ TextureImporter:
         x: 67
         y: 226
         width: 18
-        height: 11
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -4878,9 +4878,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 16
-        y: 195
+        y: 188
         width: 18
-        height: 11
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -4900,9 +4900,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 33
-        y: 195
+        y: 188
         width: 18
-        height: 11
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -4922,9 +4922,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 50
-        y: 195
+        y: 188
         width: 18
-        height: 11
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -4966,9 +4966,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 84
-        y: 195
+        y: 188
         width: 18
-        height: 11
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -4988,9 +4988,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 101
-        y: 195
+        y: 188
         width: 18
-        height: 11
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -10421,10 +10421,10 @@ TextureImporter:
       name: Zombie Apocalypse Tileset Reference_399
       rect:
         serializedVersion: 2
-        x: 279
+        x: 271
         y: 74
-        width: 10
-        height: 11
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -10445,8 +10445,8 @@ TextureImporter:
         serializedVersion: 2
         x: 305
         y: 74
-        width: 10
-        height: 11
+        width: 18
+        height: 18
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}

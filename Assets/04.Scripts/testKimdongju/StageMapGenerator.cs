@@ -27,6 +27,11 @@ public class StageMapGenerator : MonoBehaviour
     public TileBase[] groundTiles; // 바닥 타일 (여러 종류면 랜덤 선택)
     public TileBase wallTile; // Rule Tile 권장: 주변 벽 패턴에 맞춰 이음새(코너/직선/T자 등) 자동 선택
 
+    [Header("바깥 여백 (카메라가 맵 밖 빈 공간을 보지 않도록 물 타일로 채움)")]
+    public TileBase[] waterTiles; // 물 타일 (여러 종류면 칸마다 랜덤 선택)
+    [Tooltip("맵 경계 바깥으로 물 타일을 몇 칸까지 깔지. 카메라가 맵 가장자리까지 붙어도 화면 밖으로 나가지 않을 만큼 넉넉하게")]
+    public int waterPadding = 30;
+
     [Header("건물 블루프린트")]
     public GameObject[] buildingPrefabs; // 각 프리팹은 자체 크기 정보를 buildingSizes와 짝지어 관리
     // 주의: buildingSizes는 "스프라이트 전체 크기"가 아니라 "실제 Collider2D가 막는 바닥 영역(footprint) 크기"임.
@@ -66,6 +71,7 @@ public class StageMapGenerator : MonoBehaviour
         occupied = new bool[width, height];
 
         DrawGroundAndWalls();
+        DrawWaterBorder();
         PlaceBuildings();
         ScatterDecorations();
     }
@@ -184,6 +190,25 @@ public class StageMapGenerator : MonoBehaviour
         // 벽 Tilemap에 Composite Collider가 붙어 있다는 전제 (에디터에서 미리 세팅)
     }
 
+    // ---------- 맵 바깥 여백을 물 타일로 채우기 (카메라가 맵 경계까지 붙어도 빈 공간이 안 보이게) ----------
+    private void DrawWaterBorder()
+    {
+        if (waterTiles == null || waterTiles.Length == 0) return;
+
+        int minX = -waterPadding;
+        int maxX = width + waterPadding;
+        int minY = -waterPadding;
+        int maxY = height + waterPadding;
+
+        for (int x = minX; x < maxX; x++)
+            for (int y = minY; y < maxY; y++)
+            {
+                if (x >= 0 && x < width && y >= 0 && y < height) continue; // 맵 내부는 그대로 둠
+                TileBase water = waterTiles[rng.Next(waterTiles.Length)]; // 칸마다 랜덤 선택 (위치는 고정, 어떤 타일을 쓸지만 시드로 랜덤)
+                groundTilemap.SetTile(new Vector3Int(x, y, 0), water);
+            }
+    }
+
     // buildingPrefabs 전체 중 이번 스테이지에 실제로 배치할 개수만큼 인덱스를 랜덤 선택.
     // 반드시 this.rng(=seed로 초기화된 인스턴스)만 사용해서 셔플해야 동일 시드 -> 동일 결과가 유지됨.
     private List<int> SelectBuildingIndices()
@@ -194,21 +219,19 @@ public class StageMapGenerator : MonoBehaviour
                               $"인스펙터에서 두 배열을 같은 길이로 맞춰주세요. 우선 앞쪽 {total}개만 사용합니다.");
         if (total == 0) return new List<int>();
 
-        int min = Mathf.Clamp(minBuildingsToPlace, 0, total);
-        int max = Mathf.Clamp(maxBuildingsToPlace, min, total);
+        int min = Mathf.Max(0, minBuildingsToPlace);
+        int max = Mathf.Max(min, maxBuildingsToPlace);
 
         // rng.Next(min, max)는 max를 포함하지 않으므로 +1
         int count = rng.Next(min, max + 1);
 
-        // Fisher-Yates 셔플 (seed 기반 rng 사용 -> 결정론적)
-        int[] indices = Enumerable.Range(0, total).ToArray();
-        for (int i = indices.Length - 1; i > 0; i--)
-        {
-            int j = rng.Next(i + 1);
-            (indices[i], indices[j]) = (indices[j], indices[i]);
-        }
+        // 매번 독립적으로 추첨(장식물과 동일한 방식) -> 같은 건물이 여러 번 나올 수 있음.
+        // 셔플 없이 뽑으므로 total(프리팹 종류 수)보다 많은 개수도 배치 가능.
+        var indices = new List<int>(count);
+        for (int i = 0; i < count; i++)
+            indices.Add(rng.Next(total));
 
-        return indices.Take(count).ToList();
+        return indices;
     }
 
     // ---------- 3단계: 빈 바닥에 건물 블루프린트 배치 ----------
@@ -296,12 +319,52 @@ public class StageMapGenerator : MonoBehaviour
                 if (noise < decorationDensity) continue;
 
                 // 밀도 통과했으면 확률적으로 실제 배치 (너무 빽빽하지 않게)
-                if (rng.NextDouble() < 0.15)
-                {
-                    Vector3 worldPos = groundTilemap.CellToWorld(new Vector3Int(x, y, 0));
-                    GameObject prefab = decorationPrefabs[rng.Next(decorationPrefabs.Length)];
-                    Instantiate(prefab, worldPos, Quaternion.identity, contentParent);
-                }
+                if (rng.NextDouble() >= 0.15) continue;
+
+                GameObject prefab = decorationPrefabs[rng.Next(decorationPrefabs.Length)];
+                if (prefab == null) continue;
+
+                // 장식물 프리팹이 1칸보다 큰 경우(사람 무리, 덤불 등) 실제 스프라이트가 차지하는
+                // 칸 전체가 벽/건물/다른 장식물과 겹치지 않을 때만 배치한다 (건물 배치와 동일한 방식).
+                GetTilemapFootprint(prefab, out Vector2Int footprintOrigin, out Vector2Int footprintSize);
+                int originX = x + footprintOrigin.x;
+                int originY = y + footprintOrigin.y;
+                if (!CanPlaceFootprint(originX, originY, footprintSize)) continue;
+
+                Vector3 worldPos = groundTilemap.CellToWorld(new Vector3Int(x, y, 0));
+                Instantiate(prefab, worldPos, Quaternion.identity, contentParent);
+                MarkOccupied(originX, originY, footprintSize);
             }
+    }
+
+    // 장식물 프리팹이 실제로 차지하는 타일 칸 범위를 프리팹 자신의 Tilemap 데이터에서 읽어온다.
+    // (건물처럼 별도 크기 배열을 관리할 필요 없이, 타일맵에 이미 있는 정보를 그대로 사용)
+    private void GetTilemapFootprint(GameObject prefab, out Vector2Int origin, out Vector2Int size)
+    {
+        Tilemap prefabTilemap = prefab.GetComponent<Tilemap>();
+        if (prefabTilemap == null)
+        {
+            origin = Vector2Int.zero;
+            size = Vector2Int.one;
+            return;
+        }
+
+        BoundsInt bounds = prefabTilemap.cellBounds;
+        origin = new Vector2Int(bounds.xMin, bounds.yMin);
+        size = new Vector2Int(Mathf.Max(1, bounds.size.x), Mathf.Max(1, bounds.size.y));
+    }
+
+    // CanPlaceBuilding과 같은 방식(벽/건물/다른 배치물과 겹치지 않는지)으로 임의의 칸 범위를 검사한다.
+    private bool CanPlaceFootprint(int x, int y, Vector2Int size)
+    {
+        if (x < 0 || y < 0 || x + size.x > width || y + size.y > height) return false;
+
+        for (int dx = 0; dx < size.x; dx++)
+            for (int dy = 0; dy < size.y; dy++)
+            {
+                if (wallMap[x + dx, y + dy] == 1) return false;
+                if (occupied[x + dx, y + dy]) return false;
+            }
+        return true;
     }
 }

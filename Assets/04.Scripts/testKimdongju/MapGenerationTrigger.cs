@@ -1,20 +1,21 @@
 using UnityEngine;
 
 /// <summary>
-/// StageMapGenerator ½ÇÇà Æ®¸®°Å. 
-/// ½ºÅ×ÀÌÁö ½ÃÀÛ ½Ã È£ÃâÇÏ°Å³ª, ¿¡µðÅÍ¿¡¼­ ¿ìÅ¬¸¯ -> Generate Now·Î Áï½Ã Å×½ºÆ® °¡´É.
+/// StageMapGenerator ï¿½ï¿½ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½. 
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ È£ï¿½ï¿½ï¿½Ï°Å³ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ï¿½ï¿½ ï¿½ï¿½Å¬ï¿½ï¿½ -> Generate Nowï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½×½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½.
 /// </summary>
 public class MapGenerationTrigger : MonoBehaviour
 {
     public StageMapGenerator generator;
 
-    [Tooltip("Å×½ºÆ®¿ë: ÀÌ ¾ÀÀ» ¸î ¹ø ½ºÅ×ÀÌÁö·Î Ãë±ÞÇÒÁö")]
+    [Tooltip("ï¿½×½ï¿½Æ®ï¿½ï¿½: ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public int stageIndexForTesting = 1;
 
     void Start()
     {
-        // ½ÇÁ¦ °ÔÀÓ¿¡¼­´Â GameManager °°Àº °÷¿¡¼­ ÇöÀç ½ºÅ×ÀÌÁö ¹øÈ£¸¦ ¹Þ¾Æ¿Í¼­ È£Ãâ
-        generator.GenerateStage(stageIndexForTesting);
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½ï¿½ï¿½ï¿½ GameManager ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½Þ¾Æ¿Í¼ï¿½ È£ï¿½ï¿½
+        int stage = StageProgressManager.HasInstance ? StageProgressManager.Instance.CurrentStage : stageIndexForTesting;
+        generator.GenerateStage(stage);
     }
 
     [ContextMenu("Generate Now")]
