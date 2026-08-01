@@ -173,6 +173,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
   speed: 15
   maxDistance: 20
+  muzzleEffectPrefab: {fileID: 7570139541229498639, guid: 5221ebebeea574849bd93868b0644b38, type: 3}
+  disappearEffectPrefab: {fileID: 4751152998542769949, guid: 3dfba0269dc3af34c94d1ef63e50be8c, type: 3}
+  effectLifetime: 0.5
 --- !u!114 &8993666985263121129
 MonoBehaviour:
   m_ObjectHideFlags: 0

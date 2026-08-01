@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class GamePlayerController : MonoBehaviour, IPlayable
@@ -19,7 +20,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [SerializeField] private Rigidbody2D rigid;
     [SerializeField] private Animator anim;
     [SerializeField] private Transform model;
-    [SerializeField] private SpriteRenderer weaponRenderer;
+    [Tooltip("장착 무기 비주얼이 생성될 앵커(머리 밑 고정 위치)")]
+    [SerializeField] private Transform weaponSocket;
     [Tooltip("맨손일 때 검을 표시할 렌더러 (Model/LeftHand/LeftHandWeapon)")]
     [SerializeField] private SpriteRenderer handWeaponRenderer;
     [Tooltip("캐릭터 손 위치(Model 로컬). Idle 프레임 손 픽셀(x39,row48) 실측값. 크기/기울기와 무관하게 여기만 맞추면 된다")]
@@ -58,6 +60,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [SerializeField] private Vector2 weaponHeldOffset = new Vector2(0f, 0.15f);
     [Tooltip("원거리 무기 총알이 생성되는 높이(플레이어 중심 기준 위로 오프셋)")]
     [SerializeField] private float bulletSpawnHeight = 0.3f;
+    [Tooltip("원거리 무기 발사 시 현재 장착된 무기 비주얼의 Muzzle 위치에서 재생되는 총구 이펙트. 애니메이션 한 바퀴 끝나면 EffectAutoDestroy가 알아서 없앤다")]
+    [SerializeField] private GameObject muzzleEffectPrefab;
 
     private bool isAttack;
     private bool isSprinting;
@@ -79,7 +83,17 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     private readonly int[] ammoInSlot = new int[5];
     private int currentSlot = FistsSlot;
     private GameWeaponData equippedWeapon;
+    // 장착 시 weaponVisualPrefab을 스폰해 만들어지고, 무기를 바꾸거나 벗을 때 파괴된다.
+    private GameObject weaponVisualInstance;
+    private SpriteRenderer weaponRenderer;
+    private Transform weaponMuzzle;
+    // 좌우 반전 전의 원래 크기. UpdateWeaponFacing()이 매 프레임 부호만 바꿔 다시 곱한다.
+    private float weaponVisualBaseScale = 1f;
     private float nextAttackTime;
+    // 플레이어 전체가 이 SortingGroup(레이어 BuildingPlayer)으로 한 덩어리로 그려진다. 그룹 안에 든
+    // 렌더러의 sortingLayerID(Default)는 그룹 안 순서에만 쓰이고 그룹 밖에서는 무의미하므로,
+    // 그룹 밖에 스폰되는 이펙트를 앞에 그리려면 이 그룹 자체의 레이어/순서를 기준으로 삼아야 한다.
+    private SortingGroup sortingGroup;
     private readonly List<MonsterController> meleeTargetBuffer = new List<MonsterController>();
     // 맨손 검 휘두르기 진행 상태. 휘두르는 동안에만 true이고, 끝나면 기본 자세(0번 프레임)로 돌아간다.
     private bool fistsSwordSwinging;
@@ -96,7 +110,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         rigid.gravityScale = 0f;
         model = this.transform.Find("Model");
 
-        weaponRenderer = this.transform.Find("WeaponMuzzle")?.GetComponent<SpriteRenderer>();
+        weaponSocket = this.transform.Find("WeaponMuzzle");
         hitVignette = this.GetComponent<PlayerHitVignette>();
         handWeaponRenderer = this.transform.Find("Model/LeftHand/LeftHandWeapon")?.GetComponent<SpriteRenderer>();
 
@@ -106,6 +120,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     private void Awake()
     {
         if (hitVignette == null) hitVignette = GetComponent<PlayerHitVignette>();
+        sortingGroup = GetComponent<SortingGroup>();
 
         maxHealth = health;
         stamina = staminaMax;
@@ -115,6 +130,9 @@ public class GamePlayerController : MonoBehaviour, IPlayable
             handWeaponRenderer = transform.Find("Model/LeftHand/LeftHandWeapon")?.GetComponent<SpriteRenderer>();
 
         if (handWeaponRenderer != null) handWeaponRenderer.sortingOrder = HandWeaponSortingOrder;
+
+        // 무기는 더 이상 마우스를 따라 움직이지 않고, 머리 밑 고정 위치에 그대로 표시된다.
+        if (weaponSocket != null) weaponSocket.localPosition = weaponHeldOffset;
 
         EquipSlot(FistsSlot);
     }
@@ -211,8 +229,20 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (dx > 0f) model.localScale = new Vector3(-1f, 1f, 1f);
         else if (dx < 0f) model.localScale = new Vector3(1f, 1f, 1f);
 
+        UpdateWeaponFacing();
+    }
+
+    // weaponRenderer.flipX만 뒤집으면 렌더링만 반전되고 Muzzle 같은 자식 Transform의 위치는 그대로라
+    // 총구가 캐릭터가 보는 방향과 반대편에 고정돼버린다. weaponVisualInstance 자체를 좌우 반전시켜야
+    // 스프라이트와 Muzzle 위치가 같이 뒤집힌다.
+    private void UpdateWeaponFacing()
+    {
+        if (weaponVisualInstance == null || model == null) return;
+
         // 총 원본 아트가 오른쪽을 보고 그려져 있으므로, 왼쪽을 볼 때만(model.localScale.x > 0) 뒤집는다.
-        if (weaponRenderer != null) weaponRenderer.flipX = model.localScale.x > 0f;
+        bool flip = model.localScale.x > 0f;
+        Vector3 scale = weaponVisualInstance.transform.localScale;
+        weaponVisualInstance.transform.localScale = new Vector3(flip ? -weaponVisualBaseScale : weaponVisualBaseScale, scale.y, scale.z);
     }
 
     /// <summary>
@@ -249,14 +279,33 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
         UpdateFistsSword(weapon == null);
 
-        if (weaponRenderer == null) return;
+        DestroyWeaponVisual();
 
-        if (weapon == null)
-        {
-            weaponRenderer.sprite = null;
-            weaponRenderer.transform.localScale = Vector3.one;
-            return;
-        }
+        if (weapon != null) SpawnWeaponVisual(weapon);
+    }
+
+    private void DestroyWeaponVisual()
+    {
+        if (weaponVisualInstance == null) return;
+
+        Destroy(weaponVisualInstance);
+        weaponVisualInstance = null;
+        weaponRenderer = null;
+        weaponMuzzle = null;
+    }
+
+    // weaponSocket(머리 밑 고정 앵커) 아래에 무기 전용 비주얼 프리팹을 스폰하고, 그 안의 SpriteRenderer/Muzzle을 캐시해둔다.
+    // 총구 위치가 무기마다 달라 비주얼 프리팹도 weapon.weaponVisualPrefab으로 무기별로 따로 둔다.
+    private void SpawnWeaponVisual(GameWeaponData weapon)
+    {
+        if (weapon.weaponVisualPrefab == null || weaponSocket == null) return;
+
+        weaponVisualInstance = Instantiate(weapon.weaponVisualPrefab, weaponSocket);
+        weaponVisualInstance.transform.localPosition = Vector3.zero;
+        weaponVisualInstance.transform.localRotation = Quaternion.identity;
+
+        weaponRenderer = weaponVisualInstance.GetComponentInChildren<SpriteRenderer>();
+        weaponMuzzle = weaponVisualInstance.transform.Find("Muzzle");
 
         Sprite equipSource = weapon.equippedSprite;
         if (equipSource == null && weapon.useProceduralChainsawIcon) equipSource = WeaponVisuals.ChainsawIcon;
@@ -266,13 +315,15 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         float scale;
         WeaponVisuals.Resolve(equipSource, weapon.displayScale, out sprite, out color, out scale);
 
-        weaponRenderer.sprite = sprite;
-        weaponRenderer.color = color;
-        weaponRenderer.transform.localScale = Vector3.one * scale;
+        if (weaponRenderer != null)
+        {
+            weaponRenderer.sprite = sprite;
+            weaponRenderer.color = color;
+        }
 
-        // 무기는 더 이상 마우스를 따라 움직이지 않고, 머리 밑 고정 위치에 그대로 표시된다.
-        weaponRenderer.transform.localPosition = weaponHeldOffset;
-        weaponRenderer.transform.localRotation = Quaternion.identity;
+        weaponVisualBaseScale = scale;
+        weaponVisualInstance.transform.localScale = Vector3.one * scale;
+        UpdateWeaponFacing();
     }
 
     /// <summary>
@@ -512,6 +563,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // 무기가 더 이상 조준 방향을 가리키지 않으므로(머리 밑 고정 표시), 총알은 플레이어 중심에서 나간다.
         Vector3 spawnPos = transform.position + Vector3.up * bulletSpawnHeight;
 
+        SpawnMuzzleEffect(aimDir);
+
         for (int i = 0; i < pellets; i++)
         {
             float angleOffset = 0f;
@@ -530,6 +583,34 @@ public class GamePlayerController : MonoBehaviour, IPlayable
                 projectile.speed = weapon.projectileSpeed;
                 projectile.maxDistance = weapon.projectileMaxDistance;
                 projectile.Launch(dir, weapon.damage, weapon.damageType, weapon.pierceCount);
+            }
+        }
+    }
+
+    // 현재 장착된 무기 비주얼의 Muzzle 자식이 없으면(맨손 등) 조용히 넘어간다.
+    // 이펙트를 조준각으로 회전시키지 않고, 기본(왼쪽) 스프라이트를 오른쪽을 볼 때만 좌우 반전해서 재생한다.
+    private void SpawnMuzzleEffect(Vector2 aimDir)
+    {
+        if (muzzleEffectPrefab == null || weaponMuzzle == null) return;
+
+        GameObject effect = Instantiate(muzzleEffectPrefab, weaponMuzzle.position, Quaternion.identity);
+
+        // 재생되는 짧은 시간 동안에도 플레이어가 움직이거나 총구가 흔들릴 수 있어 위치를 계속 따라가게 한다.
+        var autoDestroy = effect.GetComponent<EffectAutoDestroy>();
+        if (autoDestroy != null) autoDestroy.Follow(weaponMuzzle);
+
+        var effectRenderer = effect.GetComponentInChildren<SpriteRenderer>();
+        if (effectRenderer != null)
+        {
+            effectRenderer.flipX = aimDir.x > 0f;
+
+            // 플레이어 전체(무기 포함)가 SortingGroup 하나로 그려지므로, 그 그룹의 레이어/순서보다
+            // 한 칸 위로 맞춰야 무기 앞에 그려진다. weaponRenderer의 sortingLayerID는 그룹 안에서만
+            // 의미가 있어(항상 Default) 그룹 밖의 이 이펙트에는 못 쓴다.
+            if (sortingGroup != null)
+            {
+                effectRenderer.sortingLayerID = sortingGroup.sortingLayerID;
+                effectRenderer.sortingOrder = sortingGroup.sortingOrder + 1;
             }
         }
     }

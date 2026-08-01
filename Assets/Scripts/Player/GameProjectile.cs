@@ -10,6 +10,10 @@ public class GameProjectile : MonoBehaviour
     public float speed = 15f;
     public float maxDistance = 20f;
 
+    [Header("이펙트")]
+    [Tooltip("벽/몬스터에 맞아 사라질 때 재생되는 이펙트. 애니메이션 한 바퀴 끝나면 EffectAutoDestroy가 알아서 없앤다")]
+    public GameObject disappearEffectPrefab;
+
     private int damage;
     private DamageType damageType;
     private Vector2 direction = Vector2.right;
@@ -55,6 +59,7 @@ public class GameProjectile : MonoBehaviour
     {
         if (other.gameObject.layer == wallLayer)
         {
+            SpawnEffect(disappearEffectPrefab, transform.position, transform.rotation);
             Destroy(gameObject);
             return;
         }
@@ -67,11 +72,19 @@ public class GameProjectile : MonoBehaviour
 
         if (pierceRemaining <= 0)
         {
+            SpawnEffect(disappearEffectPrefab, transform.position, transform.rotation);
             Destroy(gameObject);
         }
         else
         {
             pierceRemaining--;
         }
+    }
+
+    private void SpawnEffect(GameObject prefab, Vector3 position, Quaternion rotation)
+    {
+        if (prefab == null) return;
+
+        Instantiate(prefab, position, rotation);
     }
 }

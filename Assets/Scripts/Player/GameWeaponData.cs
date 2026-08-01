@@ -26,6 +26,8 @@ public class GameWeaponData : ScriptableObject
     [Header("표시")]
     [Tooltip("무기 스프라이트를 캐릭터 크기에 맞게 보정하는 배율(WeaponMuzzle의 localScale에 적용)")]
     public float displayScale = 1f;
+    [Tooltip("장착 시 스폰되는 이 무기 전용 비주얼 프리팹. SpriteRenderer + 총구 위치를 표시하는 자식 Muzzle 오브젝트를 가진다. 총마다 총구 위치가 달라 무기별로 따로 둔다")]
+    public GameObject weaponVisualPrefab;
 
     [Header("공통 전투 수치")]
     public int damage = 10;

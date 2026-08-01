@@ -20,6 +20,7 @@ MonoBehaviour:
   slotIndex: 1
   attackAnimState: AttackPrick
   displayScale: 0.2
+  weaponVisualPrefab: {fileID: 5970877871123900641, guid: 3a3f2955dbe09bc4ca7d576f50692dc9, type: 3}
   damage: 8
   cooldown: 0.3
   damageType: 0
@@ -34,3 +35,4 @@ MonoBehaviour:
   pelletCount: 1
   spreadAngleDeg: 0
   pierceCount: 0
+  maxAmmo: 0

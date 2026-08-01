@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 18cff41f44f1f5e498218ff513b82ccb
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 318586
+  packageName: Master MagicFX Bundle
+  packageVersion: 1.0
+  assetPath: Assets/MasterMagicFX/Commons/Shaders/Mask.shadersubgraph
+  uploadId: 755856

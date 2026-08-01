@@ -16,9 +16,11 @@ MonoBehaviour:
   category: 1
   equippedSprite: {fileID: 21300000, guid: 91c2cdc50a9254441a87d44de8453103, type: 3}
   pickupSprite: {fileID: 21300000, guid: 91c2cdc50a9254441a87d44de8453103, type: 3}
+  useProceduralChainsawIcon: 0
   slotIndex: 3
   attackAnimState: AttackShoot
   displayScale: 0.2
+  weaponVisualPrefab: {fileID: 4653186707952811816, guid: fe4e3168d67cbfc43826bec171a44708, type: 3}
   damage: 10
   cooldown: 0.6
   damageType: 1
