@@ -19,6 +19,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
     [SerializeField] private Rigidbody2D rigid;
     [SerializeField] private Animator anim;
+    [Tooltip("무기 발사/공격 사운드 재생용. 발자국 소리(PlayerFootstepSound)와 같은 AudioSource를 공유해도 된다")]
+    [SerializeField] private AudioSource weaponAudioSource;
     [SerializeField] private Transform model;
     [Tooltip("장착 무기 비주얼이 생성될 앵커(머리 밑 고정 위치)")]
     [SerializeField] private Transform weaponSocket;
@@ -56,6 +58,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [Tooltip("스프린트를 안 쓰는 동안 초당 회복량")]
     [SerializeField] private float staminaRegenPerSecond = 15f;
     [SerializeField] private float fistsCooldown = 0.4f;
+    [Tooltip("맨손(기본 공격) 휘두를 때 재생되는 사운드")]
+    [SerializeField] private AudioClip fistsAttackSfx;
     [Tooltip("무기 아이콘 고정 위치(플레이어 로컬 기준). 머리 밑에 오도록 조정")]
     [SerializeField] private Vector2 weaponHeldOffset = new Vector2(0f, 0.15f);
     [Tooltip("원거리 무기 총알이 생성되는 높이(플레이어 중심 기준 위로 오프셋)")]
@@ -113,6 +117,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         weaponSocket = this.transform.Find("WeaponMuzzle");
         hitVignette = this.GetComponent<PlayerHitVignette>();
         handWeaponRenderer = this.transform.Find("Model/LeftHand/LeftHandWeapon")?.GetComponent<SpriteRenderer>();
+        weaponAudioSource = this.GetComponent<AudioSource>();
 
     }
 #endif
@@ -120,6 +125,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     private void Awake()
     {
         if (hitVignette == null) hitVignette = GetComponent<PlayerHitVignette>();
+        if (weaponAudioSource == null) weaponAudioSource = GetComponent<AudioSource>();
         sortingGroup = GetComponent<SortingGroup>();
 
         maxHealth = health;
@@ -139,7 +145,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
     private void Update()
     {
-        if (health < 0f) return;
+        if (health <= 0f) return;
 
         GetInput();
         UpdateStamina();
@@ -155,7 +161,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // 덮어쓰면 물리 엔진이 그 프레임 안에서 계산한 충돌 반응(벽에 닿아 밀려나는 등)을
         // 다음 렌더 프레임이 바로 지워버려서 벽에 파고들거나 걸리는 현상이 생긴다.
         float currentSpeed = isSprinting ? speed * sprintSpeedMultiplier : speed;
-        rigid.linearVelocity = health < 0f ? Vector2.zero : input.normalized * currentSpeed;
+        rigid.linearVelocity = health <= 0f ? Vector2.zero : input.normalized * currentSpeed;
     }
 
     private void GetInput()
@@ -429,6 +435,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
                 anim.Play(weapon.attackAnimState, 0);
                 ExecuteAttack(weapon);
+                PlayWeaponFireSound(weapon);
                 SwitchToFistsIfOutOfAmmo(weapon);
             }
             return;
@@ -452,6 +459,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
             anim.Play(weapon != null ? weapon.attackAnimState : "AttackSlash", 0);
             ExecuteAttack(weapon);
+            PlayWeaponFireSound(weapon);
             SwitchToFistsIfOutOfAmmo(weapon);
         }
         else if (isAttack && 1f <= anim.GetCurrentAnimatorStateInfo(0).normalizedTime)
@@ -482,6 +490,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     {
         if (weapon == null || weapon.category != WeaponCategory.Ranged || weapon.maxAmmo <= 0) return;
         if (ammoInSlot[currentSlot] > 0) return;
+
+        if (weapon.breakSfx != null && weaponAudioSource != null) weaponAudioSource.PlayOneShot(weapon.breakSfx);
 
         EquipSlot(FistsSlot);
     }
@@ -615,14 +625,30 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         }
     }
 
+    /// <summary>
+    /// 무기 발사/공격 사운드 1회 재생. Click()이 공격을 실행할 때마다(단발이든, 마우스를 누르고 있는
+    /// 동안 쿨다운마다 반복 호출되는 연사/전기톱이든) 그때그때 호출되므로, 누르고 있는 동안 계속
+    /// 눌러대는 무기(전기톱 등)는 자연스럽게 소리가 반복 재생된다. weapon이 null이면 맨손 공격이라
+    /// fistsAttackSfx를 대신 재생한다.
+    /// </summary>
+    private void PlayWeaponFireSound(GameWeaponData weapon)
+    {
+        if (weaponAudioSource == null) return;
+
+        AudioClip clip = weapon != null ? weapon.sfx : fistsAttackSfx;
+        if (clip == null) return;
+
+        weaponAudioSource.PlayOneShot(clip);
+    }
+
     public void Hit(float dmg)
     {
-        if (health < 0f) return;
+        if (health <= 0f) return;
         health -= dmg;
 
         hitVignette?.PlayHitFlash();
 
-        if (health < 0f)
+        if (health <= 0f)
         {
             anim.Play("Death", 0);
             SpawnScoreCanvas();

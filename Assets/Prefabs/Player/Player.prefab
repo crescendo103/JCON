@@ -687,6 +687,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   rigid: {fileID: 8520003381725614351}
   anim: {fileID: 9207523875929657897}
+  weaponAudioSource: {fileID: 0}
   model: {fileID: 3612495129861985945}
   weaponSocket: {fileID: 461006292025402860}
   handWeaponRenderer: {fileID: 0}
@@ -708,10 +709,10 @@ MonoBehaviour:
   staminaDrainPerSecond: 25
   staminaRegenPerSecond: 15
   fistsCooldown: 0.4
+  fistsAttackSfx: {fileID: 8300000, guid: 45273f34caf736b4c8c4a7e573b1120d, type: 3}
   weaponHeldOffset: {x: 0, y: 0.19}
   bulletSpawnHeight: 0.2
   muzzleEffectPrefab: {fileID: 7570139541229498639, guid: 5221ebebeea574849bd93868b0644b38, type: 3}
-  muzzleEffectLifetime: 0.5
 --- !u!58 &394008080862247787
 CircleCollider2D:
   m_ObjectHideFlags: 0

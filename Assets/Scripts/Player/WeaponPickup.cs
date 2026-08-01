@@ -1,10 +1,12 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 // 필드에 스폰되는 미스테리 상자 픽업. 어떤 무기가 들었는지 겉모습으로는 알 수 없도록 항상 같은
 // 상자 모습이며, 화면 위에서 낙하산을 타고 착지 지점으로 떨어진 뒤 플레이어가 트리거로 닿으면
 // 무기를 지급하고 깨지는 연출 후 사라진다.
 [RequireComponent(typeof(Collider2D))]
+[RequireComponent(typeof(AudioSource))]
 public class WeaponPickup : MonoBehaviour
 {
     public GameWeaponData weapon;
@@ -27,6 +29,18 @@ public class WeaponPickup : MonoBehaviour
     [Tooltip("착지 시 낙하산이 위로 떠오르며 사라지는 데 걸리는 시간(초)")]
     [SerializeField] private float parachuteReleaseDuration = 0.3f;
 
+    [Header("스포트라이트")]
+    [Tooltip("낙하 중 상자와 함께 내려오는 2D 스포트라이트 색상")]
+    [SerializeField] private Color spotlightColor = Color.white;
+    [Tooltip("스포트라이트 밝기")]
+    [SerializeField] private float spotlightIntensity = 2f;
+    [Tooltip("스포트라이트가 완전히 밝은 안쪽 반경")]
+    [SerializeField] private float spotlightInnerRadius = 0.2f;
+    [Tooltip("스포트라이트가 어두워지며 사라지는 바깥 반경")]
+    [SerializeField] private float spotlightOuterRadius = 1.5f;
+    [Tooltip("상자 기준 스포트라이트 위치(로컬 좌표)")]
+    [SerializeField] private Vector3 spotlightOffset = Vector3.zero;
+
     [Header("낙하")]
     [Tooltip("착지 지점 기준 시작 높이(월드 유닛). 카메라 세로 시야가 10유닛이라 6이면 화면 밖에서 시작")]
     [SerializeField] private float fallHeight = 6f;
@@ -47,6 +61,14 @@ public class WeaponPickup : MonoBehaviour
     [Tooltip("스케일과 무관하게 유지할 픽업 판정 반경(월드 기준)")]
     [SerializeField] private float pickupRadius = 0.4f;
 
+    [Header("사운드")]
+    [Tooltip("무기 획득 시 재생되는 사운드. 상자가 획득 직후 곧바로 파괴되므로 자체 AudioSource 대신 PlayClipAtPoint로 재생한다")]
+    [SerializeField] private AudioClip pickupSfx;
+    [Tooltip("스폰되어 낙하하는 동안(착지 전까지) 반복 재생되는 사운드")]
+    [SerializeField] private AudioClip fallingSfx;
+
+    private AudioSource audioSource;
+
     // 절차형 낙하산 스프라이트 캐시. 픽업마다 새로 그리지 않도록 최초 1회만 만들어 공유한다.
     private static Sprite cachedParachuteSprite;
 
@@ -57,6 +79,7 @@ public class WeaponPickup : MonoBehaviour
     private Transform boxTransform;
     private Transform shadowTransform;
     private Transform parachuteTransform;
+    private Transform spotlightTransform;
     private SpriteRenderer boxRenderer;
     private SpriteRenderer shadowRenderer;
     private SpriteRenderer parachuteRenderer;
@@ -75,6 +98,9 @@ public class WeaponPickup : MonoBehaviour
     private void Awake()
     {
         BuildVisualsIfNeeded();
+
+        audioSource = GetComponent<AudioSource>();
+        audioSource.playOnAwake = false;
 
         // 기존 루트 SpriteRenderer(예전엔 무기별 스프라이트를 여기 표시했음)는 더 이상 쓰지 않는다.
         // 상자 표시는 자식(Box)이 전담하므로 꺼둔다.
@@ -144,6 +170,20 @@ public class WeaponPickup : MonoBehaviour
         parachuteRenderer = parachuteGO.AddComponent<SpriteRenderer>();
         parachuteRenderer.sortingLayerID = layerID;
         parachuteRenderer.sprite = parachuteSpriteOverride != null ? parachuteSpriteOverride : GetParachuteSprite();
+
+        // 스포트라이트도 Box의 자식이라, 별도 추적 코드 없이 낙하 애니메이션(FallRoutine)에 맞춰
+        // 상자와 함께 내려온다.
+        var spotlightGO = new GameObject("Spotlight");
+        spotlightGO.transform.SetParent(boxTransform, false);
+        spotlightTransform = spotlightGO.transform;
+        spotlightTransform.localPosition = spotlightOffset;
+
+        var spotlight = spotlightGO.AddComponent<Light2D>();
+        spotlight.lightType = Light2D.LightType.Point;
+        spotlight.color = spotlightColor;
+        spotlight.intensity = spotlightIntensity;
+        spotlight.pointLightInnerRadius = spotlightInnerRadius;
+        spotlight.pointLightOuterRadius = spotlightOuterRadius;
     }
 
     private void SetShadowAlpha(float alpha)
@@ -154,6 +194,12 @@ public class WeaponPickup : MonoBehaviour
 
     private IEnumerator FallRoutine()
     {
+        if (fallingSfx != null)
+        {
+            audioSource.loop = false;
+            audioSource.PlayOneShot(fallingSfx);
+        }
+
         float elapsed = 0f;
         while (elapsed < fallDuration)
         {
@@ -177,6 +223,7 @@ public class WeaponPickup : MonoBehaviour
         // 착지: 이제부터 획득 가능하고, 정렬도 기존 픽업과 같은 바닥 클러터 순서로 내린다.
         isFalling = false;
         boxRenderer.sortingOrder = groundedSortingOrder;
+        audioSource.Stop();
 
         // 낙하산은 착지와 동시에 분리되어 떠오르며 사라진다. LandRoutine(상자 스쿼시)과 동시에
         // 진행돼야 하므로 yield하지 않고 별도 코루틴으로 띄운다(fire-and-forget).
@@ -245,6 +292,9 @@ public class WeaponPickup : MonoBehaviour
 
         collected = true;
         pc.PickupWeapon(weapon);
+
+        if (pickupSfx != null) AudioSource.PlayClipAtPoint(pickupSfx, transform.position);
+
         StartCoroutine(BreakRoutine());
     }
 
