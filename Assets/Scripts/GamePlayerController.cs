@@ -671,6 +671,13 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         else anim.Play("Hit", 0);
     }
 
+    // 구급상자(MedicalPickup)가 획득 시 호출. 죽은 상태에서는 회복시키지 않는다.
+    public void Heal(float amount)
+    {
+        if (health <= 0f) return;
+        health = Mathf.Min(health + amount, maxHealth);
+    }
+
     // StageManager가 몬스터를 전부 잡았을 때도 호출하므로 public으로 연다.
     public void SpawnScoreCanvas()
     {

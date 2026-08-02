@@ -2,19 +2,20 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
-// 필드에 스폰되는 미스테리 상자 픽업. 어떤 무기가 들었는지 겉모습으로는 알 수 없도록 항상 같은
-// 상자 모습이며, 화면 위에서 낙하산을 타고 착지 지점으로 떨어진 뒤 플레이어가 트리거로 닿으면
-// 무기를 지급하고 깨지는 연출 후 사라진다.
+// 필드에 스폰되는 구급상자 픽업. WeaponPickup과 동일한 낙하산 연출(공중에서 낙하산을 타고
+// 착지 지점으로 떨어진 뒤 스쿼시/파괴 연출)을 그대로 쓰고, 이미지와 픽업 효과만 다르다.
+// 무기 대신 플레이어 체력을 회복시킨다.
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(AudioSource))]
-public class WeaponPickup : MonoBehaviour
+public class MedicalPickup : MonoBehaviour
 {
-    public GameWeaponData weapon;
+    [Tooltip("획득 시 회복시킬 체력량")]
+    public float healAmount = 30f;
 
     [Header("상자 비주얼")]
     [SerializeField] private Sprite boxSprite;
     [SerializeField] private Sprite brokenBoxSprite;
-    [Tooltip("상자 크기(월드 유닛 배율). 원본 14x14 @ PPU16 = 0.875유닛이라 0.7이면 약 0.61유닛")]
+    [Tooltip("상자 크기(월드 유닛 배율)")]
     [SerializeField] private float boxScale = 0.7f;
     [Tooltip("공중에 떠 있는 동안의 정렬 순서. 플레이어 자식 스프라이트 최대치(4)보다 커야 앞을 지나간다")]
     [SerializeField] private int fallingSortingOrder = 6;
@@ -67,15 +68,21 @@ public class WeaponPickup : MonoBehaviour
     [Tooltip("landingEffectPrefab이 대개 3D 스케일 에셋이라 그대로 쓰면 너무 커서, 여기서 축소 배율을 곱한다")]
     [SerializeField] private float landingEffectScale = 0.3f;
 
+    [Header("체력 회복 이펙트")]
+    [Tooltip("체력 회복 시 플레이어 위치에서 재생되는 파티클. 비워두면 재생하지 않는다")]
+    [SerializeField] private GameObject healEffectPrefab;
+    [Tooltip("healEffectPrefab이 대개 3D 스케일 에셋이라 그대로 쓰면 너무 커서, 여기서 축소 배율을 곱한다")]
+    [SerializeField] private float healEffectScale = 0.25f;
+
     [Header("사운드")]
-    [Tooltip("무기 획득 시 재생되는 사운드. 상자가 획득 직후 곧바로 파괴되므로 자체 AudioSource 대신 PlayClipAtPoint로 재생한다")]
+    [Tooltip("체력 회복 시 재생되는 사운드. 상자가 획득 직후 곧바로 파괴되므로 자체 AudioSource 대신 PlayClipAtPoint로 재생한다")]
     [SerializeField] private AudioClip pickupSfx;
     [Tooltip("스폰되어 낙하하는 동안(착지 전까지) 반복 재생되는 사운드")]
     [SerializeField] private AudioClip fallingSfx;
 
     private AudioSource audioSource;
 
-    // 절차형 낙하산 스프라이트 캐시. 픽업마다 새로 그리지 않도록 최초 1회만 만들어 공유한다.
+    // 절차형 낙하산 스프라이트 캐시. WeaponPickup과는 별개의 static 필드라 서로 간섭하지 않는다.
     private static Sprite cachedParachuteSprite;
 
     // 루트 트랜스폼은 스포너가 정한 착지 위치에 항상 고정된다(콜라이더/그림자 기준점).
@@ -109,12 +116,9 @@ public class WeaponPickup : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         audioSource.playOnAwake = false;
 
-        // 기존 루트 SpriteRenderer(예전엔 무기별 스프라이트를 여기 표시했음)는 더 이상 쓰지 않는다.
-        // 상자 표시는 자식(Box)이 전담하므로 꺼둔다.
         var rootRenderer = GetComponent<SpriteRenderer>();
         if (rootRenderer != null) rootRenderer.enabled = false;
 
-        // 루트 스케일은 항상 1로 고정되므로 스케일 역보정이 필요 없다(기존의 pickupRadius/scale 해킹 제거).
         var circleCol = GetComponent<CircleCollider2D>();
         if (circleCol != null) circleCol.radius = pickupRadius;
 
@@ -131,16 +135,7 @@ public class WeaponPickup : MonoBehaviour
 
     private void Start()
     {
-        // 스포너가 Instantiate 직후 Setup(weapon)을 호출하므로, weapon이 세팅된 뒤인 Start에서
-        // 낙하를 시작한다. 씬에 손으로 미리 배치해둔 픽업도 Setup 없이 자동으로 낙하한다.
         StartCoroutine(FallRoutine());
-    }
-
-    // 스포너가 Instantiate 직후 무기를 지정할 때 사용. 미스테리 상자라 겉모습은 무기 종류와
-    // 무관하므로 데이터만 저장하고 시각적으로는 아무것도 갱신하지 않는다.
-    public void Setup(GameWeaponData w)
-    {
-        weapon = w;
     }
 
     // MonsterHealthBar.BuildBarIfNeeded()와 동일한 패턴: 그림자/상자/낙하산 자식을 런타임에 만들어
@@ -258,6 +253,24 @@ public class WeaponPickup : MonoBehaviour
             effect.AddComponent<ParticleAutoDestroy>();
     }
 
+    // 체력 회복 시 플레이어 위치에서 재생되는 회복 파티클.
+    private void SpawnHealEffect(Transform player)
+    {
+        if (healEffectPrefab == null) return;
+
+        var effect = Instantiate(healEffectPrefab, player.position, Quaternion.identity);
+        effect.transform.localScale = Vector3.one * healEffectScale;
+
+        foreach (var r in effect.GetComponentsInChildren<ParticleSystemRenderer>())
+        {
+            r.sortingLayerID = sortingLayerID;
+            r.sortingOrder = groundedSortingOrder + 1;
+        }
+
+        if (effect.GetComponent<ParticleAutoDestroy>() == null)
+            effect.AddComponent<ParticleAutoDestroy>();
+    }
+
     // 착지 순간 납작하게 눌렸다가(스쿼시) 살짝 튀어 오르며 원래 크기로 돌아온다.
     // 자식(Box)의 로컬 스케일만 바꾸므로 루트 콜라이더 판정 반경에는 영향이 없다.
     private IEnumerator LandRoutine()
@@ -315,17 +328,18 @@ public class WeaponPickup : MonoBehaviour
         if (!other.CompareTag("Player")) return;
 
         var pc = other.GetComponent<GamePlayerController>();
-        if (pc == null || weapon == null) return;
+        if (pc == null) return;
 
         collected = true;
-        pc.PickupWeapon(weapon);
+        pc.Heal(healAmount);
+        SpawnHealEffect(other.transform);
 
         if (pickupSfx != null) AudioSource.PlayClipAtPoint(pickupSfx, transform.position);
 
         StartCoroutine(BreakRoutine());
     }
 
-    // 무기 지급은 이미 끝난 뒤 재생되는 연출이라, 깨진 스프라이트가 없어도 안전하게 즉시 Destroy로 수렴한다.
+    // 체력 회복은 이미 끝난 뒤 재생되는 연출이라, 깨진 스프라이트가 없어도 안전하게 즉시 Destroy로 수렴한다.
     private IEnumerator BreakRoutine()
     {
         shadowRenderer.enabled = false;
@@ -363,9 +377,7 @@ public class WeaponPickup : MonoBehaviour
     }
 
     // 20x14 텍스처에 낙하산(돔형 캐노피 + 로프)을 직접 그려 스프라이트로 감싼다.
-    // CrosshairUI.BuildCrosshairSprite()/WeaponVisuals.Placeholder와 동일한 절차형 스프라이트 패턴이며,
-    // 프로젝트 전체에 낙하산 아트가 없어서 직접 그린다. 실제 아트가 생기면 parachuteSpriteOverride에
-    // 지정해 코드 수정 없이 바로 교체할 수 있다.
+    // WeaponPickup.BuildParachuteSprite()와 동일한 절차형 스프라이트 패턴.
     private static Sprite BuildParachuteSprite()
     {
         const int w = 20;

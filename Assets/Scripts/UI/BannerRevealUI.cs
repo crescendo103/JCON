@@ -16,6 +16,8 @@ public class BannerRevealUI : MonoBehaviour
     public Sprite bannerSprite;
 
     [Header("페이드 인/아웃")]
+    [Tooltip("활성화된 직후 페이드인을 시작하기 전에 기다리는 시간(초). 씬 로드 직후라 첫 프레임들이 버벅여서 페이드인이 안 보이는 경우 늦추는 용도")]
+    public float startDelay = 0f;
     public float revealDuration = 0.6f;
     // 페이드인이 끝난 뒤 완전히 보이는 상태로 유지되는 시간(이 시간이 지나면 자동으로 페이드아웃 시작).
     public float visibleDuration = 2f;
@@ -77,6 +79,13 @@ public class BannerRevealUI : MonoBehaviour
 
     private IEnumerator LifecycleRoutine(System.Action onComplete)
     {
+        float delayed = 0f;
+        while (delayed < startDelay)
+        {
+            delayed += useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+            yield return null;
+        }
+
         yield return Fade(0f, 1f, revealDuration);
 
         float waited = 0f;
