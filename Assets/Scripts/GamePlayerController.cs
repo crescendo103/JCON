@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -491,9 +492,16 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (weapon == null || weapon.category != WeaponCategory.Ranged || weapon.maxAmmo <= 0) return;
         if (ammoInSlot[currentSlot] > 0) return;
 
-        if (weapon.breakSfx != null && weaponAudioSource != null) weaponAudioSource.PlayOneShot(weapon.breakSfx);
+        if (weapon.breakSfx != null && weaponAudioSource != null) StartCoroutine(PlayBreakSfxDelayed(weapon.breakSfx));
 
         EquipSlot(FistsSlot);
+    }
+
+    /// <summary>총기 브로크(빈 총) 사운드를 발사 사운드와 겹치지 않도록 0.5초 뒤에 재생한다.</summary>
+    private IEnumerator PlayBreakSfxDelayed(AudioClip clip)
+    {
+        yield return new WaitForSeconds(0.5f);
+        if (weaponAudioSource != null) weaponAudioSource.PlayOneShot(clip);
     }
 
     /// <summary>

@@ -34,6 +34,10 @@ public class StageManager : MonoBehaviour
     [Tooltip("이번 스테이지에서 총 스폰할 몬스터 수. 이 수만큼 스폰하고 나면 더 이상 스폰하지 않는다")]
     public int totalMonstersToSpawn = 5;
 
+    [Header("점수")]
+    [Tooltip("좀비 한 마리를 잡을 때마다 올라가는 점수")]
+    public int scorePerKill = 100;
+
     [Header("스폰 위치 (mapGenerator 없을 때만 사용하는 카메라 화면 밖 링 폴백)")]
     [Tooltip("화면 경계로부터 최소로 떨어뜨릴 여유 거리")]
     public float ringPadding = 1f;
@@ -64,6 +68,7 @@ public class StageManager : MonoBehaviour
     private bool stageCleared;
 
     private ZombieCountUI zombieCountUI;
+    private ScoreUI scoreUI;
 
     private void Awake()
     {
@@ -91,6 +96,7 @@ public class StageManager : MonoBehaviour
             mapGenerator = FindFirstObjectByType<StageMapGenerator>();
 
         zombieCountUI = FindFirstObjectByType<ZombieCountUI>();
+        scoreUI = FindFirstObjectByType<ScoreUI>();
         UpdateZombieCountUI();
     }
 
@@ -119,6 +125,9 @@ public class StageManager : MonoBehaviour
 
         killedCount += killedJustNow;
         UpdateZombieCountUI();
+
+        if (scoreUI != null)
+            scoreUI.AddScore(scorePerKill * killedJustNow);
 
         if (killedCount >= totalMonstersToSpawn)
             TriggerStageClear();

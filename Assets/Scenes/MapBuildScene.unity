@@ -3350,6 +3350,14 @@ PrefabInstance:
       propertyPath: fistsAttackSfx
       value: 
       objectReference: {fileID: 8300000, guid: 45273f34caf736b4c8c4a7e573b1120d, type: 3}
+    - target: {fileID: 1041822998418825666, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: fistsSwordHandOffset.x
+      value: -0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1041822998418825666, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: fistsSwordHandOffset.y
+      value: 0.28
+      objectReference: {fileID: 0}
     - target: {fileID: 2872065270235520434, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
       propertyPath: m_Name
       value: Player (1)
@@ -176053,7 +176061,7 @@ Camera:
   far clip plane: 1000
   field of view: 125
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 4
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
