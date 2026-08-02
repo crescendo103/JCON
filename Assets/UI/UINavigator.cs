@@ -59,6 +59,11 @@ public class UINavigator : MonoBehaviour
     /// </summary>
     public void OpenCanvas(string sceneName, string canvasName)
     {
+        // 스테이지 클리어/시간초과로 Time.timeScale이 0, AudioListener.pause가 true로 멈춰 있을 수 있으니
+        // 화면을 옮길 때마다 되살린다.
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+
         if (SceneManager.GetActiveScene().name != sceneName)
             SceneManager.LoadScene(sceneName);
 
@@ -110,6 +115,8 @@ public class UINavigator : MonoBehaviour
     /// <summary>지금 열려 있는 씬을 처음부터 다시 로드한다. 재시작 버튼에서 호출한다.</summary>
     public void ReloadCurrentScene()
     {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 

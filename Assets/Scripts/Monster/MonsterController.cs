@@ -79,7 +79,7 @@ public class MonsterController : MonoBehaviour
 
     void Update()
     {
-        if (isDead) return; // 사망 후에는 AI/이동/입력 처리를 모두 멈춘다.
+        if (isDead || StageManager.IsGameOver) return; // 사망 후, 또는 스테이지가 끝난 후에는 AI/이동/입력 처리를 모두 멈춘다.
 
         // 타겟이 없으면 다시 찾아보기 (씬 시작 순서 문제로 못 찾았을 경우 대비)
         if (target == null)
@@ -100,7 +100,7 @@ public class MonsterController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isDead || isKnockedBack || rb == null) return;
+        if (isDead || isKnockedBack || rb == null || StageManager.IsGameOver) return;
         rb.linearVelocity = desiredVelocity;
     }
 

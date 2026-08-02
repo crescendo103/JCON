@@ -3,22 +3,22 @@ using UnityEngine.UI;
 
 public class ScoreUI : MonoBehaviour
 {
-    [Header("¼ýÀÚ ½ºÇÁ¶óÀÌÆ® 0~9 (¼ø¼­´ë·Î 10°³)")]
-    public Sprite[] digitSprites; // digitSprites[0] = "0" ÀÌ¹ÌÁö, digitSprites[9] = "9" ÀÌ¹ÌÁö
+    [Header("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® 0~9 (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 10ï¿½ï¿½)")]
+    public Sprite[] digitSprites; // digitSprites[0] = "0" ï¿½Ì¹ï¿½ï¿½ï¿½, digitSprites[9] = "9" ï¿½Ì¹ï¿½ï¿½ï¿½
 
-    [Header("5ÀÚ¸®¸¦ Ç¥½ÃÇÒ ÀÌ¹ÌÁö ½½·Ô (¿ÞÂÊ -> ¿À¸¥ÂÊ ¼ø¼­)")]
-    public Image[] digitImages; // ±æÀÌ 5
+    [Header("5ï¿½Ú¸ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ -> ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)")]
+    public Image[] digitImages; // ï¿½ï¿½ï¿½ï¿½ 5
 
-    [Header("½Ã°£´ç È¹µæ Á¡¼ö ¼³Á¤")]
-    public int scorePerSecond = 2; // 1ÃÊ¸¶´Ù ¿À¸£´Â Á¡¼ö
-    public float scoreInterval = 1f; // ¸î ÃÊ¸¶´Ù Á¡¼ö¸¦ ¿Ã¸±Áö
+    [Header("ï¿½Ã°ï¿½ï¿½ï¿½ È¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
+    public int scorePerSecond = 2; // 1ï¿½Ê¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    public float scoreInterval = 1f; // ï¿½ï¿½ ï¿½Ê¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¸ï¿½ï¿½ï¿½
 
     private int currentScore = 0;
     private float timer = 0f;
 
     void Start()
     {
-        // ½ÃÀÛÇÒ ¶§ 00000À¸·Î ÃÊ±âÈ­
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ 00000ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
         UpdateDigits(0);
 
         
@@ -27,6 +27,8 @@ public class ScoreUI : MonoBehaviour
 
     void Update()
     {
+        if (StageManager.IsGameOver) return; // ê²Œìž„ì´ ëë‚œ ë’¤ì—ëŠ” ì´ˆë‹¹ ì ìˆ˜ ì¦ê°€ë¥¼ ë©ˆì¶˜ë‹¤
+
         timer += Time.deltaTime;
 
         if (timer >= scoreInterval)
@@ -36,8 +38,8 @@ public class ScoreUI : MonoBehaviour
         }
     }
 
-    // ¿ÜºÎ¿¡¼­ Á¡¼ö¸¦ Ãß°¡ÇÒ ¶§ È£ÃâÇÏ´Â ÇÔ¼ö
-    // ³ªÁß¿¡ ¸ó½ºÅÍ Ã³Ä¡ ½Ã: scoreDisplay.AddScore(10); °°Àº ½ÄÀ¸·Î È£Ãâ
+    // ï¿½ÜºÎ¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ ï¿½ï¿½ È£ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
+    // ï¿½ï¿½ï¿½ß¿ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³Ä¡ ï¿½ï¿½: scoreDisplay.AddScore(10); ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½
     public void AddScore(int amount)
     {
         currentScore += amount;

@@ -6,18 +6,18 @@ public class ButtonStateEffect : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler,
     IPointerDownHandler, IPointerUpHandler
 {
-    [Header("ÀÌ¹ÌÁö")]
+    [Header("ï¿½Ì¹ï¿½ï¿½ï¿½")]
     private Image targetImage;
     private Sprite normalSprite;
     public Sprite hoverSprite;
     //public Sprite pressedSprite;
 
-    [Header("¾ËÆÄ (È£¹ö ½ºÇÁ¶óÀÌÆ®°¡ ¾øÀ» ¶§ ´ë½Å »ç¿ë)")]
-    [Tooltip("hoverSprite°¡ ºñ¾î ÀÖÀ¸¸é ½ºÇÁ¶óÀÌÆ® ´ë½Å ÀÌ ¾ËÆÄ°ªÀ¸·Î È£¹ö È¿°ú¸¦ ³½´Ù")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ (È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)")]
+    [Tooltip("hoverSpriteï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ä°ï¿½ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     public float hoverAlpha = 0.6f;
     private float normalAlpha;
 
-    [Header("»ç¿îµå")]
+    [Header("ï¿½ï¿½ï¿½ï¿½")]
     public AudioSource audioSource;
     public AudioClip hoverSound;
     public AudioClip clickSound;
@@ -27,6 +27,14 @@ public class ButtonStateEffect : MonoBehaviour,
     void Awake()
     {
         targetImage = GetComponent<Image>();
+
+        // ì¸ìŠ¤í™í„°ì— ë“œë˜ê·¸í•´ë‘ì§€ ì•Šì€ ë²„íŠ¼ì´ ë§ì•„ audioSourceê°€ nullì¸ ì±„ë¡œ ë‚¨ì•„ìˆë˜ ê²Œ
+        // PlayOneShotì—ì„œ NullReferenceExceptionì´ ë‚˜ì„œ í´ë¦­/í˜¸ë²„ ì‚¬ìš´ë“œê°€ ì „í˜€ ì¬ìƒë˜ì§€ ì•Šë˜ ì›ì¸ì´ì—ˆë‹¤.
+        // StageButtonUIì™€ ë™ì¼í•˜ê²Œ ì½”ë“œë¡œ ìë™ ì—°ê²°í•œë‹¤ (íŒ€ ê·œì¹™).
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     void Start()
@@ -34,7 +42,7 @@ public class ButtonStateEffect : MonoBehaviour,
         RefreshNormalState();
     }
 
-    // ¸¶¿ì½º ¿Ã·ÈÀ» ¶§
+    // ï¿½ï¿½ï¿½ì½º ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½
     public void OnPointerEnter(PointerEventData eventData)
     {
         isHovering = true;
@@ -42,28 +50,28 @@ public class ButtonStateEffect : MonoBehaviour,
         PlaySound(hoverSound);
     }
 
-    // ¸¶¿ì½º ¹ş¾î³µÀ» ¶§
+    // ï¿½ï¿½ï¿½ì½º ï¿½ï¿½ï¿½î³µï¿½ï¿½ ï¿½ï¿½
     public void OnPointerExit(PointerEventData eventData)
     {
         isHovering = false;
         ApplyHoverState(false);
     }
 
-    // ¸¶¿ì½º ´©¸¥ ¼ø°£ (Å¬¸¯ ½ÃÀÛ)
+    // ï¿½ï¿½ï¿½ì½º ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (Å¬ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     public void OnPointerDown(PointerEventData eventData)
     {
         //targetImage.sprite = pressedSprite;
         PlaySound(clickSound);
     }
 
-    // ¸¶¿ì½º ¶ÃÀ» ¶§
+    // ï¿½ï¿½ï¿½ì½º ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
     public void OnPointerUp(PointerEventData eventData)
     {
-        // ¶¿ ¶§ ¾ÆÁ÷ ¹öÆ° À§¿¡ ÀÖÀ¸¸é È£¹ö »óÅÂ·Î, ¹ş¾î³µÀ¸¸é ±âº» »óÅÂ·Î
+        // ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ° ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ ï¿½ï¿½ï¿½Â·ï¿½, ï¿½ï¿½ï¿½î³µï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½Â·ï¿½
         ApplyHoverState(isHovering);
     }
 
-    // hoverSprite°¡ ÀÖÀ¸¸é ½ºÇÁ¶óÀÌÆ®¸¦ ¹Ù²Ù°í, ¾øÀ¸¸é ¾ËÆÄ°ª¸¸ ¹Ù²ã¼­ È£¹ö È¿°ú¸¦ Ç¥ÇöÇÑ´Ù
+    // hoverSpriteï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ù²Ù°ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ä°ï¿½ï¿½ï¿½ ï¿½Ù²ã¼­ È£ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½Ñ´ï¿½
     void ApplyHoverState(bool hovering)
     {
         if (hoverSprite != null)
@@ -82,8 +90,8 @@ public class ButtonStateEffect : MonoBehaviour,
         targetImage.color = color;
     }
 
-    // ´Ù¸¥ ½ºÅ©¸³Æ®(StageButtonUI µî)°¡ targetImageÀÇ ½ºÇÁ¶óÀÌÆ®/¾ËÆÄ¸¦ ·±Å¸ÀÓ¿¡ ¹Ù²Û µÚ È£ÃâÇÑ´Ù.
-    // ±×·¸Áö ¾ÊÀ¸¸é È£¹ö°¡ ³¡³µÀ» ¶§ Start ½ÃÁ¡¿¡ Ä³½ÃÇØ µĞ ¿¹Àü °ªÀ¸·Î µÇµ¹¾Æ°¡¹ö¸°´Ù.
+    // ï¿½Ù¸ï¿½ ï¿½ï¿½Å©ï¿½ï¿½Æ®(StageButtonUI ï¿½ï¿½)ï¿½ï¿½ targetImageï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®/ï¿½ï¿½ï¿½Ä¸ï¿½ ï¿½ï¿½Å¸ï¿½Ó¿ï¿½ ï¿½Ù²ï¿½ ï¿½ï¿½ È£ï¿½ï¿½ï¿½Ñ´ï¿½.
+    // ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Start ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Çµï¿½ï¿½Æ°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
     public void RefreshNormalState()
     {
         if (targetImage == null)

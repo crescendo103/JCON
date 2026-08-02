@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterName: TurretZombie1
   icon: {fileID: 3816615599098617108, guid: 084ec7d8204a87a4a9432b909700f460, type: 3}
-  maxHP: 150
-  attack: 25
-  defense: 10
-  speed: 4
+  maxHP: 30
+  attack: 20
+  defense: 5
+  speed: 5
   skills:
   - {fileID: 11400000, guid: d005a2d6048ade042899f174d7cf0b6d, type: 2}
   animations:
@@ -26,7 +26,7 @@ MonoBehaviour:
     attack: {fileID: 7400000, guid: c77c5be3a2bb737419c85e67226b73e8, type: 2}
     hit: {fileID: -7098004422985039966, guid: 3c0ed76d20e9fed438c9d1a73552f7ee, type: 2}
     death: {fileID: 7400000, guid: d218857ecb4868d4a8f9376846cb2079, type: 2}
-  aiBehavior: {fileID: 11400000, guid: 0ee1c1d15696b7f46b9f90d4ce0acf12, type: 2}
+  aiBehavior: {fileID: 11400000, guid: 39ea03c1a0cfe5c4693d3fa3bffd70a8, type: 2}
   knockbackSettings:
   - type: 0
     force: 1.5

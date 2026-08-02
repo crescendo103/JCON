@@ -19,7 +19,13 @@ public class SoundManager : MonoBehaviour
     [Tooltip("AudioSource.volume 배율. 인스펙터 슬라이더는 1이 최대라 원본 클립보다 크게 키우려면 코드로 1을 넘겨야 한다")]
     [SerializeField] private float volumeMultiplier = 2f;
 
+    [Tooltip("스코어보드(결과 화면)가 뜰 때 재생할 사운드. AudioListener.pause로 나머지 소리를 다 꺼도 이것만 들린다")]
+    public AudioClip scoreboardSfx;
+
     private AudioSource audioSource;
+    // 스테이지 종료 시 AudioListener.pause = true로 나머지 사운드를 전부 끄기 때문에,
+    // 스코어보드 사운드는 그 영향을 받지 않는 별도의 소스(ignoreListenerPause)로 재생한다.
+    private AudioSource scoreboardAudioSource;
 
     private void Awake()
     {
@@ -29,6 +35,10 @@ public class SoundManager : MonoBehaviour
         audioSource.loop = true;
         audioSource.playOnAwake = false;
         audioSource.volume = volumeMultiplier;
+
+        scoreboardAudioSource = gameObject.AddComponent<AudioSource>();
+        scoreboardAudioSource.playOnAwake = false;
+        scoreboardAudioSource.ignoreListenerPause = true;
     }
 
     private void Start()
@@ -66,5 +76,14 @@ public class SoundManager : MonoBehaviour
     public void StopBgm()
     {
         audioSource.Stop();
+    }
+
+    /// <summary>스테이지 종료(시간초과/전멸) 시 StageManager가 호출한다. AudioListener.pause와 무관하게 들린다.</summary>
+    public void PlayScoreboardSfx()
+    {
+        if (scoreboardSfx == null || scoreboardAudioSource == null)
+            return;
+
+        scoreboardAudioSource.PlayOneShot(scoreboardSfx);
     }
 }

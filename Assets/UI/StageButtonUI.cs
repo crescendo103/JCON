@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// 스테이지 선택 화면의 버튼 하나(Stage1button 등)에 붙인다.
@@ -8,9 +9,10 @@ using UnityEngine.UI;
 ///  - 지금 클리어해야 하는(다음) 스테이지 -> unlockedSprite (Level/Button/Unlocked.png)
 ///  - 아직 도달하지 못한 스테이지    -> lockedSprite   (Level/Button/Locked.png)
 /// 클리어한 스테이지라면 하위 "StarImage" 칸에 별 개수(0~3)에 맞는 이미지도 표시한다.
+/// ButtonStateEffect와 동일한 방식(AudioSource + AudioClip)으로 호버/클릭 효과음도 낼 수 있다.
 /// </summary>
 [RequireComponent(typeof(Button))]
-public class StageButtonUI : MonoBehaviour
+public class StageButtonUI : MonoBehaviour, IPointerEnterHandler
 {
     [Header("스테이지 번호")]
     [Tooltip("이 버튼이 나타내는 스테이지 번호 (1 ~ StageProgressManager.StageCount)")]
@@ -32,6 +34,13 @@ public class StageButtonUI : MonoBehaviour
     [Tooltip("클릭 가능한(클리어했거나 지금 클리어할 차례인) 스테이지 버튼에 마우스를 올렸을 때, 스프라이트 대신 이 알파값으로 살짝 어둡게 표시한다")]
     public float unlockedHoverAlpha = 0.8f;
 
+    [Header("효과음")]
+    [Tooltip("클릭 가능한 스테이지 버튼에 마우스를 올렸을 때 재생할 사운드")]
+    public AudioClip hoverSound;
+    [Tooltip("스테이지 버튼을 클릭했을 때 재생할 사운드")]
+    public AudioClip clickSound;
+
+    private AudioSource audioSource;
     private Button button;
     private Image stateImage;
     private GameObject starSlot;
@@ -44,6 +53,11 @@ public class StageButtonUI : MonoBehaviour
         // 인스펙터 드래그 연결 대신, 이름으로 찾아 코드로 연결한다 (팀 규칙)
         button = GetComponent<Button>();
         button.onClick.AddListener(OnClickButton);
+
+        // ButtonStateEffect와 동일하게, 효과음용 AudioSource가 없으면 코드로 추가해서 항상 쓸 수 있게 한다.
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
 
         Transform imageTransform = transform.Find("Image");
         stateImage = imageTransform?.GetComponent<Image>();
@@ -127,6 +141,20 @@ public class StageButtonUI : MonoBehaviour
     // 잠긴 스테이지는 button.interactable이 false라 애초에 클릭 이벤트가 오지 않는다.
     private void OnClickButton()
     {
+        PlaySound(clickSound);
         UINavigator.Instance.OpenStageScene(stageNumber);
+    }
+
+    // 잠긴 스테이지는 button.interactable이 false여도 포인터 이벤트 자체는 들어오므로, 여기서 직접 걸러낸다.
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (button != null && button.interactable)
+            PlaySound(hoverSound);
+    }
+
+    private void PlaySound(AudioClip clip)
+    {
+        if (clip != null)
+            audioSource.PlayOneShot(clip);
     }
 }

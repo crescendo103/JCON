@@ -2949,7 +2949,7 @@ MonoBehaviour:
   hoverAlpha: 0.6
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
-  clickSound: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 7338dd983c03a9f4093e6a99de30ca20, type: 3}
 --- !u!1 &1682615666679027473
 GameObject:
   m_ObjectHideFlags: 0
@@ -3192,7 +3192,7 @@ MonoBehaviour:
   hoverAlpha: 0.6
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
-  clickSound: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 7338dd983c03a9f4093e6a99de30ca20, type: 3}
 --- !u!1 &3296625587931478975
 GameObject:
   m_ObjectHideFlags: 0
@@ -3824,7 +3824,7 @@ MonoBehaviour:
   hoverAlpha: 0.6
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
-  clickSound: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 7338dd983c03a9f4093e6a99de30ca20, type: 3}
 --- !u!1 &6059706573609817714
 GameObject:
   m_ObjectHideFlags: 0

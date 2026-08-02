@@ -3,14 +3,14 @@ using UnityEngine.UI;
 
 public class TimeUI : MonoBehaviour
 {
-    [Header("¼ıÀÚ ½ºÇÁ¶óÀÌÆ® 0~9 (¼ø¼­´ë·Î 10°³)")]
-    public Sprite[] digitSprites; // digitSprites[0] = "0" ÀÌ¹ÌÁö, digitSprites[9] = "9" ÀÌ¹ÌÁö
+    [Header("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® 0~9 (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 10ï¿½ï¿½)")]
+    public Sprite[] digitSprites; // digitSprites[0] = "0" ï¿½Ì¹ï¿½ï¿½ï¿½, digitSprites[9] = "9" ï¿½Ì¹ï¿½ï¿½ï¿½
 
-    [Header("5ÀÚ¸®¸¦ Ç¥½ÃÇÒ ÀÌ¹ÌÁö ½½·Ô (¿ŞÂÊ -> ¿À¸¥ÂÊ ¼ø¼­)")]
-    public Image[] digitImages; // ±æÀÌ 5, ¿¹: ¸¸/Ãµ/¹é/½Ê/ÀÏÀÇ ÀÚ¸®
+    [Header("5ï¿½Ú¸ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ -> ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)")]
+    public Image[] digitImages; // ï¿½ï¿½ï¿½ï¿½ 5, ï¿½ï¿½: ï¿½ï¿½/Ãµ/ï¿½ï¿½/ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½Ú¸ï¿½
 
-    [Header("Å¸ÀÌ¸Ó ¼³Á¤")]
-    public float startTime = 300f; // ½ÃÀÛ ½Ã°£(ÃÊ)
+    [Header("Å¸ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½")]
+    public float startTime = 300f; // ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½(ï¿½ï¿½)
 
     private float remainingTime;
 
@@ -22,6 +22,7 @@ public class TimeUI : MonoBehaviour
 
     void Update()
     {
+        if (StageManager.IsGameOver) return; // ì¢€ë¹„ë¥¼ ë‹¤ ì¡ì•„ ìŠ¤í…Œì´ì§€ê°€ ì´ë¯¸ ëë‚¬ìœ¼ë©´ ì‹œê°„ë„ ë©ˆì¶˜ë‹¤
         if (remainingTime <= 0f) return;
 
         remainingTime -= Time.deltaTime;
@@ -40,13 +41,13 @@ public class TimeUI : MonoBehaviour
 
     void OnTimeUp()
     {
-        // ½Ã°£ÀÌ ´Ù µÆÀ» ¶§ Ã³¸® (°ÔÀÓ¿À¹ö, ·¹º§Å¬¸®¾î µî)
-        Debug.Log("½Ã°£ Á¾·á!");
+        if (StageManager.Instance != null)
+            StageManager.Instance.NotifyTimeUp();
     }
 
     void UpdateDigits(int number)
     {
-        // 5ÀÚ¸®·Î Á¦ÇÑ (00000 ~ 99999)
+        // 5ï¿½Ú¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (00000 ~ 99999)
         number = Mathf.Clamp(number, 0, 99999);
 
         int[] digits = new int[5];
@@ -62,7 +63,7 @@ public class TimeUI : MonoBehaviour
         }
     }
 
-    // ¿ÜºÎ¿¡¼­ ³²Àº ½Ã°£À» ÃÊ ´ÜÀ§ Á¤¼ö·Î °¡Á®°¥ ¶§ »ç¿ë (TotalUI µî¿¡¼­ ÂüÁ¶)
+    // ï¿½ÜºÎ¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ (TotalUI ï¿½î¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     public int GetRemainingSeconds()
     {
         return Mathf.CeilToInt(remainingTime);

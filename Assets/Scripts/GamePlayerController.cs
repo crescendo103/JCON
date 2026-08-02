@@ -146,7 +146,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
     private void Update()
     {
-        if (health <= 0f) return;
+        if (health <= 0f || StageManager.IsGameOver) return;
 
         GetInput();
         UpdateStamina();
@@ -162,7 +162,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // 덮어쓰면 물리 엔진이 그 프레임 안에서 계산한 충돌 반응(벽에 닿아 밀려나는 등)을
         // 다음 렌더 프레임이 바로 지워버려서 벽에 파고들거나 걸리는 현상이 생긴다.
         float currentSpeed = isSprinting ? speed * sprintSpeedMultiplier : speed;
-        rigid.linearVelocity = health <= 0f ? Vector2.zero : input.normalized * currentSpeed;
+        rigid.linearVelocity = (health <= 0f || StageManager.IsGameOver) ? Vector2.zero : input.normalized * currentSpeed;
     }
 
     private void GetInput()
@@ -659,7 +659,14 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (health <= 0f)
         {
             anim.Play("Death", 0);
-            SpawnScoreCanvas();
+
+            // StageManager를 거쳐야 좀비 전멸/시간초과와 동일하게 게임(스폰/AI/사운드)이 멈춘다.
+            // 여기서 SpawnScoreCanvas()를 직접 부르면 StageManager.IsGameOver가 켜지지 않아
+            // 몬스터가 죽은 뒤에도 계속 공격/스킬 사운드를 내는 문제가 생긴다.
+            if (StageManager.Instance != null)
+                StageManager.Instance.NotifyPlayerDied();
+            else
+                SpawnScoreCanvas();
         }
         else anim.Play("Hit", 0);
     }

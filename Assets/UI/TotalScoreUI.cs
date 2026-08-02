@@ -28,6 +28,17 @@ public class TotalScoreUI : MonoBehaviour
         scoreText = GetComponent<TextMeshProUGUI>();
         if (starFeedbackPlayer == null)
             starFeedbackPlayer = GetComponent<MMF_Player>();
+
+        // 이 화면은 Time.timeScale = 0(스테이지 종료) 상태에서 뜨는데, MMF_Player의 PlayerTimescaleMode는
+        // 재생 시퀀스의 지연/쿨다운에만 적용되고, 별 하나하나가 움직이는 개별 Feedback은 각자의
+        // Timing.TimescaleMode(기본값 Scaled)를 따로 따른다. ForceTimescaleMode를 켜야 하위 Feedback
+        // 전부가 개별 설정과 무관하게 강제로 unscaled(실시간 기준)로 재생된다(사망/클리어 둘 다 동일한 원인).
+        if (starFeedbackPlayer != null)
+        {
+            starFeedbackPlayer.PlayerTimescaleMode = TimescaleModes.Unscaled;
+            starFeedbackPlayer.ForceTimescaleMode = true;
+            starFeedbackPlayer.ForcedTimescaleMode = TimescaleModes.Unscaled;
+        }
     }
 
     void Start()
@@ -117,7 +128,8 @@ public class TotalScoreUI : MonoBehaviour
         {
             displayedValue++;
             scoreText.text = displayedValue.ToString();
-            yield return new WaitForSeconds(interval);
+            // Time.timeScale이 0(스테이지 종료 상태)이어도 결과 화면 연출은 계속 진행돼야 하므로 실시간 대기를 쓴다.
+            yield return new WaitForSecondsRealtime(interval);
         }
     }
 }

@@ -225,8 +225,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterHealthBar
   fillSprite: {fileID: -1594743092220051378, guid: ab7ab1e53eb47db4abc2966c4c89f5ef, type: 3}
   backgroundSprite: {fileID: -8722288136447555485, guid: 9b06c71fef307fb4cb821017748d2823, type: 3}
-  offsetY: 0.16
-  width: 2
-  height: 0.5
+  offsetY: 0.1
+  width: 0.9
+  height: 0.2
   visibleDuration: 1.5
   sortingOrderOffset: 10

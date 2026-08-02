@@ -64,11 +64,15 @@ public class StageManager : MonoBehaviour
     private int spawnedCount;
     // 이번 스테이지에서 지금까지 잡은 마릿수
     private int killedCount;
-    // 다 잡았을 때 스코어 화면을 한 번만 띄우기 위한 플래그
-    private bool stageCleared;
 
     private ZombieCountUI zombieCountUI;
     private ScoreUI scoreUI;
+
+    /// <summary>
+    /// 시간 초과 또는 목표 마릿수 달성으로 스테이지가 끝났는지. 켜지면 스폰/피격/이동 등
+    /// 게임플레이 로직은 전부 멈추고 스코어 화면(UI)만 동작한다.
+    /// </summary>
+    public static bool IsGameOver { get; private set; }
 
     private void Awake()
     {
@@ -78,6 +82,11 @@ public class StageManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        // 이전 스테이지에서 멈춰 있던 시간/사운드를 새 스테이지 진입 시 항상 되살린다(안전장치).
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+        IsGameOver = false;
     }
 
     private void Start()
@@ -97,11 +106,18 @@ public class StageManager : MonoBehaviour
 
         zombieCountUI = FindFirstObjectByType<ZombieCountUI>();
         scoreUI = FindFirstObjectByType<ScoreUI>();
+
+        // 스테이지가 올라갈수록(1스테이지 기준 +1씩) 처치해야 할 목표 마릿수를 늘린다.
+        totalMonstersToSpawn += Mathf.Max(0, StageProgressManager.Instance.CurrentStage - 1);
+
         UpdateZombieCountUI();
     }
 
     private void Update()
     {
+        if (IsGameOver)
+            return; // 게임이 끝난 뒤에는 스폰/처치 판정을 더 이상 진행하지 않는다.
+
         // 죽어서 파괴된(null) 몬스터를 감지해서 처치 수를 늘린다. 스폰 주기와 무관하게 매 프레임 확인한다.
         CountKills();
 
@@ -130,7 +146,7 @@ public class StageManager : MonoBehaviour
             scoreUI.AddScore(scorePerKill * killedJustNow);
 
         if (killedCount >= totalMonstersToSpawn)
-            TriggerStageClear();
+            EndStage();
     }
 
     private void UpdateZombieCountUI()
@@ -139,12 +155,38 @@ public class StageManager : MonoBehaviour
             zombieCountUI.SetCount(killedCount, totalMonstersToSpawn);
     }
 
-    /// <summary>목표 마릿수를 전부 잡았을 때 스코어 화면을 띄운다. 한 번만 실행된다.</summary>
-    private void TriggerStageClear()
+    /// <summary>TimeUI가 제한시간이 다 됐을 때 호출한다.</summary>
+    public void NotifyTimeUp()
     {
-        if (stageCleared)
+        EndStage();
+    }
+
+    /// <summary>
+    /// GamePlayerController가 플레이어 사망 시 호출한다. 좀비 전멸/시간초과와 동일하게
+    /// 스테이지를 종료시켜야, 죽은 뒤에도 몬스터가 계속 공격/스킬을 쓰며 사운드를 내는 것을 막을 수 있다.
+    /// </summary>
+    public void NotifyPlayerDied()
+    {
+        EndStage();
+    }
+
+    /// <summary>
+    /// 목표 마릿수를 전부 잡았거나 시간이 다 됐을 때 스테이지를 종료한다. 한 번만 실행되며,
+    /// Time.timeScale을 0으로 만들어 이동/공격/스폰 등 게임플레이를 멈추고 스코어 화면(UI)만 띄운다.
+    /// </summary>
+    private void EndStage()
+    {
+        if (IsGameOver)
             return;
-        stageCleared = true;
+        IsGameOver = true;
+        Time.timeScale = 0f;
+
+        // AudioListener.pause만으로는 이미 재생 중이던 소리가 "일시정지"만 되므로, 좀비 공격/스킬/발자국/BGM 등
+        // 남아있던 사운드를 먼저 확실하게 정지시킨 뒤, 스코어보드 전용 사운드만 재생한다.
+        StopAllGameplaySounds();
+        AudioListener.pause = true;
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayScoreboardSfx();
 
         if (player == null)
             return;
@@ -152,6 +194,22 @@ public class StageManager : MonoBehaviour
         GamePlayerController playerController = player.GetComponent<GamePlayerController>();
         if (playerController != null)
             playerController.SpawnScoreCanvas();
+    }
+
+    /// <summary>
+    /// 스코어보드 사운드를 재생하기 직전, 씬에 남아있는 모든 사운드를 즉시 정지시킨다.
+    /// ignoreListenerPause가 켜진 소스(스코어보드 전용 사운드)는 지금부터 재생해야 하므로 건드리지 않는다.
+    /// </summary>
+    private void StopAllGameplaySounds()
+    {
+        AudioSource[] sources = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
+        foreach (AudioSource source in sources)
+        {
+            if (source.ignoreListenerPause)
+                continue;
+
+            source.Stop();
+        }
     }
 
     /// <summary>스폰 조건(카메라/최대 마릿수/총 한도)을 확인하고 spawnPerTick 만큼 스폰을 시도한다.</summary>

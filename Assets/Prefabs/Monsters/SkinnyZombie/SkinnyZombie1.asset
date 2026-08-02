@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterName: SkinnyZombie1
   icon: {fileID: 4291889747477002864, guid: da1ddaf4341c65741bb8fa8a98122f7a, type: 3}
-  maxHP: 150
-  attack: 25
-  defense: 10
-  speed: 4
+  maxHP: 80
+  attack: 15
+  defense: 5
+  speed: 3
   skills:
   - {fileID: 11400000, guid: d005a2d6048ade042899f174d7cf0b6d, type: 2}
   animations:

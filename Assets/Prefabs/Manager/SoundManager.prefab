@@ -147,3 +147,5 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 68144c0bc7be1444c83730af5015d1c7, type: 3}
   - {fileID: 8300000, guid: ac62598bb65af3043bf4733c3670081b, type: 3}
   - {fileID: 8300000, guid: 7a18c70ff8af3e14f828be8b98750dd0, type: 3}
+  volumeMultiplier: 2
+  scoreboardSfx: {fileID: 8300000, guid: 1c022fdc0e0881a4aa32b60d7b9124eb, type: 3}
