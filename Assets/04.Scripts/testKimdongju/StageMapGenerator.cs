@@ -111,19 +111,28 @@ public class StageMapGenerator : MonoBehaviour
     }
 
     // ---------- 0. 이전 결과 정리 ----------
+    // contentParent 캐시 하나만 믿고 지우면 안 된다 - 에디터에서 스크립트를 고쳐 도메인 리로드가
+    // 일어나면 이 캐시(직렬화되지 않는 private 필드)가 null로 리셋되는데, 실제 GeneratedContent
+    // 오브젝트는 씬에 그대로 남아있다. 그 상태로 "Generate Now"를 누르면 예전 것을 못 찾고 지나쳐
+    // 새 GeneratedContent를 하나 더 만들어버리고, 이게 반복되면 계속 쌓인다(실제로 이렇게 쌓여서
+    // MapBuildScene에 죽은 사본이 대량으로 남았던 적이 있다). ClearTilemaps()처럼 이름으로 전부
+    // 찾아서 지우면 캐시가 어긋나 있어도 항상 이전 결과물을 확실히 지울 수 있다.
     private void ClearPrevious()
     {
         groundTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
 
-        // Destroy()는 플레이 모드에서만 실제로 파괴되고, 에디터에서 "Generate Now"로 테스트할 때는
-        // 다음 프레임까지 미뤄지는데 에디트 모드는 그 프레임이 안 돌아서 사실상 무시된다.
-        // 그 결과 이전 GeneratedContent가 안 지워지고 계속 쌓여서 건물이 중복 생성된 것처럼 보였다.
-        if (contentParent != null)
+        for (int i = transform.childCount - 1; i >= 0; i--)
         {
-            if (Application.isPlaying) Destroy(contentParent.gameObject);
-            else DestroyImmediate(contentParent.gameObject);
+            Transform child = transform.GetChild(i);
+            if (child.name != "GeneratedContent") continue;
+
+            // Destroy()는 플레이 모드에서만 실제로 파괴되고, 에디터에서 "Generate Now"로 테스트할 때는
+            // 다음 프레임까지 미뤄지는데 에디트 모드는 그 프레임이 안 돌아서 사실상 무시된다.
+            if (Application.isPlaying) Destroy(child.gameObject);
+            else DestroyImmediate(child.gameObject);
         }
+
         contentParent = new GameObject("GeneratedContent").transform;
         contentParent.SetParent(transform);
     }
