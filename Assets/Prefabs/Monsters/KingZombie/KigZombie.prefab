@@ -229,6 +229,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BossController
   data: {fileID: 11400000, guid: fdde0bf8b18fa54419b5b0dd0aeec410, type: 2}
   target: {fileID: 0}
-  hitEffectPrefabs:
-  - {fileID: 9092835396800067803, guid: 4e2a563be49cbf64b9f485682b4981bf, type: 3}
-  - {fileID: 1069725914446905809, guid: 061a940f48aa8cc49ac4b9f42bcf7d80, type: 3}
+  hitEffectPrefabs: []

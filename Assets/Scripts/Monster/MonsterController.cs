@@ -28,6 +28,8 @@ public class MonsterController : MonoBehaviour
     protected Animator animator;
     private MonsterHealth health;
     private Rigidbody2D rb;
+    // 몬스터 본체 스프라이트. 피격 파티클을 이 뒤로 보내는 sortingOrder 기준으로 쓴다(SpawnHitEffect 참고).
+    private SpriteRenderer bodyRenderer;
     public Transform target;
 
     // MoveTowards가 계산한 이번 프레임 이동 속도. 실제 적용은 FixedUpdate에서 rb에 대입한다
@@ -35,8 +37,34 @@ public class MonsterController : MonoBehaviour
     private Vector2 desiredVelocity;
 
     [Header("피격 이펙트")]
-    [Tooltip("피격 시 이 중 하나를 무작위로 골라 피격 방향으로 스폰한다. 비워두면 스폰하지 않음")]
-    public GameObject[] hitEffectPrefabs;
+    [Tooltip("피격 시 이 중 하나를 무작위로 재생한다. 런타임에 Instantiate하는 게 아니라, 이 몬스터 " +
+             "프리팹 밑에 미리 자식으로 붙여둔 파티클 이펙트를 그대로 재사용한다. Scaling Mode가 " +
+             "Local인 파티클(MasterMagicFX 등)은 부모 스케일을 무시하고 자기 로컬 스케일만 보기 때문에, " +
+             "런타임에 스케일을 보정하는 대신 에디터에서 자식으로 둔 채 눈으로 보면서 크기/위치를 맞추는 " +
+             "쪽이 훨씬 간단하고 정확하다. 각 자식은 평소 비활성 상태로 있다가 PlayEffect에서 재생된다")]
+    [SerializeField] private GameObject[] hitEffectPrefabs;
+
+    [Header("최초 교전 딜레이")]
+    [Tooltip("플레이어가 공격 사거리 안에 처음 들어온 순간부터 첫 공격이 나가기까지 대기하는 시간(초). " +
+             "사거리에 막 들어오자마자 곧바로 맞는 것을 막아 플레이어에게 반응할 시간을 준다. " +
+             "몬스터 인스턴스 생애에 딱 한 번만 적용되며(이후 사거리를 들락날락해도 다시 걸리지 않음), " +
+             "스킬 자체의 선딜(SkillData.windupTime)과는 별개로 그 앞에 추가된다. 0이면 기존처럼 즉시 공격한다.")]
+    [SerializeField] private float firstEngageDelay = 1f;
+
+    [Header("근접 Idle 사운드")]
+    [Tooltip("플레이어가 이 거리 안에 있는 동안 idleSoundInterval마다 반복 재생되는 사운드. 비워두면 아무 일도 하지 않는다. " +
+             "실제 클립은 인스펙터에서 직접 연결한다")]
+    [SerializeField] private AudioClip idleSfx;
+    [Tooltip("idleSfx가 재생되는 거리(월드 유닛)")]
+    [SerializeField] private float idleSoundRange = 5f;
+    [Tooltip("idleSfx를 반복 재생하는 간격(초). 이 쿨타임은 플레이어가 사거리 안에 있는지와 무관하게 " +
+             "항상 흘러간다 — 그래야 플레이어가 사거리 경계에서 왔다갔다해도 그때마다 리셋되어 다시 " +
+             "재생되는 게 아니라, 마지막 재생 이후 정말 이 시간이 지나야만(그리고 그 순간 사거리 안이어야) 재생된다")]
+    [SerializeField] private float idleSoundInterval = 5f;
+
+    private AudioSource idleAudioSource;
+    // 다음 idle 사운드 재생까지 남은 시간. 사거리 진입/이탈과 무관하게 매 프레임 줄어든다.
+    private float idleSoundCooldown;
 
     // 마지막으로 이동했던 방향(정지 상태에서도 유지) → 공격 Blend Tree(FaceX/FaceY)가 재사용
     private Vector2 lastFacingDir = Vector2.down;
@@ -48,6 +76,17 @@ public class MonsterController : MonoBehaviour
     protected bool isInvincible;
     // 사망 처리가 시작되면 AI/피격을 더 이상 진행하지 않는다.
     private bool isDead;
+    // 공격 선딜(SkillWindupRoutine)이 진행 중인지. Attack 애니메이션 상태는 클립 길이(약 0.1~0.2초)가
+    // windupTime(예: 0.3초)보다 짧아 먼저 Idle로 돌아가 버리므로, MoveTowards를 막는 용도로는
+    // IsPlayingState(AttackStateName)만으로 부족하다 — 이 플래그로 선딜 구간 전체를 감싼다.
+    private bool isAttacking;
+
+    // firstEngageDelay 대기가 끝났는지(=첫 공격을 이미 내보냈는지). 몬스터 인스턴스당 한 번만 쓰고
+    // 그 뒤로는 계속 true로 남아, 사거리를 벗어났다 다시 들어와도 다시 걸리지 않는다.
+    private bool firstEngageDelayElapsed;
+    // FirstEngageDelayRoutine이 이미 시작됐는지(사거리 안에 있는 동안 매 프레임 AttackTarget이
+    // 호출되므로, 코루틴이 중복으로 여러 개 시작되지 않도록 막는다).
+    private bool firstEngageDelayStarted;
 
     // 현재 쿨타임이 진행 중인 스킬들. 코루틴이 채우고/비운다. (몬스터 인스턴스별 상태)
     private readonly HashSet<SkillData> skillsOnCooldown = new HashSet<SkillData>();
@@ -63,6 +102,13 @@ public class MonsterController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        bodyRenderer = GetComponent<SpriteRenderer>();
+
+        // 좀비 프리팹 어디에도 AudioSource가 없으므로(MonsterHealth와 동일한 자가 보강 패턴),
+        // 프리팹을 손대지 않아도 idle 사운드가 재생될 수 있도록 없으면 여기서 추가한다.
+        idleAudioSource = GetComponent<AudioSource>();
+        if (idleAudioSource == null) idleAudioSource = gameObject.AddComponent<AudioSource>();
+        idleAudioSource.playOnAwake = false;
     }
 
     void Start()
@@ -88,6 +134,7 @@ public class MonsterController : MonoBehaviour
         }
 
         HandleSkillTestInput();
+        UpdateIdleSound();
 
         // AI가 이번 프레임에 MoveTowards를 호출하지 않으면(공격 중, 사거리 안 등) 자동으로 멈춘다.
         desiredVelocity = Vector2.zero;
@@ -135,6 +182,8 @@ public class MonsterController : MonoBehaviour
     {
         if (isKnockedBack) return; // 넉백 코루틴이 위치를 담당하는 동안은 AI 이동을 막는다.
         if (isInvincible) return; // 피격 후 무적 시간 동안은(넉백이 끝난 뒤에도) 제자리에 멈춰 있는다.
+        if (isAttacking) return; // 선딜 중에는 제자리 고정 — 쫓아가며 때리면 lastFacingDir가 바뀌어
+                                  // 이미 확정된 스폰 위치/방향과 어긋나고, 예고 동작 중 계속 다가오면 회피도 무의미해진다.
         if (IsPlayingState(AttackStateName)) return; // 공격 애니메이션 재생 중에는 제자리에서 공격만 한다.
 
         float speed = data != null ? data.speed : 1f;
@@ -193,22 +242,53 @@ public class MonsterController : MonoBehaviour
     }
 
     // SkillData 기반 공격. 몬스터 본체는 기존과 동일하게 공용 Attack 포즈만 재생하고,
-    // 스킬의 effectPrefab을 타겟 위치에 스폰해 그 오브젝트에서 attackAnimation/파티클/사운드를 함께 실행한다.
-    // 쿨타임(skill.cooldown) 동안은 재사용할 수 없다.
+    // skill.windupTime만큼 기다린 뒤 스킬의 effectPrefab을 스폰해 그 오브젝트에서
+    // attackAnimation/파티클/사운드를 함께 실행한다. 쿨타임(skill.cooldown) 동안은 재사용할 수 없다.
     // aimOverride를 넘기면 GetSkillTravelTarget() 대신 그 지점을 향해 이펙트가 날아간다
     // (예: RangedKiterAI가 계산한 예측 조준 지점).
     public void TriggerSkill(SkillData skill, Vector3? aimOverride = null)
     {
-        if (skill == null) return;
+        if (skill == null || isDead) return;
+
+        // 이미 선딜/공격이 진행 중이면 겹쳐 내지 않는다(스킬이 여러 개인 몬스터가 서로 다른
+        // 스킬을 동시에 쏘는 것을 방지 — 예: 숫자키 테스트 입력이 겹쳐 눌렸을 때).
+        if (isAttacking) return;
 
         // 쿨타임 진행 중이면 스킬을 내보내지 않는다.
         if (skillsOnCooldown.Contains(skill)) return;
 
-        TriggerAttack();                      // 본체 Attack 포즈
-        SpawnSkillEffect(skill, aimOverride);  // 스킬 프리팹 + 애니메이션 + sfx
-
+        // 쿨타임은 선딜이 "시작"하는 이 시점부터 돌린다. 선딜이 끝난 뒤 시작하면 공격 간격이
+        // windupTime만큼 그대로 늘어나 의도한 쿨타임보다 훨씬 느려지기 때문.
         if (skill.cooldown > 0f)
             StartCoroutine(SkillCooldownRoutine(skill));
+
+        StartCoroutine(SkillWindupRoutine(skill, aimOverride));
+    }
+
+    // 공격 모션을 먼저 재생하고 skill.windupTime만큼 기다린 뒤에 데미지 이펙트를 스폰한다.
+    // 조준 지점은 대기 "전"에 확정한다 — 선딜 동안 플레이어가 자리를 뜨면 이펙트가 빈 자리로
+    // 날아가게 되므로, 공격 모션이 실제로 회피 가능한 예고 신호로 기능하게 된다.
+    private IEnumerator SkillWindupRoutine(SkillData skill, Vector3? aimOverride)
+    {
+        // isAttacking은 Attack 애니메이션 상태 자체보다 오래 켜져 있어야 한다 — 공격 클립은
+        // windupTime보다 훨씬 짧게(약 0.1~0.2초) Idle로 돌아가므로, MoveTowards를 막는 기준을
+        // 애니메이션 상태가 아니라 이 플래그로 잡아야 선딜 내내 제자리에 고정된다.
+        isAttacking = true;
+        TriggerAttack(); // 본체 Attack 포즈 = 플레이어에게 보내는 예고
+
+        Vector3 travelTarget = aimOverride ?? GetSkillTravelTarget(GetSkillSpawnPosition());
+
+        if (skill.windupTime > 0f)
+            yield return new WaitForSeconds(skill.windupTime);
+
+        // 선딜 도중 몬스터가 죽으면 Die()의 StopAllCoroutines()에 걸려 애초에 여기 도달하지
+        // 않지만, 프레임 경계 문제 등을 대비해 방어적으로 한 번 더 확인한다.
+        // StageManager.IsGameOver도 함께 확인 — 게임 오버로 Time.timeScale이 멎기 직전/직후
+        // 경계 프레임에 뒤늦게 판정이 나가 플레이어가 이미 끝난 뒤에 맞는 것을 막는다.
+        if (!isDead && !StageManager.IsGameOver)
+            SpawnSkillEffect(skill, travelTarget);
+
+        isAttacking = false;
     }
 
     // skill.cooldown 초 동안 해당 스킬을 사용 불가 상태로 둔다.
@@ -224,19 +304,44 @@ public class MonsterController : MonoBehaviour
         return skill != null && !skillsOnCooldown.Contains(skill);
     }
 
-    // 사거리 안일 때 AI가 호출. 주 스킬(skills[0])이 준비됐으면 스킬을,
-    // 쿨타임 중/스킬 없음이면 일반 공격을 낸다.
+    // 사거리 안일 때 AI가 매 프레임 호출. 주 스킬(skills[0])이 준비됐으면 스킬을 낸다.
+    // 쿨타임 중이면 아무것도 하지 않는다 — 예전처럼 쿨타임 중에도 매 프레임 Attack 포즈를
+    // 다시 걸면 공격 모션이 상시 재생돼, 선딜(예고) 동작과 구분이 안 돼 회피가 무의미해진다.
     // aimOverride를 넘기면 스킬 이펙트가 타겟의 현재 위치 대신 그 지점을 향해 날아간다.
     public void AttackTarget(Vector3? aimOverride = null)
     {
+        if (isAttacking) return; // 선딜/공격 진행 중 → 이번 프레임엔 아무 것도 하지 않는다.
+
+        // 첫 교전 딜레이: 사거리 안에 막 들어온 순간 곧바로 때리지 않고 firstEngageDelay만큼 대기한다.
+        // AI가 이미 Stop()을 호출한 뒤 이 메서드를 부르므로, 대기 중에는 자연히 제자리에 멈춰 있는다.
+        if (!firstEngageDelayElapsed)
+        {
+            if (!firstEngageDelayStarted)
+                StartCoroutine(FirstEngageDelayRoutine());
+            return;
+        }
+
         SkillData skill = (data != null && data.skills != null && data.skills.Length > 0)
             ? data.skills[0]
             : null;
 
+        // 스킬이 없는 몬스터는 낼 수 있는 게 포즈밖에 없으므로 기존 동작을 유지한다.
+        if (skill == null) { TriggerAttack(); return; }
+
         if (IsSkillReady(skill))
-            TriggerSkill(skill, aimOverride);   // Attack + 스킬 애니메이션 동시, 쿨타임 시작
-        else
-            TriggerAttack();                     // 쿨타임 중 → 일반 공격만
+            TriggerSkill(skill, aimOverride);
+    }
+
+    // 사거리 안에 처음 들어온 뒤 firstEngageDelay만큼 기다렸다가 첫 공격을 허용한다.
+    // 이 코루틴은 몬스터 인스턴스 생애에 딱 한 번만 실행된다(firstEngageDelayStarted가 막는다).
+    private IEnumerator FirstEngageDelayRoutine()
+    {
+        firstEngageDelayStarted = true;
+
+        if (firstEngageDelay > 0f)
+            yield return new WaitForSeconds(firstEngageDelay);
+
+        firstEngageDelayElapsed = true;
     }
 
     // 몬스터 정면(마지막 이동/공격 방향)으로 스킬 이펙트를 띄우는 거리.
@@ -261,20 +366,22 @@ public class MonsterController : MonoBehaviour
 
     // skill.effectPrefab을 스폰한다. 연출(애니메이션, 콜라이더 등)은 Effect Prefab Maker로 만든
     // 프리팹 자체가 이미 갖추고 있으므로, 여기서는 SkillData의 값(피해량/방향/크기)만 그 위에 덮어써 준다.
-    // 몬스터 정면에서 스폰해 타겟 방향(또는 aimOverride 지점)으로 총알처럼 날아가며, 애니메이션 클립
-    // 길이(한 사이클) 동안 이동을 마치고 파괴된다. 애니메이션이 없으면 skill.effectDuration을 폴백
-    // 이동 시간으로 사용한다. sfx는 effectPrefab 유무와 무관하게 스폰 위치에서 재생한다.
+    // 몬스터 정면에서 스폰해 travelTarget(선딜이 시작될 때 이미 확정된 지점) 쪽으로 총알처럼 날아가며,
+    // 애니메이션 클립 길이(한 사이클) 동안 이동을 마치고 파괴된다. 애니메이션이 없으면 skill.effectDuration을
+    // 폴백 이동 시간으로 사용한다. sfx는 effectPrefab 유무와 무관하게 스폰 위치에서 재생한다.
     // 이동/파괴는 SkillEffectMover(이펙트 자신)에게 맡긴다 — 여기(몬스터)의 코루틴으로 두면 몬스터가
     // 도중에 죽어 Die()의 StopAllCoroutines()에 걸릴 때 이펙트가 고아로 남기 때문.
-    private void SpawnSkillEffect(SkillData skill, Vector3? aimOverride = null)
+    // spawnPos는 여기서(선딜이 끝난 시점의 몬스터 위치 기준으로) 새로 계산한다 — 선딜 동안 넉백 등으로
+    // 몬스터가 밀렸을 수 있으므로 windup 시작 시점 값을 그대로 쓰지 않는다.
+    private void SpawnSkillEffect(SkillData skill, Vector3 travelTarget)
     {
         Vector3 spawnPos = GetSkillSpawnPosition();
-        Vector3 travelTarget = aimOverride ?? GetSkillTravelTarget(spawnPos);
 
         if (skill.effectPrefab != null)
         {
             GameObject effect = Instantiate(skill.effectPrefab, spawnPos, Quaternion.identity);
             effect.transform.localScale *= skill.effectScale;
+            ApplyHitboxScale(effect, skill);
 
             var dmg = effect.GetComponent<SkillEffectDamage>();
             if (dmg == null) dmg = effect.AddComponent<SkillEffectDamage>();
@@ -296,20 +403,81 @@ public class MonsterController : MonoBehaviour
         }
     }
 
-    // 피격 방향(dir)으로 hitEffectPrefabs 중 하나를 무작위로 골라 스폰하고, 애니메이션을 한 번
-    // 재생한 뒤(클립 길이만큼 대기) 파괴한다. 이동은 하지 않고 몬스터 위치에 고정된 채로 재생된다.
+    // effectScale은 그림과 콜라이더를 함께 키운다. hitboxScale이 지정돼 있으면 그 차이만큼
+    // 콜라이더 크기를 되돌려, 이펙트는 크게 보이되 실제 피격 판정만 좁게 만든다.
+    // Collider2D의 radius/size는 로컬 좌표 값이라 localScale에 곱해진 뒤이므로, 여기서 비율만
+    // 되돌려주면 그림(스프라이트/파티클)에는 영향을 주지 않는다.
+    private static void ApplyHitboxScale(GameObject effect, SkillData skill)
+    {
+        if (skill.hitboxScale <= 0f || skill.effectScale <= 0f) return;
+        if (Mathf.Approximately(skill.hitboxScale, skill.effectScale)) return;
+
+        float ratio = skill.hitboxScale / skill.effectScale;
+
+        foreach (Collider2D col in effect.GetComponentsInChildren<Collider2D>())
+        {
+            if (col is CircleCollider2D circle) circle.radius *= ratio;
+            else if (col is BoxCollider2D box) box.size *= ratio;
+            else if (col is CapsuleCollider2D caps) caps.size *= ratio;
+        }
+    }
+
+    // 피격 방향(dir)으로 hitEffectPrefabs 중 하나를 무작위로 골라 재생한다. 이 배열의 각 원소는
+    // 몬스터 프리팹 밑에 미리 자식으로 붙여둔(에디터에서 직접 배치·스케일 조정한) 이펙트 오브젝트다.
+    // 매번 Instantiate하지 않으므로 GC 할당도 없고, Local 스케일링 모드인 파티클(MasterMagicFX 등)의
+    // 부모-스케일-무시 문제도 애초에 발생하지 않는다 — 에디터에서 자식으로 둔 채 눈으로 보면서
+    // 스케일/위치를 맞췄기 때문이다(런타임에 스케일을 보정해줄 필요가 없다).
     private void SpawnHitEffect(Vector2 dir)
     {
         if (hitEffectPrefabs == null || hitEffectPrefabs.Length == 0) return;
 
-        GameObject prefab = hitEffectPrefabs[Random.Range(0, hitEffectPrefabs.Length)];
-        if (prefab == null) return;
+        GameObject effect = hitEffectPrefabs[Random.Range(0, hitEffectPrefabs.Length)];
+        if (effect == null) return;
 
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        GameObject effect = Instantiate(prefab, transform.position, Quaternion.Euler(0f, 0f, angle));
+        effect.transform.localRotation = Quaternion.Euler(0f, 0f, angle);
 
-        float duration = GetEffectCycleDuration(effect, 1f);
-        Destroy(effect, duration);
+        SendEffectBehindBody(effect);
+        PlayEffect(effect);
+    }
+
+    // 평소 비활성 상태로 있던 이펙트 자식을 켜고, 안에 있는(활성 상태인) 파티클 시스템들을 처음부터
+    // 다시 재생한다. Clear로 이전 재생에서 남은 파티클을 먼저 지워야 연속으로 맞았을 때 이상하게
+    // 겹쳐 보이지 않는다. includeInactive를 안 쓰는 이유는, 이펙트 내부에 원본 제작자가 일부러
+    // 비활성으로 둔 하위 레이어가 있을 수 있어서(예: 다른 트리거로만 켜지게 설계된 레이어) —
+    // 그런 레이어까지 강제로 재생시키지 않고 원래 설계된 활성 상태를 그대로 존중한다.
+    private void PlayEffect(GameObject effect)
+    {
+        effect.SetActive(true);
+
+        foreach (ParticleSystem ps in effect.GetComponentsInChildren<ParticleSystem>())
+        {
+            ps.Clear(true);
+            ps.Play(true);
+        }
+    }
+
+    // effect 안의 모든 렌더러(스프라이트/파티클)를 몬스터 본체(bodyRenderer)와 같은 정렬 레이어에,
+    // 그보다 한 단계 낮은 sortingOrder로 맞춰 몬스터 뒤에서 그려지게 한다. bodyRenderer가 없으면
+    // (본체에 SpriteRenderer가 없는 특수 몬스터 등) 프리팹 원래 정렬 값을 그대로 둔다.
+    private void SendEffectBehindBody(GameObject effect)
+    {
+        if (bodyRenderer == null) return;
+
+        int layerID = bodyRenderer.sortingLayerID;
+        int order = bodyRenderer.sortingOrder - 1;
+
+        foreach (SpriteRenderer r in effect.GetComponentsInChildren<SpriteRenderer>())
+        {
+            r.sortingLayerID = layerID;
+            r.sortingOrder = order;
+        }
+
+        foreach (ParticleSystemRenderer r in effect.GetComponentsInChildren<ParticleSystemRenderer>())
+        {
+            r.sortingLayerID = layerID;
+            r.sortingOrder = order;
+        }
     }
 
     // effect의 Animator에 연결된 클립들 중 가장 긴 길이(한 사이클)를 이펙트 유지 시간으로 사용한다.
@@ -396,6 +564,9 @@ public class MonsterController : MonoBehaviour
         StopAllCoroutines();
         isKnockedBack = false;
         Stop();
+        // Update()가 isDead에서 조기 반환해 더 이상 UpdateIdleSound()가 불리지 않으므로, 마침 재생
+        // 중이던 idle 사운드를 여기서 직접 끊지 않으면 시체가 파괴될 때까지(DestroyAfterDeathAnimation) 들린다.
+        if (idleAudioSource != null) idleAudioSource.Stop();
         // 사망 연출 동안 다른 몬스터/이펙트에 밀려 시체가 미끄러지지 않게 물리를 완전히 끈다.
         if (rb != null) rb.simulated = false;
         TriggerDeath();
@@ -483,5 +654,22 @@ public class MonsterController : MonoBehaviour
     {
         if (target == null) return Mathf.Infinity;
         return Vector2.Distance(transform.position, target.position);
+    }
+
+    // 플레이어가 idleSoundRange 안에 있는 동안 idleSoundInterval마다 idleSfx를 한 번씩 재생한다.
+    private void UpdateIdleSound()
+    {
+        if (idleSfx == null || idleAudioSource == null) return;
+
+        // 쿨타임은 사거리 진입/이탈과 무관하게 항상 줄어든다 — 사거리 경계에서 왔다갔다한다고
+        // 매번 리셋되어 다시 재생되지 않고, 마지막 재생 이후 idleSoundInterval초가 실제로 지나야
+        // (그리고 그 순간 사거리 안이어야) 재생된다.
+        idleSoundCooldown -= Time.deltaTime;
+        if (idleSoundCooldown > 0f) return;
+
+        if (DistanceToTarget() > idleSoundRange) return;
+
+        idleAudioSource.PlayOneShot(idleSfx);
+        idleSoundCooldown = idleSoundInterval;
     }
 }

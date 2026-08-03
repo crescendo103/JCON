@@ -50,6 +50,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
     [Space(20f)]
     [SerializeField] private float health = 100f;
+    [Tooltip("피격 후 무적 시간(초). 좀비 여러 마리의 공격이 같은 프레임 근처에 겹쳐도 한 대로만 맞게 한다")]
+    [SerializeField] private float hitInvincibilityDuration = 0.6f;
     [SerializeField] private float speed = 1f;
     [Tooltip("Shift를 누르고 있는 동안 speed에 곱해지는 배율")]
     [SerializeField] private float sprintSpeedMultiplier = 1.6f;
@@ -81,6 +83,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     private float stamina;
     // 스태미나가 0이 되면 켜지고, 100% 회복될 때까지 꺼지지 않는다("다 닳으면 다 찰 때까지 못 달림").
     private bool staminaExhausted;
+    // 피격 무적 시간 동안은 Hit()을 통째로 무시한다(MonsterController.isInvincible과 같은 규칙).
+    private bool isInvincible;
 
 
     // 숫자키 1~5 = 슬롯 0~4. 슬롯 0(FistsSlot)은 맨손 전용으로 항상 비어있다.
@@ -699,6 +703,10 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     public void Hit(float dmg)
     {
         if (health <= 0f) return;
+        // 무적 시간 중에는 완전히 무시한다(체력 감소, 피격 연출 모두 없음). 좀비 여러 마리가 동시에
+        // 판정을 넣어도 한 프레임에 몇 대씩 몰아 맞아 순삭당하는 것을 막는다(MonsterController와 동일한 규칙).
+        if (isInvincible) return;
+
         health -= dmg;
 
         hitVignette?.PlayHitFlash();
@@ -716,7 +724,21 @@ public class GamePlayerController : MonoBehaviour, IPlayable
             else
                 SpawnScoreCanvas();
         }
-        else anim.Play("Hit", 0);
+        else
+        {
+            anim.Play("Hit", 0);
+            StartCoroutine(HitInvincibilityRoutine());
+        }
+    }
+
+    // 무적 시간 동안은 피격을 통째로 무시한다(MonsterController.InvincibilityRoutine과 동일한 방식).
+    // Mathf.Max로 최소치를 보장 — 프리팹에 값이 아직 반영되지 않아 0으로 역직렬화되더라도
+    // 무적시간이 통째로 사라지는 대신 짧게라도 남게 한다.
+    private IEnumerator HitInvincibilityRoutine()
+    {
+        isInvincible = true;
+        yield return new WaitForSeconds(Mathf.Max(hitInvincibilityDuration, 0.1f));
+        isInvincible = false;
     }
 
     // 구급상자(MedicalPickup)가 획득 시 호출. 죽은 상태에서는 회복시키지 않는다.

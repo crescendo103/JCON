@@ -21,3 +21,5 @@ MonoBehaviour:
   type: 0
   effectScale: 8
   effectDuration: 1
+  windupTime: 0.3
+  hitboxScale: 1.2

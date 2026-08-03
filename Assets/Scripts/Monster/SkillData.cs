@@ -20,4 +20,14 @@ public class SkillData : ScriptableObject
     // 런타임에 자동 대체되므로(MonsterController.SpawnSkillEffect 참고), 이 값은 애니메이션이 없는
     // 이펙트(예: 사운드/파티클만 있는 경우)에 쓰이는 폴백 값이다.
     public float effectDuration = 1f;
+
+    // 이펙트(=데미지 판정)가 나오기까지의 선딜(초). 이 시간 동안 몬스터는 공격 모션만 재생하고
+    // 판정은 아직 없으므로, 플레이어가 모션을 보고 빠져나갈 반응 시간이 된다.
+    // 0이면 기존처럼 즉시 발동한다(구버전 에셋 호환).
+    public float windupTime = 0f;
+
+    // 데미지 판정 콜라이더에만 적용할 크기 배율. effectScale은 그림과 판정을 함께 키우기 때문에,
+    // 화려한 이펙트를 유지하면서 판정만 좁히려면 이 값을 effectScale보다 작게 준다.
+    // 0 이하면 effectScale을 그대로 따라간다(구버전 에셋 호환).
+    public float hitboxScale = 0f;
 }

@@ -16,6 +16,8 @@ public class SkillMakerWindow : EditorWindow
     private GameObject effectPrefab;
     private AudioClip sfx;
     private float effectScale = 1f;
+    private float windupTime = 0f;
+    private float hitboxScale = 0f;
 
     private string saveFolder = "Assets/Monsters/Skills";
     private Vector2 scrollPos;
@@ -48,6 +50,8 @@ public class SkillMakerWindow : EditorWindow
         }
         sfx = (AudioClip)EditorGUILayout.ObjectField("사운드", sfx, typeof(AudioClip), false);
         effectScale = EditorGUILayout.FloatField("이펙트 크기 배율", effectScale);
+        windupTime = EditorGUILayout.FloatField("선딜(초)", windupTime);
+        hitboxScale = EditorGUILayout.FloatField("판정 크기 배율 (0=이펙트 크기 배율과 동일)", hitboxScale);
 
         EditorGUILayout.Space();
         saveFolder = EditorGUILayout.TextField("저장 경로", saveFolder);
@@ -87,6 +91,8 @@ public class SkillMakerWindow : EditorWindow
         skill.effectPrefab = effectPrefab;
         skill.sfx = sfx;
         skill.effectScale = effectScale;
+        skill.windupTime = windupTime;
+        skill.hitboxScale = hitboxScale;
 
         string path = AssetDatabase.GenerateUniqueAssetPath($"{saveFolder}/{skillName}.asset");
         AssetDatabase.CreateAsset(skill, path);
@@ -107,5 +113,7 @@ public class SkillMakerWindow : EditorWindow
         effectPrefab = null;
         sfx = null;
         effectScale = 1f;
+        windupTime = 0f;
+        hitboxScale = 0f;
     }
 }
