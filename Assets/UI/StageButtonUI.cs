@@ -5,10 +5,10 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// 스테이지 선택 화면의 버튼 하나(Stage1button 등)에 붙인다.
 /// StageProgressManager의 진행도에 따라 하위 "Image" 오브젝트의 스프라이트를 바꾼다.
-///  - 이미 클리어한 스테이지        -> clearedSprite  (Level/Button/Dummy.png)
-///  - 지금 클리어해야 하는(다음) 스테이지 -> unlockedSprite (Level/Button/Unlocked.png)
-///  - 아직 도달하지 못한 스테이지    -> lockedSprite   (Level/Button/Locked.png)
-/// 클리어한 스테이지라면 하위 "StarImage" 칸에 별 개수(0~3)에 맞는 이미지도 표시한다.
+///  - 클리어했거나 지금 클리어해야 하는(다음) 스테이지 -> clearedSprite (Level/Button/Dummy.png)
+///  - 아직 도달하지 못한 스테이지                -> lockedSprite  (Level/Button/Locked.png)
+/// 클리어했거나 지금 클리어할 차례(= unlocked)라면 하위 "StarImage" 칸에 별 개수(0~3)에 맞는
+/// 이미지를 표시한다. 아직 클리어 전이면 별 0개(0-3.png)가 그대로 보인다 - 숨기지 않는다.
 /// ButtonStateEffect와 동일한 방식(AudioSource + AudioClip)으로 호버/클릭 효과음도 낼 수 있다.
 /// </summary>
 [RequireComponent(typeof(Button))]
@@ -19,14 +19,12 @@ public class StageButtonUI : MonoBehaviour, IPointerEnterHandler
     public int stageNumber = 1;
 
     [Header("스테이지 상태 이미지 (Level/Button)")]
-    [Tooltip("이미 클리어한 스테이지일 때 표시 (Dummy.png)")]
+    [Tooltip("클리어했거나 지금 클리어해야 하는 스테이지일 때 표시 (Dummy.png)")]
     public Sprite clearedSprite;
-    [Tooltip("지금 클리어해야 하는 스테이지일 때 표시 (Unlocked.png)")]
-    public Sprite unlockedSprite;
     [Tooltip("아직 도달하지 못한 스테이지일 때 표시 (Locked.png)")]
     public Sprite lockedSprite;
 
-    [Header("별 개수 이미지 (Level/Star/Group, 클리어했을 때만 표시)")]
+    [Header("별 개수 이미지 (Level/Star/Group, 클리어했거나 지금 클리어할 차례일 때 표시)")]
     [Tooltip("인덱스 = 별 개수. 0-3.png, 1-3.png, 2-3.png, 3-3.png 순서로 넣는다")]
     public Sprite[] starSprites = new Sprite[4];
 
@@ -97,7 +95,7 @@ public class StageButtonUI : MonoBehaviour, IPointerEnterHandler
         bool isCurrent = unlocked && !cleared; // 지금 클리어해야 하는(다음) 스테이지
 
         if (stateImage != null)
-            stateImage.sprite = cleared ? clearedSprite : (unlocked ? unlockedSprite : lockedSprite);
+            stateImage.sprite = unlocked ? clearedSprite : lockedSprite;
 
         // 아직 도달 못한 스테이지는 이름 텍스트를 숨기고, 클리어했거나 지금 클리어할 차례일 때만 보여준다.
         if (nameText != null)
@@ -110,9 +108,9 @@ public class StageButtonUI : MonoBehaviour, IPointerEnterHandler
 
         if (starSlot != null)
         {
-            starSlot.SetActive(cleared);
+            starSlot.SetActive(unlocked);
 
-            if (cleared && starImage != null)
+            if (unlocked && starImage != null)
             {
                 int stars = Mathf.Clamp(progress.GetStars(stageNumber), 0, starSprites.Length - 1);
                 starImage.sprite = starSprites[stars];

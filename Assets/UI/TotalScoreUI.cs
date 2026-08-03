@@ -62,11 +62,14 @@ public class TotalScoreUI : MonoBehaviour
         scoreText.text = "0";
         StartCoroutine(CountUpToTarget());
 
-        int starCount = GetStarCount(targetValue);
+        // 좀비를 전부 잡아 실제로 클리어했을 때만 점수/남은시간으로 별점을 매긴다.
+        // 죽거나 시간 초과로 끝났으면 클리어가 아니므로, 남은 시간이 많이 남아있어도 별 0개로 취급한다.
+        int starCount = StageManager.StageCleared ? GetStarCount(targetValue) : 0;
         PlayStars(starCount);
 
         // 이번 스테이지 결과(별 개수)를 진행도 매니저에 보고한다. 이전 기록보다 좋을 때만 저장된다.
-        StageProgressManager.Instance.ReportCurrentStageResult(starCount);
+        if (StageManager.StageCleared)
+            StageProgressManager.Instance.ReportCurrentStageResult(starCount);
 
         // 별 3개(만점)로 깼을 때만 "다음 스테이지" 버튼을 보여준다.
         Button nextStageButton = FindButtonInRoot("playButton (1)");

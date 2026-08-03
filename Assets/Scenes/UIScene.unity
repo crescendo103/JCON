@@ -1266,6 +1266,22 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1141916437058019640, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 1141916437058019640, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 1141916437058019640, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1141916437058019640, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1674256350022357747, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
       propertyPath: m_fontAsset
       value: 
@@ -1441,6 +1457,22 @@ PrefabInstance:
     - target: {fileID: 3492858836411603601, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 4617471446416482027, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 4617471446416482027, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 4617471446416482027, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4617471446416482027, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6539674106689761010, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
       propertyPath: clickSound

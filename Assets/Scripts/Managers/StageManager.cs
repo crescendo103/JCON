@@ -74,6 +74,13 @@ public class StageManager : MonoBehaviour
     /// </summary>
     public static bool IsGameOver { get; private set; }
 
+    /// <summary>
+    /// 목표 마릿수를 전부 잡아서 "진짜로" 클리어했는지. 죽거나 시간 초과로 끝났으면 false다.
+    /// TotalScoreUI가 이 값을 보고 별점을 계산/저장할지 결정한다 - 죽었는데 남은 시간이 많다는
+    /// 이유로 별점이 매겨지는 것을 막기 위한 값.
+    /// </summary>
+    public static bool StageCleared { get; private set; }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -87,6 +94,7 @@ public class StageManager : MonoBehaviour
         Time.timeScale = 1f;
         AudioListener.pause = false;
         IsGameOver = false;
+        StageCleared = false;
     }
 
     private void Start()
@@ -146,7 +154,7 @@ public class StageManager : MonoBehaviour
             scoreUI.AddScore(scorePerKill * killedJustNow);
 
         if (killedCount >= totalMonstersToSpawn)
-            EndStage();
+            EndStage(cleared: true);
     }
 
     private void UpdateZombieCountUI()
@@ -155,30 +163,33 @@ public class StageManager : MonoBehaviour
             zombieCountUI.SetCount(killedCount, totalMonstersToSpawn);
     }
 
-    /// <summary>TimeUI가 제한시간이 다 됐을 때 호출한다.</summary>
+    /// <summary>TimeUI가 제한시간이 다 됐을 때 호출한다. 목표를 못 채웠으므로 클리어가 아니다.</summary>
     public void NotifyTimeUp()
     {
-        EndStage();
+        EndStage(cleared: false);
     }
 
     /// <summary>
     /// GamePlayerController가 플레이어 사망 시 호출한다. 좀비 전멸/시간초과와 동일하게
     /// 스테이지를 종료시켜야, 죽은 뒤에도 몬스터가 계속 공격/스킬을 쓰며 사운드를 내는 것을 막을 수 있다.
+    /// 죽었으므로 클리어가 아니다.
     /// </summary>
     public void NotifyPlayerDied()
     {
-        EndStage();
+        EndStage(cleared: false);
     }
 
     /// <summary>
-    /// 목표 마릿수를 전부 잡았거나 시간이 다 됐을 때 스테이지를 종료한다. 한 번만 실행되며,
+    /// 목표 마릿수를 전부 잡았거나 시간이 다 됐거나 죽었을 때 스테이지를 종료한다. 한 번만 실행되며,
     /// Time.timeScale을 0으로 만들어 이동/공격/스폰 등 게임플레이를 멈추고 스코어 화면(UI)만 띄운다.
+    /// cleared는 목표 마릿수를 실제로 다 잡았을 때만 true - TotalScoreUI가 별점을 매길지 결정하는 기준이 된다.
     /// </summary>
-    private void EndStage()
+    private void EndStage(bool cleared)
     {
         if (IsGameOver)
             return;
         IsGameOver = true;
+        StageCleared = cleared;
         Time.timeScale = 0f;
 
         // AudioListener.pause만으로는 이미 재생 중이던 소리가 "일시정지"만 되므로, 좀비 공격/스킬/발자국/BGM 등
