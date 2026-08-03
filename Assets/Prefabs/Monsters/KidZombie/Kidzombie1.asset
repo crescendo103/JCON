@@ -26,7 +26,7 @@ MonoBehaviour:
     attack: {fileID: 7400000, guid: fbfd03cc5536a8045b789558e0f687f9, type: 2}
     hit: {fileID: -7261744427336281007, guid: a9096264500b6d846b48da004d243f94, type: 2}
     death: {fileID: 7400000, guid: beb235168b22719428ff27e036baf6c1, type: 2}
-  aiBehavior: {fileID: 11400000, guid: 39ea03c1a0cfe5c4693d3fa3bffd70a8, type: 2}
+  aiBehavior: {fileID: 11400000, guid: ad7ae17901a524547b29ae6c259038e1, type: 2}
   knockbackSettings:
   - type: 0
     force: 1.5

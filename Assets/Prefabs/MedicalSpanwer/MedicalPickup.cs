@@ -254,11 +254,13 @@ public class MedicalPickup : MonoBehaviour
     }
 
     // 체력 회복 시 플레이어 위치에서 재생되는 회복 파티클.
+    // 플레이어를 부모로 붙여서, 파티클이 재생되는 동안 플레이어가 움직여도 같이 따라간다.
     private void SpawnHealEffect(Transform player)
     {
         if (healEffectPrefab == null) return;
 
-        var effect = Instantiate(healEffectPrefab, player.position, Quaternion.identity);
+        var effect = Instantiate(healEffectPrefab, player.position, Quaternion.identity, player);
+        effect.transform.localPosition = Vector3.zero;
         effect.transform.localScale = Vector3.one * healEffectScale;
 
         foreach (var r in effect.GetComponentsInChildren<ParticleSystemRenderer>())
