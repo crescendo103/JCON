@@ -85,6 +85,20 @@ public class StageProgressManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 지금 로드된 스테이지 씬이 실제로 "재생 중인" 스테이지 번호. OpenStageScene이 씬을 로드하는
+    /// 시점에 기록되며, 별 3개 클리어로 ReportCurrentStageResult가 CurrentStage를 미리 다음
+    /// 스테이지로 올려놔도 이 값은 그대로 남아있다. 재시작(Restart) 버튼이 다음 스테이지가 아니라
+    /// 방금 플레이하던 스테이지로 정확히 되돌아가기 위한 기준값이다.
+    /// </summary>
+    public int PlayingStage { get; private set; } = 1;
+
+    /// <summary>OpenStageScene이 스테이지 씬을 로드하기 직전에 호출해 PlayingStage를 갱신한다.</summary>
+    public void SetPlayingStage(int stage)
+    {
+        PlayingStage = Mathf.Clamp(stage, 1, StageCount);
+    }
+
     /// <summary>지금까지 모은 별의 총합. "6/54" 표시의 분자.</summary>
     public int TotalStars { get; private set; }
 

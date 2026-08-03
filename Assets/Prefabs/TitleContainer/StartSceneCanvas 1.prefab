@@ -276,8 +276,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MMFPlayerStarter
   Player: {fileID: 5464780342351920786}
-  PlayOnStart: 1
-  PlayOnEnable: 0
+  PlayOnStart: 0
+  PlayOnEnable: 1
   Delay: 0
 --- !u!114 &5464780342351920786
 MonoBehaviour:

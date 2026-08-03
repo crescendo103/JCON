@@ -109,14 +109,25 @@ public class UINavigator : MonoBehaviour
     public void OpenStageScene(int stageNumber)
     {
         StageProgressManager.Instance.CurrentStage = stageNumber;
+        // "지금 재생 중인 스테이지"를 별도로 기록한다 — CurrentStage는 클리어 시(별 3개)
+        // ReportCurrentStageResult가 곧바로 다음 스테이지로 올려버리므로, ReloadCurrentScene()이
+        // 재시작할 때 되돌아갈 기준으로 CurrentStage를 그대로 쓸 수 없다.
+        StageProgressManager.Instance.SetPlayingStage(stageNumber);
         SceneManager.LoadScene(StageSceneName);
     }
 
-    /// <summary>지금 열려 있는 씬을 처음부터 다시 로드한다. 재시작 버튼에서 호출한다.</summary>
+    /// <summary>
+    /// 지금 열려 있는 씬을 처음부터 다시 로드한다. 재시작 버튼에서 호출한다.
+    /// 별 3개로 클리어한 직후라면 ScoreCanvas가 뜨자마자 CurrentStage가 이미 다음 스테이지로
+    /// 넘어가 있을 수 있다(StageProgressManager.ReportCurrentStageResult). 그 상태로 그냥 씬만
+    /// 리로드하면 방금 깬 스테이지가 아니라 다음 스테이지가 열려버리므로, 리로드 전에 CurrentStage를
+    /// PlayingStage(실제로 방금까지 플레이하던 스테이지)로 되돌려 정확히 같은 스테이지가 다시 열리게 한다.
+    /// </summary>
     public void ReloadCurrentScene()
     {
         Time.timeScale = 1f;
         AudioListener.pause = false;
+        StageProgressManager.Instance.CurrentStage = StageProgressManager.Instance.PlayingStage;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
