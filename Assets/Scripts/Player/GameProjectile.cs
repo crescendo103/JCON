@@ -20,6 +20,7 @@ public class GameProjectile : MonoBehaviour
     private Vector3 startPosition;
     private int pierceRemaining;
     private int wallLayer;
+    private float knockbackDistance;
     private readonly HashSet<MonsterController> hitMonsters = new HashSet<MonsterController>();
 
     void Awake()
@@ -34,13 +35,14 @@ public class GameProjectile : MonoBehaviour
         wallLayer = LayerMask.NameToLayer("WallGrid");
     }
 
-    public void Launch(Vector2 dir, int dmg, DamageType type, int pierce = 0)
+    public void Launch(Vector2 dir, int dmg, DamageType type, int pierce = 0, float knockback = 0f)
     {
         direction = dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.right;
         damage = dmg;
         damageType = type;
         startPosition = transform.position;
         pierceRemaining = pierce;
+        knockbackDistance = knockback;
         hitMonsters.Clear();
 
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
@@ -67,7 +69,7 @@ public class GameProjectile : MonoBehaviour
         var monster = other.GetComponent<MonsterController>();
         if (monster == null || hitMonsters.Contains(monster)) return;
 
-        monster.TakeDamage(damage, damageType, transform.position);
+        monster.TakeDamage(damage, damageType, transform.position, knockbackDistance);
         hitMonsters.Add(monster);
 
         if (pierceRemaining <= 0)

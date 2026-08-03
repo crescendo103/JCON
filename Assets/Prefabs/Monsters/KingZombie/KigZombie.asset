@@ -34,7 +34,7 @@ MonoBehaviour:
   - type: 1
     force: 0
     duration: 0.15
-    invincibilityDuration: 0.5
+    invincibilityDuration: 0.25
   - type: 2
     force: 0
     duration: 0.25

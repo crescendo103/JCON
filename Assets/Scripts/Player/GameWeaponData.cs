@@ -37,6 +37,8 @@ public class GameWeaponData : ScriptableObject
     public AudioClip sfx;
     [Tooltip("탄약(내구도)이 다 닳아 무기가 부서지며 맨손으로 돌아갈 때 재생되는 사운드")]
     public AudioClip breakSfx;
+    [Tooltip("이 무기로 때렸을 때 몬스터가 밀려나는 거리(월드 유닛). 0 이하면 몬스터 쪽 MonsterData.knockbackSettings 기본값을 그대로 사용")]
+    public float knockbackDistance = 0f;
 
     [Header("근접 전용")]
     public MeleeAttackMode meleeMode;

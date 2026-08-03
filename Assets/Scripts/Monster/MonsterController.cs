@@ -172,7 +172,10 @@ public class MonsterController : MonoBehaviour
     public void Stop()
     {
         desiredVelocity = Vector2.zero;
-        if (rb != null) rb.linearVelocity = Vector2.zero;
+        // AI는 공격 사거리 안에 들어오면 매 프레임 Stop()을 호출한다. 넉백 중에 여기서 velocity를 0으로
+        // 만들면 KnockbackRoutine이 걸어둔 속도가 바로 다음 프레임에 지워져 넉백이 사실상 사라진다
+        // (MoveTowards/FixedUpdate에는 이미 같은 가드가 있음 — 근접 사거리 안 몬스터에 한해 빠졌던 것).
+        if (rb != null && !isKnockedBack) rb.linearVelocity = Vector2.zero;
 
         if (animator != null)
         {
@@ -342,8 +345,10 @@ public class MonsterController : MonoBehaviour
     // ── 피격/넉백/무적시간 ──────────────────────────
     // 외부(플레이어 공격, 스킬 이펙트 등)에서 몬스터에게 데미지를 줄 때 호출한다.
     // sourcePosition은 공격이 날아온 위치로, 넉백 방향(공격 반대쪽)을 계산하는 데 쓰인다.
+    // knockbackDistanceOverride가 0보다 크면 무기(GameWeaponData)/맨손 쪽에서 지정한 거리로
+    // 넉백 세기(force)를 덮어쓴다. 0 이하(기본값)면 몬스터 쪽 knockbackSettings를 그대로 쓴다.
     // 무적 시간 중에는 완전히 무시한다(HP 변화, 넉백, Hit 트리거 모두 없음).
-    public void TakeDamage(int amount, DamageType damageType, Vector2 sourcePosition)
+    public void TakeDamage(int amount, DamageType damageType, Vector2 sourcePosition, float knockbackDistanceOverride = 0f)
     {
         if (isInvincible || isDead) return;
 
@@ -364,6 +369,20 @@ public class MonsterController : MonoBehaviour
         SpawnHitEffect(knockDir);
 
         KnockbackSetting setting = GetKnockbackSetting(damageType);
+        // setting.force가 0이면(예: KingZombie) 넉백 면역으로 의도한 것이므로 무기 값으로 덮어쓰지 않는다.
+        if (knockbackDistanceOverride > 0f && setting.force > 0f)
+        {
+            // GetKnockbackSetting은 MonsterData(SO)가 소유한 인스턴스를 그대로 돌려줄 수 있어
+            // setting.force를 직접 대입하면 .asset이 영구히 오염된다. 복사본을 새로 만들어 쓴다.
+            setting = new KnockbackSetting
+            {
+                type = setting.type,
+                force = knockbackDistanceOverride,
+                duration = setting.duration,
+                invincibilityDuration = setting.invincibilityDuration,
+            };
+        }
+
         StartCoroutine(KnockbackRoutine(knockDir, setting));
         StartCoroutine(InvincibilityRoutine(setting.invincibilityDuration));
     }

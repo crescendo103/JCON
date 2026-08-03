@@ -405,7 +405,8 @@ Material:
   m_Shader: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - UNDERLAY_ON
   m_InvalidKeywords: []
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
@@ -430,11 +431,11 @@ Material:
     - _MaskSoftnessX: 0
     - _MaskSoftnessY: 0
     - _OutlineSoftness: 0
-    - _OutlineWidth: 0
+    - _OutlineWidth: 0.1
     - _PerspectiveFilter: 0.875
     - _ScaleRatioA: 0.9
     - _ScaleRatioB: 1
-    - _ScaleRatioC: 0.73125
+    - _ScaleRatioC: 0.24375
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
@@ -446,10 +447,10 @@ Material:
     - _StencilWriteMask: 255
     - _TextureHeight: 1024
     - _TextureWidth: 1024
-    - _UnderlayDilate: 0
-    - _UnderlayOffsetX: 0
-    - _UnderlayOffsetY: 0
-    - _UnderlaySoftness: 0
+    - _UnderlayDilate: 1
+    - _UnderlayOffsetX: 1
+    - _UnderlayOffsetY: -1
+    - _UnderlaySoftness: 1
     - _VertexOffsetX: 0
     - _VertexOffsetY: 0
     - _WeightBold: 0.75
@@ -1274,13 +1275,41 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_text
+      value: ZOMBIE RUSH
+      objectReference: {fileID: 0}
+    - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_fontSize
+      value: 48
+      objectReference: {fileID: 0}
+    - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 28e7536c90f6ef64589fda4d5a753650, type: 2}
+    - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_fontStyle
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
       propertyPath: m_fontMaterial
       value: 
       objectReference: {fileID: 1143660470}
     - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 48
+      objectReference: {fileID: 0}
+    - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
       propertyPath: m_sharedMaterial
       value: 
-      objectReference: {fileID: 1143660470}
+      objectReference: {fileID: 7550026939385717671, guid: 28e7536c90f6ef64589fda4d5a753650, type: 2}
+    - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
       propertyPath: 'm_fontMaterials.Array.data[0]'
       value: 
@@ -1425,6 +1454,10 @@ PrefabInstance:
       propertyPath: clickSound
       value: 
       objectReference: {fileID: 8300000, guid: 7338dd983c03a9f4093e6a99de30ca20, type: 3}
+    - target: {fileID: 8472601390992709474, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

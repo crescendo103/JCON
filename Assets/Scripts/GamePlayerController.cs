@@ -46,6 +46,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [SerializeField] private float fistsSwordSwingDuration = 0.3f;
     [SerializeField] private GameObject scoreCanvasPrefab;
     [SerializeField] private PlayerHitVignette hitVignette;
+    [SerializeField] private PlayerHitBlink hitBlink;
 
     [Space(20f)]
     [SerializeField] private float health = 100f;
@@ -59,6 +60,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [Tooltip("스프린트를 안 쓰는 동안 초당 회복량")]
     [SerializeField] private float staminaRegenPerSecond = 15f;
     [SerializeField] private float fistsCooldown = 0.4f;
+    [Tooltip("맨손(기본 공격)으로 때렸을 때 몬스터가 밀려나는 거리(월드 유닛). 0 이하면 몬스터 기본값 사용")]
+    [SerializeField] private float fistsKnockbackDistance = 1.5f;
     [Tooltip("맨손(기본 공격) 휘두를 때 재생되는 사운드")]
     [SerializeField] private AudioClip fistsAttackSfx;
     [Tooltip("무기 아이콘 고정 위치(플레이어 로컬 기준). 머리 밑에 오도록 조정")]
@@ -103,6 +106,9 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     // 맨손 검 휘두르기 진행 상태. 휘두르는 동안에만 true이고, 끝나면 기본 자세(0번 프레임)로 돌아간다.
     private bool fistsSwordSwinging;
     private float fistsSwordSwingStart;
+    // 마지막으로 이동하던 방향(정지 중에도 유지). 온스크린 공격 버튼을 조이스틱 없이(예: 키보드 이동 후
+    // 버튼만 탭) 눌렀을 때 조준 방향 폴백으로 쓴다 — GetAimDirection() 참고.
+    private Vector2 lastMoveDirection = Vector2.down;
 
 
     public Vector2 CurrentVelocity => rigid.linearVelocity;
@@ -117,6 +123,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
         weaponSocket = this.transform.Find("WeaponMuzzle");
         hitVignette = this.GetComponent<PlayerHitVignette>();
+        hitBlink = this.GetComponent<PlayerHitBlink>();
         handWeaponRenderer = this.transform.Find("Model/LeftHand/LeftHandWeapon")?.GetComponent<SpriteRenderer>();
         weaponAudioSource = this.GetComponent<AudioSource>();
 
@@ -126,6 +133,13 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     private void Awake()
     {
         if (hitVignette == null) hitVignette = GetComponent<PlayerHitVignette>();
+        if (hitBlink == null) hitBlink = GetComponent<PlayerHitBlink>();
+        if (hitBlink == null) hitBlink = gameObject.AddComponent<PlayerHitBlink>();
+        // 화면 좌하단 이동 조이스틱 + 우하단 공격 버튼. 씬/프리팹에 없으면 코드로 만든다(README: 코드로 연결).
+        if (FindFirstObjectByType<MobileControlsUI>() == null)
+        {
+            new GameObject("MobileControlsCanvas").AddComponent<MobileControlsUI>();
+        }
         if (weaponAudioSource == null) weaponAudioSource = GetComponent<AudioSource>();
         sortingGroup = GetComponent<SortingGroup>();
 
@@ -162,7 +176,10 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // 덮어쓰면 물리 엔진이 그 프레임 안에서 계산한 충돌 반응(벽에 닿아 밀려나는 등)을
         // 다음 렌더 프레임이 바로 지워버려서 벽에 파고들거나 걸리는 현상이 생긴다.
         float currentSpeed = isSprinting ? speed * sprintSpeedMultiplier : speed;
-        rigid.linearVelocity = (health <= 0f || StageManager.IsGameOver) ? Vector2.zero : input.normalized * currentSpeed;
+        // 기존 input.normalized는 아날로그 조이스틱으로 살짝만 민 입력(크기 0.3 등)도 항상 전속력으로
+        // 만들어버렸다. ClampMagnitude는 키보드(크기 0/1/대각선 √2→1)는 그대로 두면서 조이스틱은
+        // 민 만큼만 속도가 나는 진짜 아날로그로 만든다.
+        rigid.linearVelocity = (health <= 0f || StageManager.IsGameOver) ? Vector2.zero : Vector2.ClampMagnitude(input, 1f) * currentSpeed;
     }
 
     private void GetInput()
@@ -174,6 +191,11 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (Input.GetKey(KeyCode.W)) input.y = 1f;
         else if (Input.GetKey(KeyCode.S)) input.y = -1f;
         else input.y = 0f;
+
+        // 온스크린 조이스틱을 누르고 있으면 키보드 대신 그 방향(아날로그 크기 포함)을 이동 입력으로 쓴다.
+        if (OnScreenJoystick.Direction.sqrMagnitude > 0.0001f) input = OnScreenJoystick.Direction;
+
+        if (input.sqrMagnitude > 0.0001f) lastMoveDirection = input.normalized;
 
         isSprinting = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
     }
@@ -231,7 +253,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     {
         if (model == null) return;
 
-        float dx = GetMouseWorld().x - transform.position.x;
+        float dx = GetAimDirection().x;
 
         if (dx > 0f) model.localScale = new Vector3(-1f, 1f, 1f);
         else if (dx < 0f) model.localScale = new Vector3(1f, 1f, 1f);
@@ -261,6 +283,25 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (mainCam == null) return transform.position;
 
         return mainCam.ScreenToWorldPoint(Input.mousePosition);
+    }
+
+    /// <summary>
+    /// 조준 방향. 공격 조이스틱(우하단)을 밀고 있으면 이동 조이스틱과 똑같이 그 방향을 그대로 쓴다(플레이어가
+    /// 직접 조정). 드래그 없이 정중앙만 탭했다면 마지막으로 이동하던 방향으로 대신 조준한다. 공격 조이스틱을
+    /// 아예 안 눌렀다면 이동 조이스틱 방향(기존 동작 유지) → 그것도 없으면(기존 PC 플레이) 마우스 포인터
+    /// 방향 순으로 폴백한다.
+    /// </summary>
+    private Vector2 GetAimDirection()
+    {
+        // 공격 조이스틱(우하단)을 밀고 있으면 이동 조이스틱과 똑같이 그 방향을 그대로 조준으로 쓴다.
+        if (OnScreenAttackButton.Direction.sqrMagnitude > 0.0001f) return OnScreenAttackButton.Direction.normalized;
+        // 정확히 중앙만 탭해서(드래그 없이) 방향이 데드존 안이면 마지막 이동 방향으로 대신 조준한다.
+        if (OnScreenAttackButton.Held) return lastMoveDirection;
+        // 공격은 마우스로 하되 이동 조이스틱만 누르고 있는 경우(기존 동작 유지).
+        if (OnScreenJoystick.Direction.sqrMagnitude > 0.0001f) return OnScreenJoystick.Direction.normalized;
+
+        Vector2 toMouse = (Vector2)GetMouseWorld() - (Vector2)transform.position;
+        return toMouse.sqrMagnitude > 0.0001f ? toMouse.normalized : Vector2.right;
     }
 
     /// <summary>
@@ -423,11 +464,16 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         var weapon = currentSlot >= 0 ? ownedWeapons[currentSlot] : null;
         bool holdFire = weapon != null && (weapon.category == WeaponCategory.Ranged || weapon.meleeMode == MeleeAttackMode.HoldContinuous);
 
+        // 온스크린 공격 버튼(우측하단)을 마우스 왼쪽 버튼과 동등하게 취급한다. ConsumePress()는 호출 즉시
+        // 플래그를 지우므로 이 Update 프레임 안에서 정확히 한 번만 읽는다(GetKeyDown과 같은 1프레임 의미).
+        bool attackHeld = Input.GetKey(KeyCode.Mouse0) || OnScreenAttackButton.Held;
+        bool attackPressed = Input.GetKeyDown(KeyCode.Mouse0) || OnScreenAttackButton.ConsumePress();
+
         if (holdFire)
         {
             // 연사(원거리)/연타(전기톱): 애니메이션 완료를 기다리지 않고 쿨다운으로만 속도를 제어.
             // isAttack을 건드리지 않으므로 이동/Idle-Run 애니메이션도 그대로 유지된다.
-            if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextAttackTime)
+            if (attackHeld && Time.time >= nextAttackTime)
             {
                 if (!TryConsumeAmmo(weapon)) return;
 
@@ -442,8 +488,10 @@ public class GamePlayerController : MonoBehaviour, IPlayable
             return;
         }
 
-        // 단발(SingleSwing 근접무기) / 맨손: 기존과 동일하게 스윙 1회 후 애니메이션이 끝날 때까지 잠금.
-        if (!isAttack && Input.GetKeyDown(KeyCode.Mouse0) && Time.time >= nextAttackTime)
+        // 단발(SingleSwing 근접무기) / 맨손: 마우스는 클릭할 때마다 1회씩(기존과 동일), 온스크린 공격
+        // 조이스틱은 누르고 있는 동안 이전 스윙+쿨다운이 끝나는 대로 계속 이어서 공격한다(모바일에서
+        // 매번 다시 탭할 필요 없게).
+        if (!isAttack && (attackPressed || OnScreenAttackButton.Held) && Time.time >= nextAttackTime)
         {
             if (!TryConsumeAmmo(weapon)) return;
 
@@ -526,17 +574,17 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         float range = weapon != null ? weapon.meleeRange : 0.8f;
         float radius = weapon != null ? weapon.meleeHitRadius : 0.6f;
         int maxTargets = weapon != null ? weapon.maxTargets : 1;
+        float knockback = weapon != null ? weapon.knockbackDistance : fistsKnockbackDistance;
 
-        // model.localScale.x < 0 이면 오른쪽을 보고 있는 상태(Face() 참고).
-        Vector2 facing = (model != null && model.localScale.x < 0f) ? Vector2.right : Vector2.left;
-        Vector2 origin = (Vector2)transform.position + facing * range;
+        Vector2 aimDir = GetAimDirection();
+        Vector2 origin = (Vector2)transform.position + aimDir * range;
 
         var hits = Physics2D.OverlapCircleAll(origin, radius);
         CollectMeleeTargets(hits, origin, maxTargets, meleeTargetBuffer);
 
         foreach (var monster in meleeTargetBuffer)
         {
-            monster.TakeDamage(dmg, type, transform.position);
+            monster.TakeDamage(dmg, type, transform.position, knockback);
         }
     }
 
@@ -574,8 +622,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     {
         if (weapon.bulletPrefab == null) return;
 
-        Vector2 aimDir = (Vector2)GetMouseWorld() - (Vector2)transform.position;
-        aimDir = aimDir.sqrMagnitude > 0.0001f ? aimDir.normalized : Vector2.right;
+        Vector2 aimDir = GetAimDirection();
 
         int pellets = Mathf.Max(1, weapon.pelletCount);
         // 무기가 더 이상 조준 방향을 가리키지 않으므로(머리 밑 고정 표시), 총알은 플레이어 중심에서 나간다.
@@ -600,7 +647,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
             {
                 projectile.speed = weapon.projectileSpeed;
                 projectile.maxDistance = weapon.projectileMaxDistance;
-                projectile.Launch(dir, weapon.damage, weapon.damageType, weapon.pierceCount);
+                projectile.Launch(dir, weapon.damage, weapon.damageType, weapon.pierceCount, weapon.knockbackDistance);
             }
         }
     }
@@ -655,6 +702,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         health -= dmg;
 
         hitVignette?.PlayHitFlash();
+        hitBlink?.PlayHitBlink();
 
         if (health <= 0f)
         {
@@ -703,6 +751,27 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     public float GetMaxHealth() { return maxHealth; }
     public float GetStamina() { return stamina; }
     public float GetMaxStamina() { return staminaMax; }
+
+    /// <summary>
+    /// 현재 장착 무기를 대표하는 아이콘(스프라이트+색). 맨손이면 false를 반환하고, 호출부가 알아서
+    /// 자기 기본 아이콘(검 등)을 쓰면 된다. SpawnWeaponVisual()과 같은 우선순위로 해석해서 실제 손에
+    /// 든 무기 비주얼과 항상 같은 아이콘이 나오게 한다.
+    /// </summary>
+    public bool TryGetEquippedWeaponIcon(out Sprite sprite, out Color color)
+    {
+        if (equippedWeapon == null)
+        {
+            sprite = null;
+            color = Color.white;
+            return false;
+        }
+
+        Sprite equipSource = equippedWeapon.equippedSprite;
+        if (equipSource == null && equippedWeapon.useProceduralChainsawIcon) equipSource = WeaponVisuals.ChainsawIcon;
+
+        WeaponVisuals.Resolve(equipSource, equippedWeapon.displayScale, out sprite, out color, out _);
+        return true;
+    }
 
     /// <summary>
     /// 현재 장착 무기의 탄약. 탄약 개념이 없는 무기(맨손·근접·무제한)면 false를 반환한다.
