@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: a6438b5f2a9a67e428e60aa434052891
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - boxSprite: {fileID: -5161842562624495943, guid: da1ddaf4341c65741bb8fa8a98122f7a, type: 3}
+  - brokenBoxSprite: {instanceID: 0}
+  - parachuteSpriteOverride: {instanceID: 0}
+  - landingEffectPrefab: {instanceID: 0}
+  - unlockEffectPrefab: {instanceID: 0}
+  - pickupSfx: {instanceID: 0}
+  - fallingSfx: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

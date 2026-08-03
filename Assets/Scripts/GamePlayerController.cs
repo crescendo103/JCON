@@ -75,6 +75,9 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
     private bool isAttack;
     private bool isSprinting;
+    // 대쉬(스프린트)를 아직 못 쓰는 상태로 시작한다. 필드의 DashPickup을 먹어야(UnlockDash() 호출)
+    // Shift가 실제로 동작하고 PlayerStaminaBar 게이지도 나타난다.
+    private bool dashUnlocked;
     private Vector2 input;
     private Action attack;
     private Camera mainCam;
@@ -201,14 +204,17 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
         if (input.sqrMagnitude > 0.0001f) lastMoveDirection = input.normalized;
 
-        isSprinting = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+        // 대쉬를 해금하면 Shift와 무관하게 자동으로 빨라진다. 스태미나가 다 닳으면 UpdateStamina()가
+        // 자동으로 원래 속도로 되돌리고, 다 회복되면 다시 자동으로 빨라진다.
+        isSprinting = dashUnlocked;
     }
 
     /// <summary>
-    /// 스프린트 중 스태미나를 소모하고, 안 쓰는 동안 회복한다. 0이 되면 소진 상태로 잠기고
-    /// 100%로 완전히 회복되기 전까지는(부분 회복만으로는) 다시 스프린트할 수 없다.
-    /// isSprinting은 GetInput()이 저장한 "Shift 눌림" 원값을 여기서 실제 가능 여부로 덮어써서,
-    /// FixedUpdate의 속도 계산은 그대로 isSprinting만 보면 되게 한다.
+    /// 스프린트 중 스태미나를 소모하고, 안 쓰는 동안 회복한다. 대쉬는 1회성 소모품이라 게이지가
+    /// 0이 되는 순간 dashUnlocked 자체가 풀린다(PlayerStaminaBar가 자동으로 숨는다) — 다시
+    /// 쓰려면 DashPickup을 또 먹어야 한다(UnlockDash() 참고).
+    /// isSprinting은 GetInput()이 저장한 대쉬 해금 여부(dashUnlocked)를 여기서 실제 가능 여부로
+    /// 덮어써서, FixedUpdate의 속도 계산은 그대로 isSprinting만 보면 되게 한다.
     /// </summary>
     private void UpdateStamina()
     {
@@ -222,6 +228,9 @@ public class GamePlayerController : MonoBehaviour, IPlayable
             {
                 stamina = 0f;
                 staminaExhausted = true;
+                // 1회성 소모품: 다 쓰면 해금 자체가 풀린다. PlayerStaminaBar가 IsDashUnlocked()를
+                // 매 프레임 폴링하고 있어 게이지도 이 순간 자동으로 사라진다.
+                dashUnlocked = false;
             }
         }
         else
@@ -747,6 +756,19 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (health <= 0f) return;
         health = Mathf.Min(health + amount, maxHealth);
     }
+
+    /// <summary>
+    /// 필드에 드랍된 대쉬 픽업(DashPickup)을 먹으면 호출된다. 그 전까지는 Shift를 눌러도 대쉬(스프린트)가
+    /// 전혀 발동하지 않고, 머리 위 게이지도 나타나지 않는다(PlayerStaminaBar 참고).
+    /// </summary>
+    public void UnlockDash()
+    {
+        dashUnlocked = true;
+        stamina = staminaMax;
+        staminaExhausted = false;
+    }
+
+    public bool IsDashUnlocked() => dashUnlocked;
 
     // StageManager가 몬스터를 전부 잡았을 때도 호출하므로 public으로 연다.
     public void SpawnScoreCanvas()

@@ -1,12 +1,12 @@
 using UnityEngine;
 
-// 플레이어 머리 위에 항상 표시되는 스프린트 스태미나 게이지. GamePlayerController.GetStamina()/
-// GetMaxStamina()를 매 프레임 폴링한다(PlayerHealthBarUI/AmmoBarUI와 동일한 폴링 방식).
-// Monster/MonsterHealthBar.cs와 같은 "런타임에 배경/채움 자식 SpriteRenderer 2개를 만드는" 패턴을
-// 쓰지만, 몬스터 체력바와 달리 피격 시에만 잠깐 나타나는 게 아니라 항상 보여야 하므로 자동 숨김
-// 타이머는 없다. 아트가 없어 WeaponVisuals.Placeholder(1x1 흰 스프라이트, PPU 1)를 배경/채움 색으로
-// 각각 틴트해서 쓴다. 플레이어 프리팹 루트는 항상 스케일 1이라(몬스터처럼 프리팹마다 스케일이
-// 달라지지 않음) MonsterHealthBar의 부모 스케일 역보정 로직은 필요 없다.
+// 플레이어 머리 위에 표시되는 대쉬(스프린트) 스태미나 게이지. GamePlayerController.IsDashUnlocked()가
+// false인 동안(필드의 DashPickup을 먹기 전)은 완전히 숨겨져 있다가, 해금되는 순간부터 나타나서
+// GetStamina()/GetMaxStamina()를 매 프레임 폴링해 채워진다(PlayerHealthBarUI/AmmoBarUI와 동일한 폴링 방식).
+// Monster/MonsterHealthBar.cs와 같은 "런타임에 배경/채움 자식 SpriteRenderer 2개를 만드는" 패턴을 쓴다.
+// 아트가 없어 WeaponVisuals.Placeholder(1x1 흰 스프라이트, PPU 1)를 배경/채움 색으로 각각 틴트해서 쓴다.
+// 플레이어 프리팹 루트는 항상 스케일 1이라(몬스터처럼 프리팹마다 스케일이 달라지지 않음)
+// MonsterHealthBar의 부모 스케일 역보정 로직은 필요 없다.
 [RequireComponent(typeof(GamePlayerController))]
 public class PlayerStaminaBar : MonoBehaviour
 {
@@ -24,6 +24,8 @@ public class PlayerStaminaBar : MonoBehaviour
 
     private GamePlayerController playerController;
     private Transform fillTransform;
+    private SpriteRenderer bgRenderer;
+    private SpriteRenderer fillRenderer;
 
     private void Awake()
     {
@@ -33,6 +35,11 @@ public class PlayerStaminaBar : MonoBehaviour
 
     private void Update()
     {
+        bool unlocked = playerController.IsDashUnlocked();
+        bgRenderer.enabled = unlocked;
+        fillRenderer.enabled = unlocked;
+        if (!unlocked) return;
+
         float max = playerController.GetMaxStamina();
         float ratio = max > 0f ? Mathf.Clamp01(playerController.GetStamina() / max) : 0f;
         ApplyFillRatio(ratio);
@@ -42,7 +49,7 @@ public class PlayerStaminaBar : MonoBehaviour
     {
         var bgGO = new GameObject("StaminaBarBackground");
         bgGO.transform.SetParent(transform, false);
-        var bgRenderer = bgGO.AddComponent<SpriteRenderer>();
+        bgRenderer = bgGO.AddComponent<SpriteRenderer>();
         bgRenderer.sprite = WeaponVisuals.Placeholder;
         bgRenderer.color = backgroundColor;
         bgRenderer.sortingOrder = sortingOrder;
@@ -51,11 +58,15 @@ public class PlayerStaminaBar : MonoBehaviour
 
         var fillGO = new GameObject("StaminaBarFill");
         fillGO.transform.SetParent(transform, false);
-        var fillRenderer = fillGO.AddComponent<SpriteRenderer>();
+        fillRenderer = fillGO.AddComponent<SpriteRenderer>();
         fillRenderer.sprite = WeaponVisuals.Placeholder;
         fillRenderer.color = fillColor;
         fillRenderer.sortingOrder = sortingOrder + 1;
         fillTransform = fillGO.transform;
+
+        // 대쉬를 해금하기 전까지는 완전히 숨겨둔다(Update()가 매 프레임 해금 여부로 다시 켜고 끈다).
+        bgRenderer.enabled = false;
+        fillRenderer.enabled = false;
 
         ApplyFillRatio(1f);
     }
