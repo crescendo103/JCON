@@ -1279,6 +1279,10 @@ PrefabInstance:
       value: ZOMBIE RUSH
       objectReference: {fileID: 0}
     - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1782405618353810303, guid: 81d4ac4cdff65ba4f931584e62d0d031, type: 3}
       propertyPath: m_fontSize
       value: 48
       objectReference: {fileID: 0}
