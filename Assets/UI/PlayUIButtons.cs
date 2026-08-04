@@ -92,6 +92,7 @@ public class PlayUIButtons : MonoBehaviour
     }
 
     // 씬을 완전히 멈추고(다시 누르면 재개), 씬 전환 없이 그 자리에서 정지한다.
+    // 아이콘 토글(재생/정지 스프라이트 전환)은 PauseButton에 붙는 ButtonStateEffect가 전담한다.
     private void OnClickPause()
     {
         bool isPaused = Time.timeScale == 0f;

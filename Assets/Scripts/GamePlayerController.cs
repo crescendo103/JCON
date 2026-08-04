@@ -39,6 +39,10 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [SerializeField] private GameObject scoreCanvasPrefab;
     [SerializeField] private PlayerHitVignette hitVignette;
     [SerializeField] private PlayerHitBlink hitBlink;
+    [Tooltip("플레이어가 데미지를 입었을 때 재생되는 사운드. 여러 개 넣으면 순서대로 번갈아가며 재생된다")]
+    [SerializeField] private AudioClip[] hitSfxVariants;
+
+    private int hitSfxIndex;
 
     [Space(20f)]
     [SerializeField] private float health = 100f;
@@ -702,6 +706,18 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         weaponAudioSource.PlayOneShot(clip);
     }
 
+    // 피격 사운드를 배열 순서대로 번갈아가며 재생한다. 매번 무작위로 뽑지 않고 순환시키는 이유는
+    // 같은 클립이 연달아 두 번 재생되는 것을 방지해 더 다채롭게 들리게 하기 위함이다.
+    private void PlayNextHitSfx()
+    {
+        if (hitSfxVariants == null || hitSfxVariants.Length == 0 || weaponAudioSource == null) return;
+
+        AudioClip clip = hitSfxVariants[hitSfxIndex % hitSfxVariants.Length];
+        hitSfxIndex++;
+
+        if (clip != null) weaponAudioSource.PlayOneShot(clip);
+    }
+
     public void Hit(float dmg)
     {
         if (health <= 0f) return;
@@ -713,6 +729,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
         hitVignette?.PlayHitFlash();
         hitBlink?.PlayHitBlink();
+        PlayNextHitSfx();
 
         if (health <= 0f)
         {

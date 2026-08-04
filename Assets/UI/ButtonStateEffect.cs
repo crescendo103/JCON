@@ -17,11 +17,20 @@ public class ButtonStateEffect : MonoBehaviour,
     public float hoverAlpha = 0.6f;
     private float normalAlpha;
 
-    [Header("����")]
+    [Header("사운드")]
     public AudioSource audioSource;
     public AudioClip hoverSound;
     public AudioClip clickSound;
 
+    [Header("토글 스프라이트 (PauseButton 등, 클릭마다 두 스프라이트를 번갈아 표시)")]
+    [Tooltip("체크하면 클릭할 때마다 toggleSpriteOn/Off를 번갈아 표시한다. 처음엔 원래 스프라이트가 그대로 유지된다")]
+    public bool useToggleSprite = false;
+    [Tooltip("토글 On 상태(첫 클릭 후)에 표시할 스프라이트")]
+    public Sprite toggleSpriteOn;
+    [Tooltip("토글 Off 상태(다시 클릭한 후)에 표시할 스프라이트")]
+    public Sprite toggleSpriteOff;
+
+    private bool isToggledOn = false;
     private bool isHovering = false;
 
     void Awake()
@@ -57,11 +66,26 @@ public class ButtonStateEffect : MonoBehaviour,
         ApplyHoverState(false);
     }
 
-    // ���콺 ���� ���� (Ŭ�� ����)
+    // 마우스 버튼 누름 (클릭 시작)
     public void OnPointerDown(PointerEventData eventData)
     {
         //targetImage.sprite = pressedSprite;
         PlaySound(clickSound);
+        ApplyToggleSprite();
+    }
+
+    // 클릭마다 On/Off 스프라이트를 번갈아 표시한다. normalSprite도 같이 갱신해서, 이후 호버가
+    // 끝나(ApplyHoverState) 기본 상태로 되돌아갈 때 방금 토글된 스프라이트가 유지되게 한다.
+    void ApplyToggleSprite()
+    {
+        if (!useToggleSprite) return;
+
+        isToggledOn = !isToggledOn;
+        Sprite next = isToggledOn ? toggleSpriteOn : toggleSpriteOff;
+        if (next == null) return;
+
+        targetImage.sprite = next;
+        normalSprite = next;
     }
 
     // ���콺 ���� ��

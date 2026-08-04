@@ -236,6 +236,18 @@ PrefabInstance:
       propertyPath: fistsSwordHandOffset.y
       value: 0.28
       objectReference: {fileID: 0}
+    - target: {fileID: 1041822998418825666, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: hitSfxVariants.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1041822998418825666, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: 'hitSfxVariants.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 20621231461e8354597be31a35814e08, type: 3}
+    - target: {fileID: 1041822998418825666, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: 'hitSfxVariants.Array.data[1]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 458af0900b9501a42a36303dfcea8227, type: 3}
     - target: {fileID: 2872065270235520434, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
       propertyPath: m_Name
       value: Player (1)
@@ -161471,7 +161483,6 @@ MonoBehaviour:
   - {fileID: 5478521802825333582, guid: f4527893042b0db439ebd9da3320e888, type: 3}
   - {fileID: 2661308342582393227, guid: e2795957819212849a511c11573e5b66, type: 3}
   - {fileID: 4678136590098262935, guid: 8ce5658ec2618804bb12f5d8a3d40ccd, type: 3}
-  - {fileID: 5917822344967708076, guid: 8dbde09cac1326148a90ceb1f06cff40, type: 3}
   buildingSizes:
   - {x: 5, y: 2}
   - {x: 1, y: 1}
