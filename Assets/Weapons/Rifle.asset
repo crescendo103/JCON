@@ -14,15 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: "\uB77C\uC774\uD50C"
   category: 1
-  equippedSprite: {fileID: 21300000, guid: 7b2dcaffa07fceb4d81774f15bc6ebe3, type: 3}
-  pickupSprite: {fileID: 21300000, guid: 7b2dcaffa07fceb4d81774f15bc6ebe3, type: 3}
+  equippedSprite: {fileID: 21300000, guid: a5291ea130e20174691c3ab7775b30d2, type: 3}
+  pickupSprite: {fileID: 21300000, guid: a5291ea130e20174691c3ab7775b30d2, type: 3}
   useProceduralChainsawIcon: 0
-  slotIndex: 2
   attackAnimState: AttackShoot
   displayScale: 0.2
   weaponVisualPrefab: {fileID: 7260400950274265009, guid: bb1eaa6569b63a547b7445d955b205d2, type: 3}
-  damage: 12
-  cooldown: 0.2
+  damage: 8
+  cooldown: 0.25
   damageType: 1
   sfx: {fileID: 8300000, guid: 11113b8053263a54dbd16f06a0aba084, type: 3}
   breakSfx: {fileID: 8300000, guid: 98809d2fe68d3ef4ebb406d5ade3df36, type: 3}

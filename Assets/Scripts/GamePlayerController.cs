@@ -7,14 +7,6 @@ using UnityEngine.Rendering;
 [RequireComponent(typeof(Rigidbody2D))]
 public class GamePlayerController : MonoBehaviour, IPlayable
 {
-    private static readonly KeyCode[] SlotKeys =
-    {
-        KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5
-    };
-
-    // 숫자키 1번(슬롯 0)은 항상 맨손 기본공격 전용으로 예약한다. ownedWeapons[FistsSlot]은
-    // 절대 채워지지 않으므로 언제든 눌러 맨손으로 되돌아갈 수 있다.
-    private const int FistsSlot = 0;
     // Pixem 파츠 잔재라 sortingOrder가 Body와 같은 0이라 몸통에 가려진다. WeaponMuzzle과 같은 레벨로 끌어올린다.
     private const int HandWeaponSortingOrder = 4;
 
@@ -90,14 +82,10 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     private bool isInvincible;
 
 
-    // 숫자키 1~5 = 슬롯 0~4. 슬롯 0(FistsSlot)은 맨손 전용으로 항상 비어있다.
-    // 1~4는 비어있으면(null) 아직 못 주운 무기.
-    private readonly GameWeaponData[] ownedWeapons = new GameWeaponData[5];
-    // ownedWeapons와 같은 인덱싱(슬롯 0~4)의 현재 탄약. GameWeaponData는 픽업들이 공유하는
-    // ScriptableObject라 현재 탄약을 거기에 저장할 수 없어, 런타임 상태는 여기에만 둔다.
-    private readonly int[] ammoInSlot = new int[5];
-    private int currentSlot = FistsSlot;
     private GameWeaponData equippedWeapon;
+    // 현재 장착 무기의 남은 탄약. GameWeaponData는 픽업들이 공유하는 ScriptableObject라
+    // 런타임 상태를 거기 저장할 수 없어 여기 둔다. 맨손이거나 무제한 무기면 의미 없음.
+    private int equippedAmmo;
     // 장착 시 weaponVisualPrefab을 스폰해 만들어지고, 무기를 바꾸거나 벗을 때 파괴된다.
     private GameObject weaponVisualInstance;
     private SpriteRenderer weaponRenderer;
@@ -162,7 +150,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // 무기는 더 이상 마우스를 따라 움직이지 않고, 머리 밑 고정 위치에 그대로 표시된다.
         if (weaponSocket != null) weaponSocket.localPosition = weaponHeldOffset;
 
-        EquipSlot(FistsSlot);
+        EquipWeapon(null);
     }
 
     private void Update()
@@ -172,7 +160,6 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         GetInput();
         UpdateStamina();
         Move();
-        HandleWeaponSwitch();
         Click();
         TickFistsSword();
     }
@@ -317,25 +304,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         return toMouse.sqrMagnitude > 0.0001f ? toMouse.normalized : Vector2.right;
     }
 
-    /// <summary>
-    /// 숫자키 1~5로 무기 슬롯을 전환. 1번(FistsSlot)은 항상 가능하고, 2~5는 아직 못 주운 슬롯(null)이면 무시.
-    /// </summary>
-    private void HandleWeaponSwitch()
+    private void EquipWeapon(GameWeaponData weapon)
     {
-        for (int i = 0; i < SlotKeys.Length; i++)
-        {
-            if (Input.GetKeyDown(SlotKeys[i]) && (i == FistsSlot || ownedWeapons[i] != null))
-            {
-                EquipSlot(i);
-                break;
-            }
-        }
-    }
-
-    private void EquipSlot(int slot)
-    {
-        currentSlot = slot;
-        var weapon = ownedWeapons[slot];
         equippedWeapon = weapon;
 
         UpdateFistsSword(weapon == null);
@@ -459,22 +429,20 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     }
 
     /// <summary>
-    /// 필드에서 무기를 주웠을 때 호출(WeaponPickup에서 호출). 해당 슬롯에 등록하고 바로 장착한다.
+    /// 필드에서 무기를 주웠을 때 호출(WeaponPickup에서 호출). 에어드랍은 항상 마지막에 먹은 것만
+    /// 남는다 — 이전에 들고 있던 무기는 여기서 그냥 버려진다.
     /// </summary>
     public void PickupWeapon(GameWeaponData weapon)
     {
         if (weapon == null) return;
 
-        // FistsSlot(0)은 맨손 전용으로 예약되어 있어 주운 무기가 덮어쓰지 못하게 클램프한다.
-        int slot = Mathf.Clamp(weapon.slotIndex, FistsSlot + 1, ownedWeapons.Length - 1);
-        ownedWeapons[slot] = weapon;
-        ammoInSlot[slot] = weapon.maxAmmo;
-        EquipSlot(slot);
+        equippedAmmo = weapon.maxAmmo;
+        EquipWeapon(weapon);
     }
 
     private void Click()
     {
-        var weapon = currentSlot >= 0 ? ownedWeapons[currentSlot] : null;
+        var weapon = equippedWeapon;
         bool holdFire = weapon != null && (weapon.category == WeaponCategory.Ranged || weapon.meleeMode == MeleeAttackMode.HoldContinuous);
 
         // 온스크린 공격 버튼(우측하단)을 마우스 왼쪽 버튼과 동등하게 취급한다. ConsumePress()는 호출 즉시
@@ -538,24 +506,24 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     {
         if (weapon == null || weapon.category != WeaponCategory.Ranged || weapon.maxAmmo <= 0) return true;
 
-        if (ammoInSlot[currentSlot] <= 0) return false;
+        if (equippedAmmo <= 0) return false;
 
-        ammoInSlot[currentSlot]--;
+        equippedAmmo--;
         return true;
     }
 
     /// <summary>
     /// 마지막 탄을 쏜 직후 호출. 빈 총을 들고 딜레이 없이 계속 전투할 수 있게 맨손으로 되돌린다.
-    /// 무기는 슬롯에 남아 있어, 같은 무기를 다시 주우면 탄약이 충전된다.
+    /// 무기는 그대로 버려진다(다시 쓰려면 에어드랍을 또 먹어야 한다).
     /// </summary>
     private void SwitchToFistsIfOutOfAmmo(GameWeaponData weapon)
     {
         if (weapon == null || weapon.category != WeaponCategory.Ranged || weapon.maxAmmo <= 0) return;
-        if (ammoInSlot[currentSlot] > 0) return;
+        if (equippedAmmo > 0) return;
 
         if (weapon.breakSfx != null && weaponAudioSource != null) StartCoroutine(PlayBreakSfxDelayed(weapon.breakSfx));
 
-        EquipSlot(FistsSlot);
+        EquipWeapon(null);
     }
 
     /// <summary>총기 브로크(빈 총) 사운드를 발사 사운드와 겹치지 않도록 0.5초 뒤에 재생한다.</summary>
@@ -822,7 +790,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     /// </summary>
     public bool TryGetAmmo(out int current, out int max)
     {
-        var weapon = ownedWeapons[currentSlot];
+        var weapon = equippedWeapon;
         if (weapon == null || weapon.category != WeaponCategory.Ranged || weapon.maxAmmo <= 0)
         {
             current = 0;
@@ -830,7 +798,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
             return false;
         }
 
-        current = ammoInSlot[currentSlot];
+        current = equippedAmmo;
         max = weapon.maxAmmo;
         return true;
     }

@@ -14,18 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: "\uC804\uAE30\uD1B1"
   category: 0
-  equippedSprite: {fileID: 0}
-  pickupSprite: {fileID: 0}
-  useProceduralChainsawIcon: 1
-  slotIndex: 1
+  equippedSprite: {fileID: 21300000, guid: 46cfb2ea41854d4099321082c9167b34, type: 3}
+  pickupSprite: {fileID: 21300000, guid: 46cfb2ea41854d4099321082c9167b34, type: 3}
+  useProceduralChainsawIcon: 0
   attackAnimState: AttackPrick
-  displayScale: 0.2
+  displayScale: 0.4
   weaponVisualPrefab: {fileID: 5970877871123900641, guid: 3a3f2955dbe09bc4ca7d576f50692dc9, type: 3}
-  damage: 8
+  damage: 10
   cooldown: 0.3
   damageType: 0
   sfx: {fileID: 8300000, guid: 2cab7de05c5c3094b87986c4061cf73a, type: 3}
   breakSfx: {fileID: 8300000, guid: b14c8ae068cdfe64e84b08cde6a5526f, type: 3}
+  knockbackDistance: 0
   meleeMode: 1
   meleeRange: 0.7
   meleeHitRadius: 1

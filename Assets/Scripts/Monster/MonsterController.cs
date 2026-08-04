@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 // 피격 시 넉백 세기/무적시간을 다르게 적용하기 위한 데미지 종류.
 public enum DamageType { Light, Normal, Heavy }
@@ -91,13 +90,6 @@ public class MonsterController : MonoBehaviour
     // 현재 쿨타임이 진행 중인 스킬들. 코루틴이 채우고/비운다. (몬스터 인스턴스별 상태)
     private readonly HashSet<SkillData> skillsOnCooldown = new HashSet<SkillData>();
 
-    // 임시 테스트용: 숫자 키(1~9)를 눌러 data.skills에 등록된 스킬을 순서대로 사용해본다.
-    private static readonly Key[] SkillTestKeys =
-    {
-        Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5,
-        Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9
-    };
-
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -133,7 +125,6 @@ public class MonsterController : MonoBehaviour
             FindPlayer();
         }
 
-        HandleSkillTestInput();
         UpdateIdleSound();
 
         // AI가 이번 프레임에 MoveTowards를 호출하지 않으면(공격 중, 사거리 안 등) 자동으로 멈춘다.
@@ -149,19 +140,6 @@ public class MonsterController : MonoBehaviour
     {
         if (isDead || isKnockedBack || rb == null || StageManager.IsGameOver) return;
         rb.linearVelocity = desiredVelocity;
-    }
-
-    private void HandleSkillTestInput()
-    {
-        if (Keyboard.current == null || data == null || data.skills == null) return;
-
-        for (int i = 0; i < data.skills.Length && i < SkillTestKeys.Length; i++)
-        {
-            if (Keyboard.current[SkillTestKeys[i]].wasPressedThisFrame)
-            {
-                TriggerSkill(data.skills[i]);
-            }
-        }
     }
 
     // ── 플레이어 찾기 ──────────────────────────
