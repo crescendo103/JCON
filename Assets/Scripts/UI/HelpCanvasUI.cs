@@ -89,7 +89,8 @@ public class HelpCanvasUI : MonoBehaviour
     {
         var canvas = gameObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 50;
+        // MobileControlsCanvas(조이스틱)가 100이라 그보다 확실히 앞에 오도록 여유 있게 잡는다.
+        canvas.sortingOrder = 200;
 
         var scaler = gameObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -107,7 +108,7 @@ public class HelpCanvasUI : MonoBehaviour
             anchoredPos: Vector2.zero, size: Vector2.zero);
 
         var image = bg.gameObject.AddComponent<Image>();
-        image.color = new Color(0f, 0f, 0f, 0.85f);
+        image.color = new Color(0f, 0f, 0f, 1f); // 완전 불투명 — 뒤(조이스틱/플레이 화면)가 안 보이게.
         image.raycastTarget = true; // 뒤쪽(타이틀 화면) 클릭을 막는다.
     }
 
@@ -171,9 +172,16 @@ public class HelpCanvasUI : MonoBehaviour
             text: "Close", fontSize: 28, bold: false);
     }
 
+    // 인게임(PlayUIButtons)처럼 "닫으면 시작 화면으로" 대신 다른 동작이 필요한 호출부가
+    // 있으면 여기 등록한다. 비어 있으면 기존 그대로 시작 화면으로 돌아간다.
+    public System.Action onCloseOverride;
+
     private void OnClickClose()
     {
-        UINavigator.Instance.OpenStartSceneCanvas();
+        if (onCloseOverride != null)
+            onCloseOverride.Invoke();
+        else
+            UINavigator.Instance.OpenStartSceneCanvas();
     }
 
     // MobileControlsUI.CreateRect()와 동일한 헬퍼.

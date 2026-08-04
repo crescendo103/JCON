@@ -259,9 +259,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1572297735789920618}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 884, y: 486}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -55, y: -51}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &57319723188904966
@@ -992,15 +992,14 @@ RectTransform:
   m_GameObject: {fileID: 1615932700202247262}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.44636768, y: 2.593281, z: 1}
+  m_LocalScale: {x: 0.44636768, y: 2.333979, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2198030992151479745}
+  m_Children: []
   m_Father: {fileID: 1572297735789920618}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 711, y: 484}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -259, y: -51}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5224682404116712813
@@ -1031,7 +1030,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -612924460670876587, guid: aa6f58bfa9304834fac71247280b683c, type: 3}
+  m_Sprite: {fileID: -2432338389232187177, guid: d3ff5681e4a24584cad2b12919e17c52, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1109,7 +1108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b5248a291f543c4eb177c474d524759, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonStateEffect
-  hoverSprite: {fileID: -923591642235054994, guid: aa6f58bfa9304834fac71247280b683c, type: 3}
+  hoverSprite: {fileID: 0}
   hoverAlpha: 0.6
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
@@ -2066,81 +2065,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!1 &3249670371208357054
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2198030992151479745}
-  - component: {fileID: 5201626195332282200}
-  - component: {fileID: 175729580234444701}
-  m_Layer: 5
-  m_Name: Image
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &2198030992151479745
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3249670371208357054}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.167429, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5086381228166026446}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 2.9}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &5201626195332282200
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3249670371208357054}
-  m_CullTransparentMesh: 1
---- !u!114 &175729580234444701
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3249670371208357054}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: -2432338389232187177, guid: d3ff5681e4a24584cad2b12919e17c52, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &3678159584895007228
 GameObject:
   m_ObjectHideFlags: 0
@@ -2175,9 +2099,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1572297735789920618}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 800, y: 486}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -155, y: -51}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4058047845342939500
@@ -3747,6 +3671,7 @@ GameObject:
   - component: {fileID: 4047488251588400674}
   - component: {fileID: 6257392813129191869}
   - component: {fileID: 2477572526789858878}
+  - component: {fileID: 2877465526356120787}
   m_Layer: 5
   m_Name: PlayUI 1
   m_TagString: Untagged
@@ -3844,6 +3769,25 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &2877465526356120787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8544199094429262168}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f7f6de7c9165724b94d6e3f5e65edf5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayUIButtons
+  chainsawIcon: {fileID: 21300000, guid: 46cfb2ea41854d4099321082c9167b34, type: 3}
+  rifleIcon: {fileID: 21300000, guid: 7b2dcaffa07fceb4d81774f15bc6ebe3, type: 3}
+  shotgunIcon: {fileID: 21300000, guid: 91c2cdc50a9254441a87d44de8453103, type: 3}
+  sniperIcon: {fileID: 21300000, guid: 6d0bcb00a713ad6418700cb4cd697ba0, type: 3}
+  weaponDropIcon: {fileID: -1892719683055620533, guid: fc66d17542a96b44abe312adaddb88a4, type: 3}
+  healingDropIcon: {fileID: -4236122357907743482, guid: 24f05e63c1eca6643870b83b9d86a0b9, type: 3}
+  dashDropIcon: {fileID: -5161842562624495943, guid: da1ddaf4341c65741bb8fa8a98122f7a, type: 3}
 --- !u!1 &8872748735646551477
 GameObject:
   m_ObjectHideFlags: 0

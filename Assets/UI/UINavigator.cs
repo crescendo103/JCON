@@ -52,6 +52,10 @@ public class UINavigator : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    // OpenCanvas가 실제로 씬을 새로 로드해야 할 때(다른 씬에서 호출했을 때), 로드가 끝난 뒤
+    // 켜야 할 캔버스 이름을 잠깐 들고 있는다. sceneLoaded 콜백에서 꺼내 쓰고 바로 비운다.
+    private string pendingCanvasName;
+
     /// <summary>
     /// sceneName 씬을 열고(이미 그 씬이면 로드를 생략한다), 그 씬의 최상위 오브젝트 중
     /// CanvasTag가 붙은 것들 가운데 canvasName과 이름이 같은 것만 켜고 나머지는 끈다.
@@ -65,9 +69,28 @@ public class UINavigator : MonoBehaviour
         AudioListener.pause = false;
 
         if (SceneManager.GetActiveScene().name != sceneName)
+        {
+            // 지금과 다른 씬으로 처음 넘어가는 경우다. LoadScene 호출 직후 곧바로
+            // GetRootGameObjects()를 훑으면 씬이 아직 완전히 준비되지 않아 대상 캔버스를
+            // 못 찾을 때가 있었다(간헐적). sceneLoaded 콜백에서 씬이 다 준비된 뒤에 처리한다.
+            pendingCanvasName = canvasName;
+            SceneManager.sceneLoaded += OnTargetSceneLoaded;
             SceneManager.LoadScene(sceneName);
+            return;
+        }
 
-        GameObject[] roots = SceneManager.GetActiveScene().GetRootGameObjects();
+        ActivateCanvas(SceneManager.GetActiveScene(), canvasName);
+    }
+
+    private void OnTargetSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnTargetSceneLoaded;
+        ActivateCanvas(scene, pendingCanvasName);
+    }
+
+    private void ActivateCanvas(Scene scene, string canvasName)
+    {
+        GameObject[] roots = scene.GetRootGameObjects();
         bool found = false;
 
         foreach (GameObject root in roots)
@@ -83,7 +106,7 @@ public class UINavigator : MonoBehaviour
         }
 
         if (!found)
-            Debug.LogWarning("[UINavigator] '" + canvasName + "' 이름의 " + CanvasTag + " 태그 오브젝트를 " + sceneName + " 씬에서 찾지 못했다.");
+            Debug.LogWarning("[UINavigator] '" + canvasName + "' 이름의 " + CanvasTag + " 태그 오브젝트를 " + scene.name + " 씬에서 찾지 못했다.");
     }
 
     // 예시: 홈 버튼(또는 홈 키)을 누르면 이 메서드를 호출하면 된다.
