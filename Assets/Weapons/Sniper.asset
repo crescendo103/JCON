@@ -31,7 +31,7 @@ MonoBehaviour:
   meleeHitRadius: 0.6
   maxTargets: 1
   bulletPrefab: {fileID: 3198205077590414770, guid: fda04be3b728c5d4bab6c0a0898168a3, type: 3}
-  projectileSpeed: 35
+  projectileSpeed: 70
   projectileMaxDistance: 30
   pelletCount: 1
   spreadAngleDeg: 0

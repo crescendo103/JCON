@@ -102,17 +102,24 @@ public class UINavigator : MonoBehaviour
         OpenCanvas(UISceneName, "ScoreCanvas");
     }
 
+
     // 테스트용: 도움말 화면.
+
+    // 타이틀 화면 오른쪽 하단 별 버튼(HelpButton)에서 호출. HelpCanvasUI가 런타임에 만들어
+    // "UICanvas" 태그를 붙여둔 "HelpCanvas" 오브젝트를 켠다(StartSceneCanvasButtons.Awake() 참고).
+
     public void OpenHelpCanvas()
     {
         OpenCanvas(UISceneName, "HelpCanvas");
     }
+
 
     // 테스트용: 게임 포기 확인 화면.
     public void OpenGiveUpCanvas()
     {
         OpenCanvas(UISceneName, "GiveUpCanvas");
     }
+
 
     /// <summary>
     /// 스테이지 선택 화면에서 스테이지 버튼을 눌렀을 때 호출한다.

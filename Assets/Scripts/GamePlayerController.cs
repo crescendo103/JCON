@@ -51,8 +51,6 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     [SerializeField] private float staminaMax = 100f;
     [Tooltip("스프린트 중 초당 소모량")]
     [SerializeField] private float staminaDrainPerSecond = 25f;
-    [Tooltip("스프린트를 안 쓰는 동안 초당 회복량")]
-    [SerializeField] private float staminaRegenPerSecond = 15f;
     [SerializeField] private float fistsCooldown = 0.4f;
     [Tooltip("맨손(기본 공격)으로 때렸을 때 몬스터가 밀려나는 거리(월드 유닛). 0 이하면 몬스터 기본값 사용")]
     [SerializeField] private float fistsKnockbackDistance = 1.5f;
@@ -90,6 +88,14 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     private GameObject weaponVisualInstance;
     private SpriteRenderer weaponRenderer;
     private Transform weaponMuzzle;
+    // 무기 비주얼 자식 중 "AttackEffect"라는 이름을 가진 게 있으면(전기톱 파티클 등), 공격 입력이
+    // 들어오는 동안만 켠다(Click() 참고). 없는 무기는 계속 null이라 아무 영향이 없다.
+    private GameObject weaponAttackEffect;
+    // 무기 비주얼 자식 중 "ChainScroll"이라는 이름을 가진 게 있으면(전기톱 톱날 등), 공격 입력이
+    // 들어오는 동안 텍스처를 좌우로 스크롤해 체인이 도는 것처럼 보이게 한다(Click() 참고).
+    private SpriteRenderer chainScrollRenderer;
+    [Tooltip("ChainScroll 텍스처가 공격 중 초당 스크롤되는 UV 오프셋(텍스처 폭 배수). 클수록 빠르게 도는 것처럼 보인다")]
+    [SerializeField] private float chainScrollSpeed = 3f;
     // 좌우 반전 전의 원래 크기. UpdateWeaponFacing()이 매 프레임 부호만 바꿔 다시 곱한다.
     private float weaponVisualBaseScale = 1f;
     private float nextAttackTime;
@@ -197,16 +203,18 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     }
 
     /// <summary>
-    /// 스프린트 중 스태미나를 소모하고, 안 쓰는 동안 회복한다. 대쉬는 1회성 소모품이라 게이지가
-    /// 0이 되는 순간 dashUnlocked 자체가 풀린다(PlayerStaminaBar가 자동으로 숨는다) — 다시
-    /// 쓰려면 DashPickup을 또 먹어야 한다(UnlockDash() 참고).
+    /// 대쉬가 걸려 있는 동안(dashUnlocked) 이동 여부와 무관하게 스태미나를 계속 소모한다 — 회복은
+    /// 없다. 대쉬는 완전한 1회성 소모품이라 게이지가 0이 되는 순간 dashUnlocked 자체가 풀린다
+    /// (PlayerStaminaBar가 자동으로 숨는다) — 다시 쓰려면 DashPickup을 또 먹어야 한다(UnlockDash() 참고).
     /// isSprinting은 GetInput()이 저장한 대쉬 해금 여부(dashUnlocked)를 여기서 실제 가능 여부로
     /// 덮어써서, FixedUpdate의 속도 계산은 그대로 isSprinting만 보면 되게 한다.
     /// </summary>
     private void UpdateStamina()
     {
         bool wantsSprint = isSprinting;
-        bool activelySprinting = wantsSprint && !staminaExhausted && input != Vector2.zero;
+        // 이동 여부와 무관하게, 대쉬가 걸려 있는 동안은 계속 소모된다(DashPickup을 먹는 순간부터
+        // 실시간 카운트다운). 정지해 있어도 FixedUpdate에서 input이 0이라 속도에는 영향이 없다.
+        bool activelySprinting = wantsSprint && !staminaExhausted;
 
         if (activelySprinting)
         {
@@ -218,15 +226,6 @@ public class GamePlayerController : MonoBehaviour, IPlayable
                 // 1회성 소모품: 다 쓰면 해금 자체가 풀린다. PlayerStaminaBar가 IsDashUnlocked()를
                 // 매 프레임 폴링하고 있어 게이지도 이 순간 자동으로 사라진다.
                 dashUnlocked = false;
-            }
-        }
-        else
-        {
-            stamina += staminaRegenPerSecond * Time.deltaTime;
-            if (stamina >= staminaMax)
-            {
-                stamina = staminaMax;
-                staminaExhausted = false;
             }
         }
 
@@ -323,6 +322,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         weaponVisualInstance = null;
         weaponRenderer = null;
         weaponMuzzle = null;
+        weaponAttackEffect = null;
+        chainScrollRenderer = null;
     }
 
     // weaponSocket(머리 밑 고정 앵커) 아래에 무기 전용 비주얼 프리팹을 스폰하고, 그 안의 SpriteRenderer/Muzzle을 캐시해둔다.
@@ -337,6 +338,16 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
         weaponRenderer = weaponVisualInstance.GetComponentInChildren<SpriteRenderer>();
         weaponMuzzle = weaponVisualInstance.transform.Find("Muzzle");
+
+        // 전기톱 등 무기 비주얼에 "AttackEffect"라는 이름의 자식(파티클 등)이 있으면 캐시해두고,
+        // 평소엔 꺼둔다 — 프리팹 쪽 m_IsActive 오버라이드가 이미 꺼두지만 이중 안전장치.
+        Transform attackEffectTransform = weaponVisualInstance.transform.Find("AttackEffect");
+        weaponAttackEffect = attackEffectTransform != null ? attackEffectTransform.gameObject : null;
+        if (weaponAttackEffect != null) weaponAttackEffect.SetActive(false);
+
+        // 전기톱 등 무기 비주얼에 "ChainScroll"이라는 이름의 자식(톱날 텍스처)이 있으면 캐시해둔다.
+        Transform chainScrollTransform = weaponVisualInstance.transform.Find("ChainScroll");
+        chainScrollRenderer = chainScrollTransform != null ? chainScrollTransform.GetComponent<SpriteRenderer>() : null;
 
         Sprite equipSource = weapon.equippedSprite;
         if (equipSource == null && weapon.useProceduralChainsawIcon) equipSource = WeaponVisuals.ChainsawIcon;
@@ -449,6 +460,20 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // 플래그를 지우므로 이 Update 프레임 안에서 정확히 한 번만 읽는다(GetKeyDown과 같은 1프레임 의미).
         bool attackHeld = Input.GetKey(KeyCode.Mouse0) || OnScreenAttackButton.Held;
         bool attackPressed = Input.GetKeyDown(KeyCode.Mouse0) || OnScreenAttackButton.ConsumePress();
+
+        // 연사형(전기톱 등) 무기의 AttackEffect는 실제로 틱이 나가는지와 무관하게 공격 입력을
+        // 누르고 있는 동안 계속 켜져 있어야 한다(눌린 순간 켜지고 떼는 순간 바로 꺼짐).
+        bool activelyAttacking = holdFire && attackHeld;
+        if (weaponAttackEffect != null) weaponAttackEffect.SetActive(activelyAttacking);
+
+        // 톱날(체인) 텍스처를 좌우로 스크롤해 도는 것처럼 보이게 한다. 텍스처가 Repeat로
+        // 설정돼 있어 오프셋이 얼마가 되든 이음매 없이 반복되므로, 멈출 때 되돌릴 필요가 없다.
+        if (chainScrollRenderer != null && activelyAttacking)
+        {
+            Vector2 offset = chainScrollRenderer.material.mainTextureOffset;
+            offset.x += chainScrollSpeed * Time.deltaTime;
+            chainScrollRenderer.material.mainTextureOffset = offset;
+        }
 
         if (holdFire)
         {
