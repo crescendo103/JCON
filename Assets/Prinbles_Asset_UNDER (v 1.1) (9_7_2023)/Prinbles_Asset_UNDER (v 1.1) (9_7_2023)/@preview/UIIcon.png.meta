@@ -1,0 +1,641 @@
+fileFormatVersion: 2
+guid: d3ff5681e4a24584cad2b12919e17c52
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -664915128074494106
+    second: UIIcon_0
+  - first:
+      213: -2432338389232187177
+    second: UIIcon_1
+  - first:
+      213: -8810441995771871577
+    second: UIIcon_2
+  - first:
+      213: -4065729793098734229
+    second: UIIcon_3
+  - first:
+      213: 4495214580369114748
+    second: UIIcon_4
+  - first:
+      213: 9056122867626727076
+    second: UIIcon_5
+  - first:
+      213: 9143239950324184722
+    second: UIIcon_6
+  - first:
+      213: -1441908102274551664
+    second: UIIcon_7
+  - first:
+      213: -6408458011140306103
+    second: UIIcon_8
+  - first:
+      213: 5167379180021431259
+    second: UIIcon_9
+  - first:
+      213: -3887642367180015134
+    second: UIIcon_10
+  - first:
+      213: 5042024357566003770
+    second: UIIcon_11
+  - first:
+      213: 1901425887049624689
+    second: UIIcon_12
+  - first:
+      213: -3041101666262570845
+    second: UIIcon_13
+  - first:
+      213: -2893009109414550511
+    second: UIIcon_14
+  - first:
+      213: 4259687707873275528
+    second: UIIcon_15
+  - first:
+      213: -4830062614218182871
+    second: UIIcon_16
+  - first:
+      213: -774280249551118185
+    second: UIIcon_17
+  - first:
+      213: -3998629132654199012
+    second: UIIcon_18
+  - first:
+      213: -6881500075762435945
+    second: UIIcon_19
+  - first:
+      213: -4201238636311382246
+    second: UIIcon_20
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: UIIcon_0
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 157
+        width: 123
+        height: 36
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66f1651c63fb5c6f0800000000000000
+      internalID: -664915128074494106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_1
+      rect:
+        serializedVersion: 2
+        x: 1088
+        y: 49
+        width: 52
+        height: 79
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d805404f199e3ed0800000000000000
+      internalID: -2432338389232187177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_2
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 52
+        width: 65
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ae75df3fa50bb580800000000000000
+      internalID: -8810441995771871577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_3
+      rect:
+        serializedVersion: 2
+        x: 137
+        y: 52
+        width: 65
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b65a0a95b40a397c0800000000000000
+      internalID: -4065729793098734229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_5
+      rect:
+        serializedVersion: 2
+        x: 214
+        y: 51
+        width: 65
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a6de2744cfcdad70800000000000000
+      internalID: 9056122867626727076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_6
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 103
+        width: 29
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 296bb37ba4053ee70800000000000000
+      internalID: 9143239950324184722
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_7
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 77
+        width: 58
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 090fa2578305dfbe0800000000000000
+      internalID: -1441908102274551664
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_8
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 102
+        width: 29
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94bc9ff64659017a0800000000000000
+      internalID: -6408458011140306103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_9
+      rect:
+        serializedVersion: 2
+        x: 377
+        y: 52
+        width: 50
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bdb3dec7cf736b740800000000000000
+      internalID: 5167379180021431259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_10
+      rect:
+        serializedVersion: 2
+        x: 434
+        y: 69
+        width: 19
+        height: 42
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e9f97a5dd15c0ac0800000000000000
+      internalID: -3887642367180015134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_11
+      rect:
+        serializedVersion: 2
+        x: 475
+        y: 52
+        width: 50
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3ab69d707ed8f540800000000000000
+      internalID: 5042024357566003770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_12
+      rect:
+        serializedVersion: 2
+        x: 524
+        y: 69
+        width: 40
+        height: 42
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17c235425c8336a10800000000000000
+      internalID: 1901425887049624689
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_13
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 52
+        width: 72
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a82290a526dbc5d0800000000000000
+      internalID: -3041101666262570845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_14
+      rect:
+        serializedVersion: 2
+        x: 680
+        y: 52
+        width: 58
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1146065fa87f9d7d0800000000000000
+      internalID: -2893009109414550511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_15
+      rect:
+        serializedVersion: 2
+        x: 762
+        y: 52
+        width: 56
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88e62e9c6637d1b30800000000000000
+      internalID: 4259687707873275528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_16
+      rect:
+        serializedVersion: 2
+        x: 842
+        y: 52
+        width: 53
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92f61a4a4ab28fcb0800000000000000
+      internalID: -4830062614218182871
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_17
+      rect:
+        serializedVersion: 2
+        x: 919
+        y: 52
+        width: 53
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 790a7e027343145f0800000000000000
+      internalID: -774280249551118185
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_18
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 55
+        width: 73
+        height: 72
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1f3e9f4df30288c0800000000000000
+      internalID: -3998629132654199012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_19
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 52
+        width: 28
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7983b5e04200080a0800000000000000
+      internalID: -6881500075762435945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UIIcon_20
+      rect:
+        serializedVersion: 2
+        x: 328
+        y: 52
+        width: 27
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a17730a28b332b5c0800000000000000
+      internalID: -4201238636311382246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: a28e4e658d3337847aa3930d95e14003
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      UIIcon_0: -664915128074494106
+      UIIcon_1: -2432338389232187177
+      UIIcon_10: -3887642367180015134
+      UIIcon_11: 5042024357566003770
+      UIIcon_12: 1901425887049624689
+      UIIcon_13: -3041101666262570845
+      UIIcon_14: -2893009109414550511
+      UIIcon_15: 4259687707873275528
+      UIIcon_16: -4830062614218182871
+      UIIcon_17: -774280249551118185
+      UIIcon_18: -3998629132654199012
+      UIIcon_19: -6881500075762435945
+      UIIcon_2: -8810441995771871577
+      UIIcon_20: -4201238636311382246
+      UIIcon_3: -4065729793098734229
+      UIIcon_4: 4495214580369114748
+      UIIcon_5: 9056122867626727076
+      UIIcon_6: 9143239950324184722
+      UIIcon_7: -1441908102274551664
+      UIIcon_8: -6408458011140306103
+      UIIcon_9: 5167379180021431259
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

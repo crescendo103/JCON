@@ -102,6 +102,18 @@ public class UINavigator : MonoBehaviour
         OpenCanvas(UISceneName, "ScoreCanvas");
     }
 
+    // 테스트용: 도움말 화면.
+    public void OpenHelpCanvas()
+    {
+        OpenCanvas(UISceneName, "HelpCanvas");
+    }
+
+    // 테스트용: 게임 포기 확인 화면.
+    public void OpenGiveUpCanvas()
+    {
+        OpenCanvas(UISceneName, "GiveUpCanvas");
+    }
+
     /// <summary>
     /// 스테이지 선택 화면에서 스테이지 버튼을 눌렀을 때 호출한다.
     /// CurrentStage를 지정한 뒤 스테이지 씬을 로드한다 (지금은 스테이지 전부 씬 하나를 공유).
