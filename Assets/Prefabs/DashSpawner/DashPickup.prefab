@@ -191,7 +191,7 @@ MonoBehaviour:
   landingEffectScale: 0.3
   unlockEffectPrefab: {fileID: 6891291519092082853, guid: f8c2d4cc44c53d348a31254d6ec12242, type: 3}
   unlockEffectScale: 0.25
-  pickupSfx: {fileID: 0}
+  pickupSfx: {fileID: 8300000, guid: 90c43365afcc809418b67f24c0907138, type: 3}
   fallingSfx: {fileID: 0}
 --- !u!82 &3500077240861162900
 AudioSource:
