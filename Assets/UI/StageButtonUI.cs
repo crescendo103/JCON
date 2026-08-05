@@ -153,6 +153,6 @@ public class StageButtonUI : MonoBehaviour, IPointerEnterHandler
     private void PlaySound(AudioClip clip)
     {
         if (clip != null)
-            audioSource.PlayOneShot(clip);
+            audioSource.PlayOneShot(clip, SoundSettings.SfxVolume);
     }
 }

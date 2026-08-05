@@ -13,6 +13,11 @@ using UnityEngine.UI;
 /// 다만 씬 전환은 하지 않는다: 지금 씬 위에 오버레이로 띄우고 게임을 멈췄다가,
 /// 닫으면 그대로 이어서 재생한다(onCloseOverride로 HelpCanvasUI의 기본 "시작 화면으로"
 /// 동작을 이 씬에 맞는 동작으로 바꿔치기한다).
+///
+/// RestartButton은 재시작을 바로 실행하지 않고, GiveUpConfirmCanvas 프리팹(게임을
+/// 포기하시겠습니까? 팝업)을 오버레이로 띄운다 — HelpButton과 같은 방식으로 게임을 멈춘다.
+/// 팝업의 Yes/No는 GiveUpConfirmCanvas.cs가 직접 처리한다(Yes: 스테이지 선택 화면으로,
+/// No: 씬 전환 없이 팝업만 닫고 게임을 이어서 재생).
 /// PlayUI 프리팹의 루트 오브젝트에 붙인다.
 /// </summary>
 public class PlayUIButtons : MonoBehaviour
@@ -33,7 +38,12 @@ public class PlayUIButtons : MonoBehaviour
     [Tooltip("DashPickup(아드레날린 주사)의 boxSprite와 같은 그림")]
     [SerializeField] private Sprite dashDropIcon;
 
+    [Header("게임 포기 확인 팝업")]
+    [Tooltip("Assets/Prefabs/TitleContainer/GiveUpConfirmCanvas.prefab을 연결")]
+    [SerializeField] private GameObject giveUpConfirmCanvasPrefab;
+
     private HelpCanvasUI helpCanvas;
+    private GameObject giveUpConfirmCanvas;
 
     private void Awake()
     {
@@ -45,7 +55,7 @@ public class PlayUIButtons : MonoBehaviour
             helpButton.onClick.AddListener(OnClickHelp);
 
         if (restartButton != null)
-            restartButton.onClick.AddListener(OnClickRestart);
+            restartButton.onClick.AddListener(OnClickGiveUp);
 
         if (pauseButton != null)
             pauseButton.onClick.AddListener(OnClickPause);
@@ -85,10 +95,24 @@ public class PlayUIButtons : MonoBehaviour
         AudioListener.pause = false;
     }
 
-    // 지금 스테이지를 처음부터 다시 로드한다.
-    private void OnClickRestart()
+    // "게임을 포기하시겠습니까?" 팝업을 지금 씬 위에 그대로 띄우고 게임을 멈춘다.
+    // 닫힐 때(Yes/No 모두) 게임을 다시 재생시키는 처리는 GiveUpConfirmCanvas.cs가 맡는다.
+    private void OnClickGiveUp()
     {
-        UINavigator.Instance.ReloadCurrentScene();
+        if (giveUpConfirmCanvas == null)
+        {
+            if (giveUpConfirmCanvasPrefab == null)
+            {
+                Debug.LogWarning("[PlayUIButtons] giveUpConfirmCanvasPrefab이 연결되지 않았다.");
+                return;
+            }
+
+            giveUpConfirmCanvas = Instantiate(giveUpConfirmCanvasPrefab);
+        }
+
+        Time.timeScale = 0f;
+        AudioListener.pause = true;
+        giveUpConfirmCanvas.SetActive(true);
     }
 
     // 씬을 완전히 멈추고(다시 누르면 재개), 씬 전환 없이 그 자리에서 정지한다.

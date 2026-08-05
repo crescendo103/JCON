@@ -24,6 +24,12 @@ public class StartSceneCanvasButtons : MonoBehaviour
     [Tooltip("DashPickup(아드레날린 주사)의 boxSprite와 같은 그림")]
     [SerializeField] private Sprite dashDropIcon;
 
+    [Header("사운드 설정 팝업")]
+    [Tooltip("Assets/Prefabs/TitleContainer/SoundSettingsCanvas.prefab을 연결")]
+    [SerializeField] private GameObject soundSettingsCanvasPrefab;
+
+    private GameObject soundSettingsCanvas;
+
     private void Awake()
     {
         Button playButton = FindButton("PlayButton");
@@ -35,6 +41,11 @@ public class StartSceneCanvasButtons : MonoBehaviour
 
         if (helpButton != null)
             helpButton.onClick.AddListener(OnClickHelp);
+
+        Button soundButton = FindButton("SoundButton");
+
+        if (soundButton != null)
+            soundButton.onClick.AddListener(OnClickSound);
 
         // UINavigator.OpenCanvas()는 씬에 이미 존재하는 루트 오브젝트만 이름으로 찾으므로,
         // HelpButton을 누르기 전에 미리 만들어 둔다(GamePlayerController.Awake()가
@@ -68,5 +79,23 @@ public class StartSceneCanvasButtons : MonoBehaviour
     private void OnClickHelp()
     {
         UINavigator.Instance.OpenHelpCanvas();
+    }
+
+    // 사운드 설정 팝업(배경음악/효과음 슬라이더)을 지금 씬 위에 그대로 띄운다. 씬 전환이 없으므로
+    // 닫을 때(BackButton, SoundSettingsUI.cs)도 그냥 이 캔버스만 끄고 타이틀 화면으로 돌아온다.
+    private void OnClickSound()
+    {
+        if (soundSettingsCanvas == null)
+        {
+            if (soundSettingsCanvasPrefab == null)
+            {
+                Debug.LogWarning("[StartSceneCanvasButtons] soundSettingsCanvasPrefab이 연결되지 않았다.");
+                return;
+            }
+
+            soundSettingsCanvas = Instantiate(soundSettingsCanvasPrefab);
+        }
+
+        soundSettingsCanvas.SetActive(true);
     }
 }

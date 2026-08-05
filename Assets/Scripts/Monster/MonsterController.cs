@@ -377,7 +377,7 @@ public class MonsterController : MonoBehaviour
 
         if (skill.sfx != null)
         {
-            AudioSource.PlayClipAtPoint(skill.sfx, spawnPos);
+            AudioSource.PlayClipAtPoint(skill.sfx, spawnPos, SoundSettings.SfxVolume);
         }
     }
 
@@ -647,7 +647,7 @@ public class MonsterController : MonoBehaviour
 
         if (DistanceToTarget() > idleSoundRange) return;
 
-        idleAudioSource.PlayOneShot(idleSfx);
+        idleAudioSource.PlayOneShot(idleSfx, SoundSettings.SfxVolume);
         idleSoundCooldown = idleSoundInterval;
     }
 }

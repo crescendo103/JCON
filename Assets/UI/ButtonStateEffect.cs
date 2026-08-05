@@ -128,6 +128,6 @@ public class ButtonStateEffect : MonoBehaviour,
     void PlaySound(AudioClip clip)
     {
         if (clip != null)
-            audioSource.PlayOneShot(clip);
+            audioSource.PlayOneShot(clip, SoundSettings.SfxVolume);
     }
 }

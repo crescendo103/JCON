@@ -34,11 +34,24 @@ public class SoundManager : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         audioSource.loop = true;
         audioSource.playOnAwake = false;
-        audioSource.volume = volumeMultiplier;
+        audioSource.volume = volumeMultiplier * SoundSettings.BgmVolume;
 
         scoreboardAudioSource = gameObject.AddComponent<AudioSource>();
         scoreboardAudioSource.playOnAwake = false;
         scoreboardAudioSource.ignoreListenerPause = true;
+
+        // 사운드 설정 캔버스의 배경음악 슬라이더를 움직이면 재생 중인 곡에도 바로 반영한다.
+        SoundSettings.BgmVolumeChanged += ApplyBgmVolume;
+    }
+
+    private void OnDestroy()
+    {
+        SoundSettings.BgmVolumeChanged -= ApplyBgmVolume;
+    }
+
+    private void ApplyBgmVolume(float bgmVolume)
+    {
+        audioSource.volume = volumeMultiplier * bgmVolume;
     }
 
     private void Start()

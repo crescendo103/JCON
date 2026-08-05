@@ -33,6 +33,6 @@ public class PlayerFootstepSound : MonoBehaviour
     {
         if (clip == null) return;
         audioSource.pitch = Random.Range(pitchRange.x, pitchRange.y);
-        audioSource.PlayOneShot(clip, volume);
+        audioSource.PlayOneShot(clip, volume * SoundSettings.SfxVolume);
     }
 }

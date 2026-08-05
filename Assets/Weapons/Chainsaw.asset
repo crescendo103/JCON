@@ -23,7 +23,7 @@ MonoBehaviour:
   damage: 10
   cooldown: 0.3
   damageType: 0
-  sfx: {fileID: 8300000, guid: 2cab7de05c5c3094b87986c4061cf73a, type: 3}
+  sfx: {fileID: 8300000, guid: 90375d9e2e002654d82283cd5bcc1c29, type: 3}
   breakSfx: {fileID: 8300000, guid: b14c8ae068cdfe64e84b08cde6a5526f, type: 3}
   knockbackDistance: 0
   meleeMode: 1

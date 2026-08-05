@@ -559,7 +559,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     private IEnumerator PlayBreakSfxDelayed(AudioClip clip)
     {
         yield return new WaitForSeconds(0.5f);
-        if (weaponAudioSource != null) weaponAudioSource.PlayOneShot(clip);
+        if (weaponAudioSource != null) weaponAudioSource.PlayOneShot(clip, SoundSettings.SfxVolume);
     }
 
     /// <summary>
@@ -703,7 +703,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         AudioClip clip = weapon != null ? weapon.sfx : fistsAttackSfx;
         if (clip == null) return;
 
-        weaponAudioSource.PlayOneShot(clip);
+        weaponAudioSource.PlayOneShot(clip, SoundSettings.SfxVolume);
     }
 
     // 피격 사운드를 배열 순서대로 번갈아가며 재생한다. 매번 무작위로 뽑지 않고 순환시키는 이유는
@@ -715,7 +715,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         AudioClip clip = hitSfxVariants[hitSfxIndex % hitSfxVariants.Length];
         hitSfxIndex++;
 
-        if (clip != null) weaponAudioSource.PlayOneShot(clip);
+        if (clip != null) weaponAudioSource.PlayOneShot(clip, SoundSettings.SfxVolume);
     }
 
     public void Hit(float dmg)

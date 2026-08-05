@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 6711323012888631513}
   - component: {fileID: 1360735012204366969}
   - component: {fileID: 9025236836099271988}
+  - component: {fileID: 6593781442265333208}
   m_Layer: 5
   m_Name: SelectStageUI
   m_TagString: UICanvas
@@ -183,6 +184,19 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &6593781442265333208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 109126778517356589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a855880e69220a41990e9d9b7dfdba5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SelectStageUIButtons
+  soundSettingsCanvasPrefab: {fileID: 7955001019727951292, guid: f885774bc295b3d43a74b60aeed08f57, type: 3}
 --- !u!1 &333123718257861009
 GameObject:
   m_ObjectHideFlags: 0
@@ -591,8 +605,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 4
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -770,7 +784,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 219, y: 0}
+  m_AnchoredPosition: {x: 204, y: 0}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1494728793548900124
@@ -835,7 +849,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -1090,8 +1104,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 18
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1253,6 +1267,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &2049373911098460569
 GameObject:
   m_ObjectHideFlags: 0
@@ -1320,8 +1337,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 9
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1558,6 +1575,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &2483133347662208849
 GameObject:
   m_ObjectHideFlags: 0
@@ -1625,8 +1645,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 3
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1904,6 +1924,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &2718107682755835109
 GameObject:
   m_ObjectHideFlags: 0
@@ -2113,6 +2136,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &2999324301762221670
 GameObject:
   m_ObjectHideFlags: 0
@@ -2433,8 +2459,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 2
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5236,6 +5262,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &3278407084156239629
 GameObject:
   m_ObjectHideFlags: 0
@@ -5457,8 +5486,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 17
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5695,6 +5724,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &4044301061047693787
 GameObject:
   m_ObjectHideFlags: 0
@@ -5762,8 +5794,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 7
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6003,6 +6035,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &4338806689442447341
 GameObject:
   m_ObjectHideFlags: 0
@@ -6070,8 +6105,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 8
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6424,6 +6459,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &4840687806136463094
 GameObject:
   m_ObjectHideFlags: 0
@@ -6517,6 +6555,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &4844555719991662709
 GameObject:
   m_ObjectHideFlags: 0
@@ -6726,6 +6767,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &5019343457285726259
 GameObject:
   m_ObjectHideFlags: 0
@@ -6935,6 +6979,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &5054296094257363253
 GameObject:
   m_ObjectHideFlags: 0
@@ -7002,8 +7049,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 15
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7562,8 +7609,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 13
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7699,8 +7746,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 6
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7836,8 +7883,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 14
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8115,6 +8162,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &6029765052925044241
 GameObject:
   m_ObjectHideFlags: 0
@@ -8182,8 +8232,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 16
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8420,6 +8470,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &6254064337719439907
 GameObject:
   m_ObjectHideFlags: 0
@@ -8588,6 +8641,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &6581458988298456619
 GameObject:
   m_ObjectHideFlags: 0
@@ -8756,6 +8812,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &6645906195432100410
 GameObject:
   m_ObjectHideFlags: 0
@@ -8823,8 +8882,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 10
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8986,6 +9045,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &6736666499853485411
 GameObject:
   m_ObjectHideFlags: 0
@@ -9053,8 +9115,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 11
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9190,8 +9252,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 12
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9637,8 +9699,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9845,6 +9907,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &7914237439455269845
 GameObject:
   m_ObjectHideFlags: 0
@@ -10227,6 +10292,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &8361162127978663655
 GameObject:
   m_ObjectHideFlags: 0
@@ -10369,8 +10437,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: stage 5
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
+  m_sharedMaterial: {fileID: 656547132279748123, guid: 1426a1f6d51e7264db05f94cc0725af1, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -10532,6 +10600,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &8583774020239983103
 GameObject:
   m_ObjectHideFlags: 0
@@ -11097,6 +11168,9 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSound: {fileID: 0}
   clickSound: {fileID: 0}
+  useToggleSprite: 0
+  toggleSpriteOn: {fileID: 0}
+  toggleSpriteOff: {fileID: 0}
 --- !u!1 &9070004904013191916
 GameObject:
   m_ObjectHideFlags: 0

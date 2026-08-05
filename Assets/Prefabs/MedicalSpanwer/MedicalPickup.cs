@@ -205,7 +205,7 @@ public class MedicalPickup : MonoBehaviour
         if (fallingSfx != null)
         {
             audioSource.loop = false;
-            audioSource.PlayOneShot(fallingSfx, fallingSfxVolume);
+            audioSource.PlayOneShot(fallingSfx, fallingSfxVolume * SoundSettings.SfxVolume);
         }
 
         float elapsed = 0f;
@@ -388,7 +388,7 @@ public class MedicalPickup : MonoBehaviour
         go.transform.position = position;
         var src = go.AddComponent<AudioSource>();
         src.spatialBlend = 1f;
-        src.PlayOneShot(clip, volumeScale);
+        src.PlayOneShot(clip, volumeScale * SoundSettings.SfxVolume);
         Destroy(go, clip.length);
     }
 
