@@ -183,7 +183,7 @@ public class StageMapGenerator : MonoBehaviour
         for (int dx = -1; dx <= 1; dx++)
             for (int dy = -1; dy <= 1; dy++)
             {
-                if (dx == 0 && dy == 0) continue;
+                if (dx == 0 && dy == 0) continue;//자기자신은 패스
                 int nx = x + dx, ny = y + dy;
                 if (nx < 0 || ny < 0 || nx >= width || ny >= height) { count++; continue; }
                 count += src[nx, ny];
@@ -333,6 +333,8 @@ public class StageMapGenerator : MonoBehaviour
     {
         if (decorationPrefabs.Length == 0) return;
 
+        //펄린노이즈는 시드값을 안받음
+        //좌표자체를 시드값으로 해결
         float offsetX = seed * 1000f;
         float offsetY = seed * 1000f;
 

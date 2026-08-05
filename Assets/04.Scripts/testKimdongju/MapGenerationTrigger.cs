@@ -8,7 +8,7 @@ public class MapGenerationTrigger : MonoBehaviour
 {
     public StageMapGenerator generator;
 
-    [Tooltip("�׽�Ʈ��: �� ���� �� �� ���������� �������")]
+    [Tooltip("디버그용 맵 시드값")]
     public int stageIndexForTesting = 1;
 
     [Tooltip("비워두면 \"Player\" 태그로 자동 탐색")]
