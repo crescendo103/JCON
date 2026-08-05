@@ -76,8 +76,14 @@ public class DashPickup : MonoBehaviour
     [Header("사운드")]
     [Tooltip("대쉬 해금 시 재생되는 사운드. 상자가 획득 직후 곧바로 파괴되므로 자체 AudioSource 대신 PlayClipAtPoint로 재생한다")]
     [SerializeField] private AudioClip pickupSfx;
+    [Tooltip("1을 넘기면 원본 클립보다 더 크게 증폭된다. 값이 너무 크면 소리가 찢어질(clipping) 수 있다")]
+    [Range(0f, 10f)]
+    [SerializeField] private float pickupSfxVolume = 1f;
     [Tooltip("스폰되어 낙하하는 동안(착지 전까지) 반복 재생되는 사운드")]
     [SerializeField] private AudioClip fallingSfx;
+    [Tooltip("1을 넘기면 원본 클립보다 더 크게 증폭된다")]
+    [Range(0f, 3f)]
+    [SerializeField] private float fallingSfxVolume = 1f;
 
     private AudioSource audioSource;
 
@@ -203,7 +209,7 @@ public class DashPickup : MonoBehaviour
         if (fallingSfx != null)
         {
             audioSource.loop = false;
-            audioSource.PlayOneShot(fallingSfx);
+            audioSource.PlayOneShot(fallingSfx, fallingSfxVolume);
         }
 
         float elapsed = 0f;
@@ -340,7 +346,7 @@ public class DashPickup : MonoBehaviour
         pc.UnlockDash();
         SpawnUnlockEffect(other.transform);
 
-        if (pickupSfx != null) AudioSource.PlayClipAtPoint(pickupSfx, transform.position);
+        if (pickupSfx != null) PlayClipAtPointAmplified(pickupSfx, transform.position, pickupSfxVolume);
 
         StartCoroutine(BreakRoutine());
     }
@@ -374,6 +380,20 @@ public class DashPickup : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+
+    // AudioSource.PlayClipAtPoint는 내부적으로 AudioSource.volume을 쓰는데, 이 속성은 1을 넘겨도
+    // 엔진이 그대로 클램프해서 소리가 커지지 않는다. PlayOneShot의 volumeScale은 클램프되지 않아
+    // 1 이상으로 실제 증폭되므로, 상자가 파괴된 뒤에도 재생을 마칠 임시 AudioSource를 직접 만들어
+    // PlayOneShot으로 재생한다(PlayClipAtPoint 대체).
+    private static void PlayClipAtPointAmplified(AudioClip clip, Vector3 position, float volumeScale)
+    {
+        var go = new GameObject("PickupSfx (temp)");
+        go.transform.position = position;
+        var src = go.AddComponent<AudioSource>();
+        src.spatialBlend = 1f;
+        src.PlayOneShot(clip, volumeScale);
+        Destroy(go, clip.length);
     }
 
     private static Sprite GetParachuteSprite()

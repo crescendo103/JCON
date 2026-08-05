@@ -365,7 +365,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 14
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -584,7 +583,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1083,7 +1082,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1313,7 +1312,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1618,7 +1617,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1803,7 +1802,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 13
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -2013,7 +2011,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 6
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -2360,7 +2357,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 4
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -2429,7 +2425,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -5385,7 +5381,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 5
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -5454,7 +5449,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -5759,7 +5754,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -6067,7 +6062,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -6252,7 +6247,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 16
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -6630,7 +6624,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 8
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -6840,7 +6833,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 3
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -7002,7 +6994,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -7187,7 +7179,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 10
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -7379,7 +7370,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 2
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -7496,7 +7486,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 17
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -7565,7 +7554,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -7702,7 +7691,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -7839,7 +7828,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -8024,7 +8013,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 12
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -8186,7 +8174,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -8827,7 +8815,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -9057,7 +9045,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -9194,7 +9182,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -9641,7 +9629,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -9964,7 +9952,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 18
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -10081,7 +10068,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 15
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -10375,7 +10361,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -10728,7 +10714,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 7
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -10935,7 +10920,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 9
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -11220,7 +11204,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 11
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}
@@ -11474,7 +11457,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonUI
   stageNumber: 1
   clearedSprite: {fileID: 234189154208601328, guid: 5dc747003f3806e468c1c0fdee31f298, type: 3}
-  unlockedSprite: {fileID: -5784643541303560050, guid: 574f152d37810514c9c95a1a59c1c37a, type: 3}
   lockedSprite: {fileID: 1637954016605795844, guid: 4505e285fda583741a8a6eb6067735c1, type: 3}
   starSprites:
   - {fileID: 21300000, guid: 948c61d79630d844298848fcfdb3f33f, type: 3}

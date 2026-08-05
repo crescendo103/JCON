@@ -18,8 +18,6 @@ public class GameWeaponData : ScriptableObject
     public Sprite pickupSprite;        // 필드 픽업 아이템에 표시될 스프라이트
     [Tooltip("equippedSprite가 비어 있을 때 코드로 그린 전기톱 아이콘을 자동으로 쓸지 여부. 실제 아트가 생겨 equippedSprite를 채우면 이 값과 무관하게 그 아트가 항상 우선된다")]
     public bool useProceduralChainsawIcon;
-    [Tooltip("숫자키 1~5 매핑용 슬롯 인덱스 (0~4)")]
-    public int slotIndex;
     [Tooltip("기존 Animator에 이미 있는 4개 공격 스테이트 중 재생할 이름")]
     public string attackAnimState = "AttackSlash";
 
