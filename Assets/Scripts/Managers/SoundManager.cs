@@ -16,9 +16,12 @@ public class SoundManager : MonoBehaviour
     [Tooltip("스테이지별로 순환 재생할 배경음악 목록. 인덱스 = (CurrentStage - 1) % bgmList.Length")]
     public AudioClip[] bgmList;
 
+<<<<<<< Updated upstream
     [Tooltip("SoundSettings.BgmVolume(0~1 슬라이더) 위에 그대로 더해지는 값. 슬라이더가 0(무음)이어도 이 값만큼은 항상 들리게 키울 수 있다. 음수를 주면 반대로 줄어든다(0 밑으로는 안 내려감)")]
     [SerializeField] private float volumeMultiplier = 0.5f;
 
+=======
+>>>>>>> Stashed changes
     [Tooltip("스코어보드(결과 화면)가 뜰 때 재생할 사운드. AudioListener.pause로 나머지 소리를 다 꺼도 이것만 들린다")]
     public AudioClip scoreboardSfx;
 
@@ -37,7 +40,14 @@ public class SoundManager : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         audioSource.loop = true;
         audioSource.playOnAwake = false;
+<<<<<<< Updated upstream
         audioSource.volume = Mathf.Max(0f, volumeMultiplier + SoundSettings.BgmVolume);
+=======
+        // BgmVolumeSync(타이틀 BGM)와 같은 공식으로 통일한다. 예전엔 배율 2를 곱했는데
+        // AudioSource.volume은 엔진이 [0,1]로 클램프해서(PlayClipAtPointAmplified 주석 참고)
+        // 슬라이더 0.5~1.0 구간 전체가 똑같이 최대 볼륨으로 뭉개지는 버그였다.
+        audioSource.volume = SoundSettings.BgmVolume;
+>>>>>>> Stashed changes
 
         scoreboardAudioSource = gameObject.AddComponent<AudioSource>();
         scoreboardAudioSource.playOnAwake = false;
@@ -54,7 +64,11 @@ public class SoundManager : MonoBehaviour
 
     private void ApplyBgmVolume(float bgmVolume)
     {
+<<<<<<< Updated upstream
         audioSource.volume = Mathf.Max(0f, volumeMultiplier + bgmVolume);
+=======
+        audioSource.volume = bgmVolume;
+>>>>>>> Stashed changes
     }
 
     private void Start()
@@ -109,8 +123,14 @@ public class SoundManager : MonoBehaviour
         if (scoreboardSfx == null || scoreboardAudioSource == null)
             return;
 
+<<<<<<< Updated upstream
         // 다른 효과음들과 같이 SoundSettings.SfxVolume(설정 슬라이더)을 따르면서, scoreboardVolumeMultiplier를
         // 그 위에 더해서 이 사운드만 따로 키우거나 줄인다(슬라이더가 0이어도 이 값만큼은 들리게 할 수 있다).
         scoreboardAudioSource.PlayOneShot(scoreboardSfx, Mathf.Max(0f, scoreboardVolumeMultiplier + SoundSettings.SfxVolume));
+=======
+        // 다른 사운드는 전부 SfxVolume 슬라이더를 따르는데 이것만 인자 없이 재생돼 슬라이더와
+        // 무관하게 항상 최대 볼륨이었다. AudioListener.pause로 정적이 된 직후라 유독 튀어 보였다.
+        scoreboardAudioSource.PlayOneShot(scoreboardSfx, SoundSettings.SfxVolume);
+>>>>>>> Stashed changes
     }
 }

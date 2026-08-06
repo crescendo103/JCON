@@ -143,7 +143,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
   bgmList:
+<<<<<<< Updated upstream
   - {fileID: 8300000, guid: ba2efdb48c12fc94cbe6f3d1b877cf37, type: 3}
   volumeMultiplier: 4
+=======
+  - {fileID: 8300000, guid: 3777b5eea1dd3da4395538a32ea30fc5, type: 3}
+  - {fileID: 8300000, guid: 68144c0bc7be1444c83730af5015d1c7, type: 3}
+  - {fileID: 8300000, guid: ac62598bb65af3043bf4733c3670081b, type: 3}
+  - {fileID: 8300000, guid: 7a18c70ff8af3e14f828be8b98750dd0, type: 3}
+>>>>>>> Stashed changes
   scoreboardSfx: {fileID: 8300000, guid: 1c022fdc0e0881a4aa32b60d7b9124eb, type: 3}
   scoreboardVolumeMultiplier: 3
