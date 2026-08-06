@@ -377,14 +377,28 @@ public class MonsterController : MonoBehaviour
             if (dmg == null) dmg = effect.AddComponent<SkillEffectDamage>();
             dmg.damage = skill.damage;
 
-            Vector2 travelDir = ((Vector2)travelTarget - (Vector2)spawnPos).sqrMagnitude > 0.0001f
-                ? ((Vector2)travelTarget - (Vector2)spawnPos).normalized
+            // spawnPos(몬스터 정면으로 SkillSpawnDistance만큼 나간 지점) 기준으로 방향을 재면 안 된다 —
+            // 근접 몬스터의 attackRange(예: 0.8)가 SkillSpawnDistance(1)보다 좁아서, 타겟이 spawnPos보다
+            // 몬스터에 더 가까이 있는(=spawnPos가 타겟을 이미 지나쳐버린) 경우가 항상 생긴다. 그러면
+            // travelTarget - spawnPos의 부호가 뒤집혀서 이펙트가 정반대 방향(반대편)을 보고 애니메이션이
+            // 재생되는 문제가 있었다. 몬스터의 실제 위치를 기준으로 재야 항상 올바른 방향이 나온다.
+            Vector2 travelDir = ((Vector2)travelTarget - (Vector2)transform.position).sqrMagnitude > 0.0001f
+                ? ((Vector2)travelTarget - (Vector2)transform.position).normalized
                 : lastFacingDir;
             effect.GetComponent<SkillEffectFacing>()?.SetFacing(travelDir);
 
+            // travelTarget을 그대로 도착 지점으로 쓰면 안 된다 — spawnPos가 근접 몬스터의 attackRange보다
+            // 앞서 나간 지점이라 travelTarget(플레이어)이 오히려 spawnPos보다 몬스터에 더 가까운(=travelDir
+            // 반대쪽에 있는) 경우가 흔하다. 그대로 Lerp하면 이펙트가 "플레이어 쪽에서 몬스터 쪽으로" 뒤로
+            // 날아가는 것처럼 보인다. travelDir(위에서 이미 몬스터 기준으로 바로잡은 방향) 위로 투영해서,
+            // 항상 spawnPos에서 그 방향으로 "전진"만 하도록 도착 지점을 다시 계산한다 — 타겟이 이미
+            // spawnPos보다 뒤에 있으면(투영 거리가 음수) 전진 거리를 0으로 두어 제자리에서 애니메이션만 재생한다.
+            float forwardDistance = Mathf.Max(0f, Vector2.Dot((Vector2)travelTarget - (Vector2)spawnPos, travelDir));
+            Vector3 moveEnd = spawnPos + (Vector3)(travelDir * forwardDistance);
+
             float duration = GetEffectCycleDuration(effect, skill.effectDuration);
             var mover = effect.AddComponent<SkillEffectMover>();
-            mover.Launch(spawnPos, travelTarget, duration);
+            mover.Launch(spawnPos, moveEnd, duration);
         }
 
         if (skill.sfx != null)

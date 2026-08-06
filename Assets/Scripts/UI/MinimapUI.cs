@@ -66,8 +66,10 @@ public class MinimapUI : MonoBehaviour
         if (currentlyVisible != visible)
         {
             currentlyVisible = visible;
-            playerDot.enabled = visible;
-            if (!visible) HideAllMonsterDots();
+            // 예전엔 playerDot(내 점)만 껐는데, 배경 원판/테두리(panelRoot의 나머지 자식들)는
+            // 계속 떠 있어서 스코어보드(결과 화면)가 뜬 뒤에도 미니맵 틀이 화면에 남아있었다.
+            // panelRoot 전체를 껐다 켜면 배경/테두리/점이 한 번에 지워지고 다시 나타난다.
+            panelRoot.gameObject.SetActive(visible);
         }
 
         if (!visible) return;
@@ -105,14 +107,6 @@ public class MinimapUI : MonoBehaviour
         }
 
         for (int i = shown; i < monsterDotPool.Count; i++)
-        {
-            if (monsterDotPool[i].gameObject.activeSelf) monsterDotPool[i].gameObject.SetActive(false);
-        }
-    }
-
-    private void HideAllMonsterDots()
-    {
-        for (int i = 0; i < monsterDotPool.Count; i++)
         {
             if (monsterDotPool[i].gameObject.activeSelf) monsterDotPool[i].gameObject.SetActive(false);
         }

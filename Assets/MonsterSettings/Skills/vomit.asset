@@ -19,7 +19,7 @@ MonoBehaviour:
   effectPrefab: {fileID: 2970186286906633597, guid: 259af3b489baaac478fe9e9181430835, type: 3}
   sfx: {fileID: 8300000, guid: 214f8384e84b131478adf2891317d997, type: 3}
   type: 0
-  effectScale: 8
+  effectScale: 4
   effectDuration: 1
   windupTime: 0.3
   hitboxScale: 1.2
