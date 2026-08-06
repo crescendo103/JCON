@@ -78,6 +78,10 @@ public class MonsterController : MonoBehaviour
     protected bool isInvincible;
     // 사망 처리가 시작되면 AI/피격을 더 이상 진행하지 않는다.
     private bool isDead;
+
+    /// <summary>사망 처리가 시작됐는지. true가 된 뒤에도 사망 애니메이션이 끝날 때까지 최대 2초간
+    /// GameObject는 살아있다(DestroyAfterDeathAnimation 참고) — 미니맵 등에서 "죽는 즉시" 판정에 쓴다.</summary>
+    public bool IsDead => isDead;
     // 공격 선딜(SkillWindupRoutine)이 진행 중인지. Attack 애니메이션 상태는 클립 길이(약 0.1~0.2초)가
     // windupTime(예: 0.3초)보다 짧아 먼저 Idle로 돌아가 버리므로, MoveTowards를 막는 용도로는
     // IsPlayingState(AttackStateName)만으로 부족하다 — 이 플래그로 선딜 구간 전체를 감싼다.

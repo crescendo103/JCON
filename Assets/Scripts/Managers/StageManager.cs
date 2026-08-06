@@ -61,6 +61,10 @@ public class StageManager : MonoBehaviour
 
     // 지금까지 스폰해서 살아있는(파괴되지 않은) 몬스터 목록
     private readonly List<GameObject> aliveMonsters = new List<GameObject>();
+
+    /// <summary>현재 살아서 스폰돼 있는 몬스터 목록(읽기전용). 매 프레임 CountKills()가 파괴된
+    /// 항목을 정리해두므로 미니맵 등 외부에서 새로 스캔할 필요 없이 그대로 순회하면 된다.</summary>
+    public IReadOnlyList<GameObject> AliveMonsters => aliveMonsters;
     private float spawnTimer;
 
     // 이번 스테이지에서 지금까지 스폰한 마릿수(총 한도 체크용, 동시 생존 수와는 별개)

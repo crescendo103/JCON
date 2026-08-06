@@ -155,6 +155,10 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // hitBlink와 같은 방식으로 여기서 붙인다(README: 코드로 연결).
         if (GetComponent<PlayerAimIndicator>() == null) gameObject.AddComponent<PlayerAimIndicator>();
 
+        // 우상단 UI 밑에 플레이어/몬스터를 보여주는 레이더식 미니맵. 프리팹/씬을 안 건드리도록
+        // 같은 방식으로 여기서 붙인다(README: 코드로 연결).
+        if (FindFirstObjectByType<MinimapUI>() == null) new GameObject("MinimapCanvas").AddComponent<MinimapUI>();
+
         maxHealth = health;
         stamina = staminaMax;
 
