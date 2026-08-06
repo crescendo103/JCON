@@ -23,6 +23,9 @@ public class MonsterController : MonoBehaviour
     private const string AttackStateName = "Attack";
     private const string HitStateName = "Hit";
 
+    // 스테이지가 1 오를 때마다 몬스터 최대 체력에 더해지는 값. data.maxHP는 스테이지 1 기준값이다.
+    private const int HealthPerStage = 5;
+
     public MonsterData data;
     protected Animator animator;
     private MonsterHealth health;
@@ -110,7 +113,12 @@ public class MonsterController : MonoBehaviour
         if (health == null) health = gameObject.AddComponent<MonsterHealth>();
 
         if (data != null)
-            health.Initialize(data.maxHP);
+        {
+            // 스테이지 1 기준 체력(data.maxHP)에서, 스테이지가 오를 때마다 5씩 늘어난다.
+            // 예: 스테이지 1=100 → 스테이지 2=105 → 스테이지 3=110. 스테이지 1로 되돌아가면 다시 100.
+            int stageBonus = HealthPerStage * Mathf.Max(0, StageProgressManager.Instance.CurrentStage - 1);
+            health.Initialize(data.maxHP + stageBonus);
+        }
 
         FindPlayer();
     }

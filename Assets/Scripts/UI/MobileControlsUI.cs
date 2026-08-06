@@ -18,17 +18,14 @@ public class MobileControlsUI : MonoBehaviour
     private const float AttackButtonSize = 200f;
     private const float AttackKnobSize = 80f;
     private const float AttackRadius = 60f; // 이동 조이스틱과 같은 비율(배경 반지름 - 노브 반지름)
-    private const float CornerMargin = 40f;
 
     // 화면 상단 이 높이(1080 기준)만큼은 터치 영역에서 제외한다 — PlayUI의 일시정지/재시작/도움말
     // 버튼(우상단, anchor(1,1))이 화면 절반짜리 터치 영역에 가려 안 눌리는 걸 막는다.
     private const float HudTopBandHeight = 160f;
 
-    // 조이스틱을 안 누르고 있을 때도 "지금 장착한 무기"를 항상 보여주는 아이콘의 반투명도.
-    private const float IdleWeaponIconAlpha = 0.55f;
-
-    // 공격 조이스틱 중앙 아이콘: 현재 장착 무기에 맞춰 매 프레임 갱신한다(AmmoBarUI/PlayerHealthBarUI와
-    // 같은 폴링 방식 — 이 프로젝트에는 UI 이벤트 규약이 없다).
+    // 현재 장착 무기 아이콘: PlayUI 프리팹에 미리 배치된 WeaponSelectedUI(프레임)/usingweaponUI(아이콘)를
+    // 그대로 쓰고, 여기서는 매 프레임 스프라이트만 갱신한다(AmmoBarUI/PlayerHealthBarUI와 같은 폴링
+    // 방식 — 이 프로젝트에는 UI 이벤트 규약이 없다). FindWeaponIcon() 참고.
     private GamePlayerController player;
     private Image attackIconImage;
     private Sprite defaultAttackIconSprite;
@@ -42,7 +39,6 @@ public class MobileControlsUI : MonoBehaviour
     {
         EnsureEventSystem();
         BuildCanvas();
-        BuildWeaponIcon();
         BuildJoystick();
         BuildAttackButton();
     }
@@ -51,6 +47,8 @@ public class MobileControlsUI : MonoBehaviour
     {
         var playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.GetComponent<GamePlayerController>();
+
+        FindWeaponIcon();
     }
 
     private void Update()
@@ -80,7 +78,6 @@ public class MobileControlsUI : MonoBehaviour
             attackIconImage.sprite = defaultAttackIconSprite;
         }
 
-        color.a *= IdleWeaponIconAlpha;
         attackIconImage.color = color;
     }
 
@@ -114,29 +111,22 @@ public class MobileControlsUI : MonoBehaviour
         gameObject.AddComponent<GraphicRaycaster>();
     }
 
-    // 조이스틱이 안 떠 있을 때도 우하단에 항상 보이는 반투명 무기 아이콘. 좌/우 터치 영역보다 먼저
-    // 만들어서 형제 순서상 뒤에 그려지는 터치 영역(과 그 자식인 조이스틱 배경)이 이 아이콘 위로
-    // 겹쳐 보이게 한다 — 터치 중에는 조이스틱이, 안 누르고 있을 때는 이 아이콘만 남는다.
-    private void BuildWeaponIcon()
+    // 무기 아이콘을 우하단에 새로 만들지 않고, PlayUI(PlayUI 1.prefab)에 미리 배치된
+    // WeaponSelectedUI(프레임)/usingweaponUI(아이콘 자리) 를 그대로 찾아 쓴다. 프레임/자리는
+    // PlayUI가 담당하고, 여기서는 매 프레임 그 위의 스프라이트만 갱신한다(Update() 참고).
+    private void FindWeaponIcon()
     {
+        var weaponSelectedUI = GameObject.Find("WeaponSelectedUI");
+        var iconTransform = weaponSelectedUI != null ? weaponSelectedUI.transform.Find("usingweaponUI") : null;
+        if (iconTransform == null) return;
+
+        attackIconImage = iconTransform.GetComponent<Image>();
+        // 기본 검 아트(WeaponVisuals.FistsSwordSprites)는 정사각형이 아니라, 슬롯 비율에 맞춰
+        // 늘리면(Preserve Aspect 꺼짐) 옆으로 퍼져 보인다. 원본 비율을 유지해 슬롯 안에 맞춘다.
+        attackIconImage.preserveAspect = true;
+
         var swordSprites = WeaponVisuals.FistsSwordSprites;
-        if (swordSprites.Length == 0) return;
-
-        RectTransform weaponIcon = CreateRect(
-            "WeaponIcon", transform,
-            anchorMin: new Vector2(1f, 0f), anchorMax: new Vector2(1f, 0f), pivot: new Vector2(0.5f, 0.5f),
-            anchoredPos: new Vector2(-(CornerMargin + AttackButtonSize * 0.5f), CornerMargin + AttackButtonSize * 0.5f),
-            size: new Vector2(AttackKnobSize * 0.8f, AttackKnobSize * 0.8f));
-
-        attackIconImage = weaponIcon.gameObject.AddComponent<Image>();
-        defaultAttackIconSprite = swordSprites[0];
-        attackIconImage.sprite = defaultAttackIconSprite;
-        attackIconImage.preserveAspect = true; // 원본 스프라이트 비율 유지(찌그러지지 않게).
-        attackIconImage.raycastTarget = false; // 터치 입력은 이 아래(뒤)의 터치 영역이 전담한다.
-
-        var color = attackIconImage.color;
-        color.a *= IdleWeaponIconAlpha;
-        attackIconImage.color = color;
+        if (swordSprites.Length > 0) defaultAttackIconSprite = swordSprites[0];
     }
 
     private void BuildJoystick()

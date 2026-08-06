@@ -187,7 +187,7 @@ MonoBehaviour:
   recoverDuration: 0.13
   breakDuration: 0.25
   pickupRadius: 0.4
-  landingEffectPrefab: {fileID: 0}
+  landingEffectPrefab: {fileID: 3407604102439438468, guid: c56be46ffee17df4db69097e53676e21, type: 3}
   landingEffectScale: 0.3
   unlockEffectPrefab: {fileID: 6891291519092082853, guid: f8c2d4cc44c53d348a31254d6ec12242, type: 3}
   unlockEffectScale: 0.25
