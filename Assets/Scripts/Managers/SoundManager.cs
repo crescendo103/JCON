@@ -16,11 +16,14 @@ public class SoundManager : MonoBehaviour
     [Tooltip("스테이지별로 순환 재생할 배경음악 목록. 인덱스 = (CurrentStage - 1) % bgmList.Length")]
     public AudioClip[] bgmList;
 
-    [Tooltip("AudioSource.volume 배율. 인스펙터 슬라이더는 1이 최대라 원본 클립보다 크게 키우려면 코드로 1을 넘겨야 한다")]
-    [SerializeField] private float volumeMultiplier = 2f;
+    [Tooltip("SoundSettings.BgmVolume(0~1 슬라이더) 위에 그대로 더해지는 값. 슬라이더가 0(무음)이어도 이 값만큼은 항상 들리게 키울 수 있다. 음수를 주면 반대로 줄어든다(0 밑으로는 안 내려감)")]
+    [SerializeField] private float volumeMultiplier = 0.5f;
 
     [Tooltip("스코어보드(결과 화면)가 뜰 때 재생할 사운드. AudioListener.pause로 나머지 소리를 다 꺼도 이것만 들린다")]
     public AudioClip scoreboardSfx;
+
+    [Tooltip("SoundSettings.SfxVolume(0~1 슬라이더) 위에 그대로 더해지는 값(volumeMultiplier와 같은 방식). 음수를 주면 줄어든다(0 밑으로는 안 내려감)")]
+    [SerializeField] private float scoreboardVolumeMultiplier = 0.3f;
 
     private AudioSource audioSource;
     // 스테이지 종료 시 AudioListener.pause = true로 나머지 사운드를 전부 끄기 때문에,
@@ -34,7 +37,7 @@ public class SoundManager : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         audioSource.loop = true;
         audioSource.playOnAwake = false;
-        audioSource.volume = volumeMultiplier * SoundSettings.BgmVolume;
+        audioSource.volume = Mathf.Max(0f, volumeMultiplier + SoundSettings.BgmVolume);
 
         scoreboardAudioSource = gameObject.AddComponent<AudioSource>();
         scoreboardAudioSource.playOnAwake = false;
@@ -51,12 +54,21 @@ public class SoundManager : MonoBehaviour
 
     private void ApplyBgmVolume(float bgmVolume)
     {
-        audioSource.volume = volumeMultiplier * bgmVolume;
+        audioSource.volume = Mathf.Max(0f, volumeMultiplier + bgmVolume);
     }
 
     private void Start()
     {
         PlayBgmForCurrentStage();
+    }
+
+    private void Update()
+    {
+        // volumeMultiplier는 원래 Awake()에서 한 번만 반영돼서, Play 모드가 시작된 뒤 인스펙터에서
+        // 숫자를 바꿔도 다시 시작하기 전까지는 소리 크기가 그대로였다. 매 프레임 다시 더해줘서
+        // 인스펙터에서 값을 바꾸는 즉시(Play 중에도) 반영되게 한다.
+        if (audioSource != null)
+            audioSource.volume = Mathf.Max(0f, volumeMultiplier + SoundSettings.BgmVolume);
     }
 
     /// <summary>
@@ -97,6 +109,8 @@ public class SoundManager : MonoBehaviour
         if (scoreboardSfx == null || scoreboardAudioSource == null)
             return;
 
-        scoreboardAudioSource.PlayOneShot(scoreboardSfx);
+        // 다른 효과음들과 같이 SoundSettings.SfxVolume(설정 슬라이더)을 따르면서, scoreboardVolumeMultiplier를
+        // 그 위에 더해서 이 사운드만 따로 키우거나 줄인다(슬라이더가 0이어도 이 값만큼은 들리게 할 수 있다).
+        scoreboardAudioSource.PlayOneShot(scoreboardSfx, Mathf.Max(0f, scoreboardVolumeMultiplier + SoundSettings.SfxVolume));
     }
 }

@@ -508,6 +508,15 @@ public class MonsterController : MonoBehaviour
 
         bool died = health.ApplyDamage(amount);
 
+        // 피격 파티클은 죽는 타격이든 아니든 항상 띄운다 — knockDir 계산도 여기로 같이 끌어올렸다.
+        // (기존엔 died일 때 Die()로 바로 빠져서 SpawnHitEffect를 건너뛰었는데, 몬스터 체력이 대체로
+        // 낮아 대부분의 타격이 즉사라 피격 파티클이 사실상 거의 항상 안 보이는 것처럼 됐었다.)
+        Vector2 knockDir = (Vector2)transform.position - sourcePosition;
+        if (knockDir.sqrMagnitude < 0.0001f) knockDir = -lastFacingDir;
+        knockDir.Normalize();
+
+        SpawnHitEffect(knockDir);
+
         if (died)
         {
             Die();
@@ -515,12 +524,6 @@ public class MonsterController : MonoBehaviour
         }
 
         TriggerHit();
-
-        Vector2 knockDir = (Vector2)transform.position - sourcePosition;
-        if (knockDir.sqrMagnitude < 0.0001f) knockDir = -lastFacingDir;
-        knockDir.Normalize();
-
-        SpawnHitEffect(knockDir);
 
         KnockbackSetting setting = GetKnockbackSetting(damageType);
         // setting.force가 0이면(예: KingZombie) 넉백 면역으로 의도한 것이므로 무기 값으로 덮어쓰지 않는다.

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef74769af822ed249aff77ae4a871ec4, type: 3}
   m_Name: AI_TileChaserDFS
   m_EditorClassIdentifier: Assembly-CSharp::DfsChaserAI
-  attackRange: 1.2
+  attackRange: 0.8
   repathInterval: 1

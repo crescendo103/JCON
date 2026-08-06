@@ -225,6 +225,10 @@ PrefabInstance:
       value: -1176609933
       objectReference: {fileID: 0}
     - target: {fileID: 1041822998418825666, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: speed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1041822998418825666, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
       propertyPath: fistsAttackSfx
       value: 
       objectReference: {fileID: 8300000, guid: 45273f34caf736b4c8c4a7e573b1120d, type: 3}
@@ -161009,6 +161013,10 @@ PrefabInstance:
       propertyPath: pickupPrefab
       value: 
       objectReference: {fileID: 4111138561488968800, guid: 13706965de964af7acd52feb27e8a5ac, type: 3}
+    - target: {fileID: 5585015277058427700, guid: 22b422d8ef454cb7a3bf896d8886d602, type: 3}
+      propertyPath: spawnInterval
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 5971945102997143600, guid: 22b422d8ef454cb7a3bf896d8886d602, type: 3}
       propertyPath: m_Name
       value: DashPickupSpawner
@@ -161577,6 +161585,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 302702445556924980, guid: c81d78dfee4a4eaaba8dc2786058cceb, type: 3}
+      propertyPath: volumeMultiplier
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 302702445556924980, guid: c81d78dfee4a4eaaba8dc2786058cceb, type: 3}
+      propertyPath: bgmList.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1462636343709108313, guid: c81d78dfee4a4eaaba8dc2786058cceb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 349.19656

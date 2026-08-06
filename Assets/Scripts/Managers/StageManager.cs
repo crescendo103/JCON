@@ -32,7 +32,10 @@ public class StageManager : MonoBehaviour
 
     [Header("스테이지 목표")]
     [Tooltip("이번 스테이지에서 총 스폰할 몬스터 수. 이 수만큼 스폰하고 나면 더 이상 스폰하지 않는다")]
-    public int totalMonstersToSpawn = 5;
+    public int totalMonstersToSpawn = 10;
+
+    [Tooltip("스테이지가 1 오를 때마다 totalMonstersToSpawn에 더해지는 마릿수")]
+    public int monstersPerStageIncrease = 3;
 
     [Header("점수")]
     [Tooltip("좀비 한 마리를 잡을 때마다 올라가는 점수")]
@@ -115,8 +118,8 @@ public class StageManager : MonoBehaviour
         zombieCountUI = FindFirstObjectByType<ZombieCountUI>();
         scoreUI = FindFirstObjectByType<ScoreUI>();
 
-        // 스테이지가 올라갈수록(1스테이지 기준 +1씩) 처치해야 할 목표 마릿수를 늘린다.
-        totalMonstersToSpawn += Mathf.Max(0, StageProgressManager.Instance.CurrentStage - 1);
+        // 스테이지가 올라갈수록(1스테이지 기준 monstersPerStageIncrease씩) 처치해야 할 목표 마릿수를 늘린다.
+        totalMonstersToSpawn += monstersPerStageIncrease * Mathf.Max(0, StageProgressManager.Instance.CurrentStage - 1);
 
         UpdateZombieCountUI();
     }

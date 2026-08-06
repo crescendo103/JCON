@@ -3,7 +3,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Monster/AI/Aggressive", fileName = "AI_Aggressive")]
 public class AggressiveAI : MonsterAIBehavior
 {
-    public float attackRange = 1.2f;
+    public float attackRange = 0.8f;
 
     public override void Execute(MonsterController monster)
     {

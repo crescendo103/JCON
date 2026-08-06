@@ -114,6 +114,9 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     // 마지막으로 이동하던 방향(정지 중에도 유지). 온스크린 공격 버튼을 조이스틱 없이(예: 키보드 이동 후
     // 버튼만 탭) 눌렀을 때 조준 방향 폴백으로 쓴다 — GetAimDirection() 참고.
     private Vector2 lastMoveDirection = Vector2.down;
+    // 직전 프레임에 연사형(전기톱 등) 무기가 실제로 공격 중이었는지. Click()에서 공격을 막 놓은
+    // 프레임(true→false)을 잡아내 PlayWeaponFireSound()의 재생 꼬리를 끊는 데 쓴다.
+    private bool wasActivelyAttacking;
 
 
     public Vector2 CurrentVelocity => rigid.linearVelocity;
@@ -486,6 +489,18 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         // 누르고 있는 동안 계속 켜져 있어야 한다(눌린 순간 켜지고 떼는 순간 바로 꺼짐).
         bool activelyAttacking = holdFire && attackHeld;
         if (weaponAttackEffect != null) weaponAttackEffect.SetActive(activelyAttacking);
+
+        // 전기톱처럼 쿨다운마다 PlayOneShot으로 겹쳐 재생해 "계속 도는" 소리를 내는 무기는, 쏘는
+        // 클립 자체가 쿨다운보다 길어서(예: 전기톱 사운드) 입력을 놓아도 마지막에 튼 클립이 끝까지
+        // 재생돼 공격이 끝난 뒤에도 소리가 이어지는 문제가 있었다. 놓는 순간(true→false)에 바로 끊는다.
+        // activelyAttacking(=holdFire 전체) 기준으로 하면 원거리무기(샷건 등)도 holdFire라서, 살짝
+        // 클릭만 해도 발사음이 나온 지 한 프레임 만에 놓임이 감지돼 총소리까지 같이 끊겨버린다 —
+        // 그래서 진짜 "누르고 있는 동안 계속 도는" 무기(전기톱, meleeMode.HoldContinuous)만 대상으로 한다.
+        bool isContinuousLoopWeapon = weapon != null && weapon.meleeMode == MeleeAttackMode.HoldContinuous;
+        bool activelyLoopAttacking = isContinuousLoopWeapon && attackHeld;
+        if (wasActivelyAttacking && !activelyLoopAttacking && weaponAudioSource != null)
+            weaponAudioSource.Stop();
+        wasActivelyAttacking = activelyLoopAttacking;
 
         // 톱날(체인) 텍스처를 좌우로 스크롤해 도는 것처럼 보이게 한다. 텍스처가 Repeat로
         // 설정돼 있어 오프셋이 얼마가 되든 이음매 없이 반복되므로, 멈출 때 되돌릴 필요가 없다.

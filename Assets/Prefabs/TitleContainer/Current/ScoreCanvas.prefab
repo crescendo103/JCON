@@ -3230,7 +3230,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 432250e28b94a584e85a4df86eeca9d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TotalScoreUI
-  countDuration: 3
+  countDuration: 1
   starImages:
   - {fileID: 6029415935605205106}
   - {fileID: 1570283860692460184}

@@ -11,7 +11,7 @@ using UnityEngine;
 /// </summary>
 public abstract class TileChaserAI : MonsterAIBehavior
 {
-    public float attackRange = 1.2f;
+    public float attackRange = 0.8f;
     [Tooltip("경로를 다시 계산하는 주기(초)")]
     public float repathInterval = 1f;
 

@@ -5,10 +5,12 @@ using UnityEngine;
 public class SkillEffectFacing : MonoBehaviour
 {
     private Animator animator;
+    private SpriteRenderer spriteRenderer;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     public void SetFacing(Vector2 dir)
@@ -18,5 +20,11 @@ public class SkillEffectFacing : MonoBehaviour
 
         animator.SetFloat(MonsterController.ParamFaceX, dir.x);
         animator.SetFloat(MonsterController.ParamFaceY, dir.y);
+
+        // "오른쪽" 방향용 원본 스프라이트 프레임이 없어서(VomitEffect_Controller의 Blend Tree가
+        // right 자리에도 motion_left.anim을 그대로 재사용하도록 되어 있다), 오른쪽을 향할 때는
+        // 왼쪽 프레임을 좌우 반전해서 오른쪽처럼 보이게 한다.
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null) spriteRenderer.flipX = dir.x > 0f;
     }
 }

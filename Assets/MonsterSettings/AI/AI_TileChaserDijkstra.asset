@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59f53ad5b8fb9a04faae3d70caddb8df, type: 3}
   m_Name: AI_TileChaserDijkstra
   m_EditorClassIdentifier: Assembly-CSharp::DijkstraChaserAI
-  attackRange: 1.2
+  attackRange: 0.8
   repathInterval: 1
