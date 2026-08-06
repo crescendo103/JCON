@@ -791,6 +791,10 @@ PrefabInstance:
       propertyPath: pickupPrefab
       value: 
       objectReference: {fileID: 4111138561488968800, guid: 13706965de964af7acd52feb27e8a5ac, type: 3}
+    - target: {fileID: 5585015277058427742, guid: 3c50eb4209514514e8f4695822223ed0, type: 3}
+      propertyPath: spawnInterval
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 5971945102997143548, guid: 3c50eb4209514514e8f4695822223ed0, type: 3}
       propertyPath: m_Name
       value: DashP
@@ -1432,6 +1436,10 @@ PrefabInstance:
     - target: {fileID: 461006292025402860, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0.15354347
+      objectReference: {fileID: 0}
+    - target: {fileID: 1041822998418825666, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
+      propertyPath: speed
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1041822998418825666, guid: 0e9bc9c30d508544e958ec1deee1602d, type: 3}
       propertyPath: fistsSwordHandOffset.x

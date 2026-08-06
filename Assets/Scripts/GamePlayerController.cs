@@ -148,6 +148,10 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (weaponAudioSource == null) weaponAudioSource = GetComponent<AudioSource>();
         sortingGroup = GetComponent<SortingGroup>();
 
+        // 조준 방향에 월드 조준점 + 조준선을 그리는 컴포넌트. 프리팹/씬을 안 건드리도록
+        // hitBlink와 같은 방식으로 여기서 붙인다(README: 코드로 연결).
+        if (GetComponent<PlayerAimIndicator>() == null) gameObject.AddComponent<PlayerAimIndicator>();
+
         maxHealth = health;
         stamina = staminaMax;
 
@@ -293,8 +297,10 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     /// 직접 조정). 드래그 없이 정중앙만 탭했다면 마지막으로 이동하던 방향으로 대신 조준한다. 공격 조이스틱을
     /// 아예 안 눌렀다면 이동 조이스틱 방향(기존 동작 유지) → 그것도 없으면(기존 PC 플레이) 마우스 포인터
     /// 방향 순으로 폴백한다.
+    /// PlayerAimIndicator가 매 프레임 이 값을 폴링해 조준점/조준선을 그린다 — 실제 발사와
+    /// 같은 값을 쓰므로 화면에 보이는 선과 탄도가 항상 일치한다.
     /// </summary>
-    private Vector2 GetAimDirection()
+    public Vector2 GetAimDirection()
     {
         // 공격 조이스틱(우하단)을 밀고 있으면 이동 조이스틱과 똑같이 그 방향을 그대로 조준으로 쓴다.
         if (OnScreenAttackButton.Direction.sqrMagnitude > 0.0001f) return OnScreenAttackButton.Direction.normalized;
@@ -302,6 +308,11 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (OnScreenAttackButton.Held) return lastMoveDirection;
         // 공격은 마우스로 하되 이동 조이스틱만 누르고 있는 경우(기존 동작 유지).
         if (OnScreenJoystick.Direction.sqrMagnitude > 0.0001f) return OnScreenJoystick.Direction.normalized;
+
+        // 모바일은 손을 떼도 Input.mousePosition이 마지막 터치 지점에 남아 조준이 엉뚱한 곳을
+        // 가리킨다. 마우스 폴백은 PC에서만 쓰고, 모바일은 마지막 이동 방향으로 조준한다
+        // (Click()이 !Application.isMobilePlatform으로 마우스 공격을 거르는 것과 같은 이유).
+        if (Application.isMobilePlatform) return lastMoveDirection;
 
         Vector2 toMouse = (Vector2)GetMouseWorld() - (Vector2)transform.position;
         return toMouse.sqrMagnitude > 0.0001f ? toMouse.normalized : Vector2.right;
@@ -791,7 +802,8 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     {
         if (scoreCanvasPrefab == null) return;
 
-        // CrosshairUI가 Cursor.visible을 false로 숨겨둔 채라, 결과 화면 버튼을 눌러도 커서가 안 보였다.
+        // 결과 화면 버튼을 눌러야 하므로 커서를 확실히 되살려 둔다(과거 조준점이 커서를 숨기던
+        // 시절의 안전장치. 지금은 커서를 숨기는 코드가 없지만 이 한 줄은 그대로 둔다).
         Cursor.visible = true;
 
         var scoreCanvas = Instantiate(scoreCanvasPrefab);
@@ -850,4 +862,11 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         max = weapon.maxAmmo;
         return true;
     }
+
+    /// <summary>
+    /// 실제 총알이 생성되는 지점(DoRangedAttack의 spawnPos와 같은 계산). 조준선을 여기서
+    /// 시작해야 화면에 그려지는 선과 실제 탄도가 정확히 겹친다. 무기 비주얼의 Muzzle은
+    /// 순수 연출용(SpawnMuzzleEffect 전용)이라 조준선 기준으로 쓰면 안 된다.
+    /// </summary>
+    public Vector3 GetAimOrigin() => transform.position + Vector3.up * bulletSpawnHeight;
 }
