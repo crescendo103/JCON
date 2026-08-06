@@ -462,8 +462,14 @@ public class GamePlayerController : MonoBehaviour, IPlayable
 
         // 온스크린 공격 버튼(우측하단)을 마우스 왼쪽 버튼과 동등하게 취급한다. ConsumePress()는 호출 즉시
         // 플래그를 지우므로 이 Update 프레임 안에서 정확히 한 번만 읽는다(GetKeyDown과 같은 1프레임 의미).
-        bool attackHeld = Input.GetKey(KeyCode.Mouse0) || OnScreenAttackButton.Held;
-        bool attackPressed = Input.GetKeyDown(KeyCode.Mouse0) || OnScreenAttackButton.ConsumePress();
+        //
+        // 마우스 좌클릭 공격은 PC 테스트용. 이 프로젝트는 레거시 Input Manager도 같이 켜둔 상태(Both)라
+        // 모바일에서는 터치가 자동으로 Mouse0로 시뮬레이션돼서, 화면 어디를 눌러도(이동 조이스틱 쪽이든
+        // 상단 HUD든) 공격이 같이 나가버린다. 모바일에서는 온스크린 공격 조이스틱만 공격 입력으로 쓴다.
+        bool mouseClick = !Application.isMobilePlatform && Input.GetKey(KeyCode.Mouse0);
+        bool mouseClickDown = !Application.isMobilePlatform && Input.GetKeyDown(KeyCode.Mouse0);
+        bool attackHeld = mouseClick || OnScreenAttackButton.Held;
+        bool attackPressed = mouseClickDown || OnScreenAttackButton.ConsumePress();
 
         // 연사형(전기톱 등) 무기의 AttackEffect는 실제로 틱이 나가는지와 무관하게 공격 입력을
         // 누르고 있는 동안 계속 켜져 있어야 한다(눌린 순간 켜지고 떼는 순간 바로 꺼짐).
