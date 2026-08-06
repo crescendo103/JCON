@@ -391,7 +391,10 @@ public class DashPickup : MonoBehaviour
         var go = new GameObject("PickupSfx (temp)");
         go.transform.position = position;
         var src = go.AddComponent<AudioSource>();
-        src.spatialBlend = 1f;
+        // spatialBlend를 3D(1f)로 두면 카메라(z=-10)와의 거리 때문에 기본 로그 감쇄로 실제 소리가
+        // 약 10배(-20dB) 작게 들린다. 다른 UI/무기 사운드는 전부 2D라 이것만 유독 작게 들렸다.
+        // fallingSfx 등 다른 습득 관련 사운드와 같은 2D로 맞춘다.
+        src.spatialBlend = 0f;
         src.PlayOneShot(clip, volumeScale * SoundSettings.SfxVolume);
         Destroy(go, clip.length);
     }
