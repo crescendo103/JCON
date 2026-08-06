@@ -869,4 +869,10 @@ public class GamePlayerController : MonoBehaviour, IPlayable
     /// 순수 연출용(SpawnMuzzleEffect 전용)이라 조준선 기준으로 쓰면 안 된다.
     /// </summary>
     public Vector3 GetAimOrigin() => transform.position + Vector3.up * bulletSpawnHeight;
+
+    /// <summary>
+    /// 총(원거리 무기)을 들고 있는지. 레이저 조준선은 원거리 무기에서만 켠다 — 근접(전기톱)과
+    /// 맨손은 사거리 0.7~0.8의 원형 판정이라 길게 뻗는 직선을 그리면 사거리를 오해하게 된다.
+    /// </summary>
+    public bool HasRangedWeapon => equippedWeapon != null && equippedWeapon.category == WeaponCategory.Ranged;
 }
