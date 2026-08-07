@@ -754,6 +754,9 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         if (clip != null) weaponAudioSource.PlayOneShot(clip, SoundSettings.SfxVolume);
     }
 
+    /// <summary>실제로 피격(데미지 적용)이 일어났을 때. dmg(적용된 데미지량)</summary>
+    public event Action<float> OnHit;
+
     public void Hit(float dmg)
     {
         if (health <= 0f) return;
@@ -766,6 +769,7 @@ public class GamePlayerController : MonoBehaviour, IPlayable
         hitVignette?.PlayHitFlash();
         hitBlink?.PlayHitBlink();
         PlayNextHitSfx();
+        OnHit?.Invoke(dmg);
 
         if (health <= 0f)
         {

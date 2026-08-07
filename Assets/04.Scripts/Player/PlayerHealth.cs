@@ -19,6 +19,9 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     /// <summary>current, max</summary>
     public event Action<float, float> OnHealthChanged;
 
+    /// <summary>실제로 피격(데미지 적용)이 일어났을 때. amount(감소된 데미지), sourcePosition</summary>
+    public event Action<float, Vector2> OnDamaged;
+
     void Awake()
     {
         currentHealth = maxHealth;
@@ -42,6 +45,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         currentHealth = Mathf.Max(0f, currentHealth - reduced);
         invulnerableTimer = invulnerabilityDuration;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        OnDamaged?.Invoke(reduced, sourcePosition);
 
         if (currentHealth <= 0f)
         {

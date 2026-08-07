@@ -791,24 +791,24 @@ PlayerSettings:
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
-    Android: MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED
-    EmbeddedLinux: 
-    GameCoreScarlett: 
-    GameCoreXboxOne: 
-    Kepler: 
-    LinuxHeadlessSimulation: 
-    Nintendo Switch: 
-    Nintendo Switch 2: 
-    PS4: 
-    PS5: 
-    QNX: 
-    Standalone: MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED
-    VisionOS: 
-    WebGL: 
-    Windows Store Apps: 
-    XboxOne: 
-    iPhone: MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED
-    tvOS: 
+    Android: MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED;DOTWEEN;DOTWEEN_EPO
+    EmbeddedLinux: DOTWEEN;DOTWEEN_EPO
+    GameCoreScarlett: DOTWEEN;DOTWEEN_EPO
+    GameCoreXboxOne: DOTWEEN;DOTWEEN_EPO
+    Kepler: DOTWEEN;DOTWEEN_EPO
+    LinuxHeadlessSimulation: DOTWEEN;DOTWEEN_EPO
+    Nintendo Switch: DOTWEEN;DOTWEEN_EPO
+    Nintendo Switch 2: DOTWEEN;DOTWEEN_EPO
+    PS4: DOTWEEN;DOTWEEN_EPO
+    PS5: DOTWEEN;DOTWEEN_EPO
+    QNX: DOTWEEN;DOTWEEN_EPO
+    Standalone: MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED;DOTWEEN
+    VisionOS: DOTWEEN;DOTWEEN_EPO
+    WebGL: DOTWEEN;DOTWEEN_EPO
+    Windows Store Apps: DOTWEEN;DOTWEEN_EPO
+    XboxOne: DOTWEEN;DOTWEEN_EPO
+    iPhone: MOREMOUNTAINS_NICEVIBRATIONS_INSTALLED;DOTWEEN;DOTWEEN_EPO
+    tvOS: DOTWEEN;DOTWEEN_EPO
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
