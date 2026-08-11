@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
             return;
         }
         Instance = this;
+        Application.targetFrameRate = 120; // 목표 프레임레이트 120으로 고정 (VSync가 켜진 품질 레벨에서는 무시됨)
         Time.timeScale = 1f;
         ElapsedTime = 0f;
         State = GameState.Playing;
