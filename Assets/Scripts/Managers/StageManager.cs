@@ -88,6 +88,13 @@ public class StageManager : MonoBehaviour
     /// </summary>
     public static bool StageCleared { get; private set; }
 
+    /// <summary>
+    /// 이번 스테이지의 클리어 결과(별 개수)가 StageProgressManager에 이미 보고됐는지. TotalScoreUI가
+    /// 스크립트 재컴파일 등으로 Start()가 두 번 실행되는 것 같은 예외적인 상황에서도 같은 클리어를
+    /// 두 번 보고해서 엉뚱한 스테이지에 별이 잘못 기록되는 일이 없도록 한 번 보고되면 true로 잠근다.
+    /// </summary>
+    public static bool ScoreReported { get; set; }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -102,6 +109,7 @@ public class StageManager : MonoBehaviour
         AudioListener.pause = false;
         IsGameOver = false;
         StageCleared = false;
+        ScoreReported = false;
     }
 
     private void Start()

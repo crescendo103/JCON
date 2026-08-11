@@ -51,6 +51,15 @@ public class ButtonStateEffect : MonoBehaviour,
         RefreshNormalState();
     }
 
+    // 캔버스가 통째로 꺼질 때(다른 화면으로 전환 등)는 마우스가 실제로 빠져나가는 OnPointerExit
+    // 이벤트가 오지 않아서, 호버된 스프라이트/알파가 그대로 남은 채로 꺼졌다가 나중에 이 캔버스가
+    // 다시 켜지면 호버 상태 그대로 보이는 문제가 있었다. 꺼지는 시점에 강제로 기본 상태로 되돌린다.
+    void OnDisable()
+    {
+        isHovering = false;
+        ApplyHoverState(false);
+    }
+
     // ���콺 �÷��� ��
     public void OnPointerEnter(PointerEventData eventData)
     {

@@ -79,6 +79,15 @@ public class StageButtonUI : MonoBehaviour, IPointerEnterHandler
         Refresh();
     }
 
+    // OnEnable의 Refresh() 호출은 다른 씬(예: UIScene)이 통째로 새로 로드되는 첫 프레임에는
+    // 초기화 순서가 흔들려서 스프라이트가 반영 안 된 채로 남는 경우가 있었다(스테이지 버튼 여러 개가
+    // 하얗게 나오는 버그). Start()는 씬의 모든 오브젝트가 Awake/OnEnable을 마친 뒤에 실행되므로,
+    // 여기서 한 번 더 Refresh()를 호출해서 안전망 역할을 하게 한다.
+    private void Start()
+    {
+        Refresh();
+    }
+
     private void OnDisable()
     {
         // Instance를 그대로 쓰면 종료 중에 매니저를 다시 만들어버릴 수 있으므로 HasInstance로만 확인한다.

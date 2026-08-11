@@ -62,19 +62,35 @@ public class TotalScoreUI : MonoBehaviour
         scoreText.text = "0";
         StartCoroutine(CountUpToTarget());
 
-        // 좀비를 전부 잡아 실제로 클리어했을 때만 점수/남은시간으로 별점을 매긴다.
-        // 죽거나 시간 초과로 끝났으면 클리어가 아니므로, 남은 시간이 많이 남아있어도 별 0개로 취급한다.
-        int starCount = StageManager.StageCleared ? GetStarCount(targetValue) : 0;
+        // 죽지 않고 좀비를 전부 잡아 실제로 클리어했으면 무조건 별 3개(만점), 그 외(사망/시간초과)는 별 0개.
+        int starCount = StageManager.StageCleared ? StageProgressManager.StarsPerStage : 0;
         PlayStars(starCount);
 
         // 이번 스테이지 결과(별 개수)를 진행도 매니저에 보고한다. 이전 기록보다 좋을 때만 저장된다.
-        if (StageManager.StageCleared)
+        // ScoreReported로 한 번만 보고되게 잠가서, 스크립트 재컴파일 등으로 이 Start()가 예외적으로
+        // 두 번 실행되더라도 같은 클리어가 두 번 보고돼 다음 스테이지에 별이 잘못 기록되지 않게 한다.
+        if (StageManager.StageCleared && !StageManager.ScoreReported)
+        {
+            StageManager.ScoreReported = true;
             StageProgressManager.Instance.ReportCurrentStageResult(starCount);
+        }
 
         // 별 3개(만점)로 깼을 때만 "다음 스테이지" 버튼을 보여준다.
         Button nextStageButton = FindButtonInRoot("playButton (1)");
         if (nextStageButton != null)
             nextStageButton.gameObject.SetActive(starCount >= StageProgressManager.StarsPerStage);
+
+        // completeText/scoretext는 Content Size Fitter로 자기 크기를 정하고, 그 위의 Vertical Layout
+        // Group(Text 오브젝트)이 그 크기를 보고 간격(Spacing)을 잡는다. Instantiate 직후 첫 프레임에는
+        // Content Size Fitter가 아직 실제 크기를 계산하기 전에 Layout Group이 먼저 배치해버려서
+        // 간격이 어긋난 채로 나온다(인스펙터에서 값을 살짝 건드리면 강제로 다시 배치되어 바로 고쳐지는
+        // 것과 같은 증상). 초기 상태를 다 세팅한 직후 여기서 강제로 한 번 더 재배치해서 같은 효과를 낸다.
+        LayoutGroup layoutGroup = GetComponentInParent<LayoutGroup>();
+        if (layoutGroup != null)
+        {
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroup.GetComponent<RectTransform>());
+        }
     }
 
     // 하위 계층이 몇 단계든 상관없이 이름으로 버튼을 찾는다.
@@ -86,14 +102,6 @@ public class TotalScoreUI : MonoBehaviour
                 return button;
         }
         return null;
-    }
-
-    private int GetStarCount(int value)
-    {
-        if (value > 100) return 3;
-        else if (value > 50) return 2;
-        else if (value > 30) return 1;
-        else return 0;
     }
 
     private void ResetStarsToEmpty()
