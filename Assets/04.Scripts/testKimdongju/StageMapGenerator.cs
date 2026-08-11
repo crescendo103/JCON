@@ -601,11 +601,26 @@ public class StageMapGenerator : MonoBehaviour
 
     // FourDirections를 goal까지의 맨해튼 거리가 먼 순서대로 정렬해서 반환한다. 거리가 같은 방향들은
     // 먼저 무작위로 섞어둔 뒤 정렬하므로(OrderByDescending은 안정 정렬) 동률 사이에서만 순서가 매번 바뀐다.
+    //
+    // 10% 확률로는, 가장 멀어지는 방향(정렬 결과의 맨 앞) 하나만 배열 맨 뒤로 옮겨 스택 맨 위(다음 pop
+    // 대상)에 오게 한다. 나머지 방향들의 상대적 순서는 그대로 유지되므로, 전체 우선순위를 뒤집는 게 아니라
+    // "이번 한 스텝만 일부러 멀어지는 방향 노드를 스택에 얹어 먼저 시도"하는 효과만 준다.
     private Vector2Int[] OrderDirectionsAwayFromGoal(Vector2Int from, Vector2Int goal)
     {
-        return ShuffleDirections()
+        var ordered = ShuffleDirections()
             .OrderByDescending(d => ManhattanDistance(from + d, goal))
             .ToArray();
+
+        if (UnityEngine.Random.value < 0.1f) // 10% 확률
+        {
+            Vector2Int awayDir = ordered[0]; // 가장 멀어지는 방향
+            var result = new Vector2Int[ordered.Length];
+            System.Array.Copy(ordered, 1, result, 0, ordered.Length - 1); // 나머지는 원래 순서 그대로
+            result[result.Length - 1] = awayDir;                         // 맨 뒤 = 스택 맨 위 = 다음 pop 대상
+            return result;
+        }
+
+        return ordered;
     }
 
     // FourDirections를 무작위로 섞은 새 배열로 반환한다(원본은 그대로 둠).
