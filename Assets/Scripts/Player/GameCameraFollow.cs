@@ -10,7 +10,7 @@ public class GameCameraFollow : MonoBehaviour
 
     [Header("추적 방식")]
     [Tooltip("값이 작을수록 카메라가 더 빠르게(딱 붙어서) 따라간다")]
-    public float smoothTime = 0.15f;
+    public float smoothTime = 0.05f;
     public Vector2 offset = Vector2.zero;
 
     [Header("피격 카메라 흔들림 (DOTween Punch)")]
@@ -76,11 +76,14 @@ public class GameCameraFollow : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (target == null)
-            return;
+        if (target == null) return;
 
         Vector3 desired = new Vector3(target.position.x + offset.x, target.position.y + offset.y, fixedZ);
         currentFollowPos = Vector3.SmoothDamp(currentFollowPos, desired, ref velocity, smoothTime);
+
+        // 픽셀 그리드 스냅은 카메라에 붙어있는 PixelPerfectCamera 컴포넌트가 렌더링 단계에서
+        // 이미 처리한다. 여기서 또 Mathf.Round로 수동 스냅하면 두 스냅이 겹쳐(pixelRatio만큼
+        // 증폭되어) 카메라가 움직일 때마다 계단식으로 튀어 흔들리는 것처럼 보이는 원인이 된다.
         transform.position = currentFollowPos + shakeOffset;
     }
 
