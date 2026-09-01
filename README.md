@@ -1,7 +1,7 @@
 # JCON
 
 본 프로젝트는 **JCON에서 진행한 팀 프로젝트**로,
-**Unity엔진기반의 뱀서라이크(Vampire Survivors-like) 장르게임**입니다.
+**Unity기반의 뱀서라이크(Vampire Survivors-like) 장르게임**입니다.
 
 ---
 
